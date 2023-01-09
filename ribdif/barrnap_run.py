@@ -2,6 +2,7 @@
 
 import multiprocessing
 import subprocess
+from pathlib import Path
 
 
 # Spawning the shell call
