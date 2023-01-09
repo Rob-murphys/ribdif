@@ -55,7 +55,7 @@ def parse_args():
                         action = "store_true")
     
     parser.add_argument("-i", dest = "id",
-                        help = "Identity to cluster amplicons at if not using the deafult 100%. e.g. .99. Does not cluster at the genome level, so beware",
+                        help = "Identity to cluster amplicons at if not using the deafult 100%%. e.g. .99. Does not cluster at the genome level, so beware",
                         default = 1)
     
     parser.add_argument("-t", dest = "threads",
