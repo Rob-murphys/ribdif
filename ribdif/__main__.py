@@ -158,7 +158,7 @@ def main():
     
     print(f"\n#== RibDif2 is running on: {args.genus} ==#\n\n")
     
-    genus, primerDf, outdir = arg_handling(args, workingDir) # handeling arguments
+    genus, primerDf, outdir = arg_handling(args, workingDir) # handling arguments
     
     Ncpu = os.cpu_count()
 
@@ -178,7 +178,7 @@ def main():
         barrnap_run.barnap_call(outdir)
         with multiprocessing.Pool(Ncpu) as pool:
             all_RNA = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.rRNA'))]
-            pool.map(barrnap_run.barrnap_get, all_RNA)
+            pool.map(barrnap_run.barrnap_split, all_RNA)
     else:
         pass
         # in silico PCR
