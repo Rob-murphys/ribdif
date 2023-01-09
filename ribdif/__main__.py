@@ -109,7 +109,7 @@ def arg_handling(args, workingDir):
             print(f"{genus} folder does not exist, ignoring clobber request/n/n")
             pass
     elif Path(f"{outdir}").is_dir(): # catch if genus output already exists and clobber was not used
-       raise Exception(f"{outdir} folder already exists. Run again with -c/--clobber or set another output directory/n/n")
+       raise Exception(f"/n/n{outdir} folder already exists. Run again with -c/--clobber or set another output directory/n/n")
     
     return genus, primerDf, outdir
 
