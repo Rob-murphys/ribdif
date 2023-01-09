@@ -3,14 +3,15 @@
 import multiprocessing
 import subprocess
 from pathlib import Path
+import shlex
 
 
 # Spawning the shell call
 def call_proc(infile):
     # Building the command
-    command = f"barrnap --kingdom bac --quiet --threads 1 --reject 0.90 -o {infile}.rRNA {infile}"
+    command = f"barrnap --kingdom bac --quiet --threads 1 --reject 0.90 -outseq {infile}.rRNA {infile}"
     # Passing the command to shell piping the stdout and stderr
-    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()
     return (out, err)
 
