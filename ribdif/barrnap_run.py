@@ -17,16 +17,19 @@ def call_proc(infile):
 
 # Multithreading the barrnap calls
 def barnap_call(outdir):
-    #std = []
+    print("\n\nRunning barrnap on downloaded sequences")
     Ncpu = multiprocessing.cpu_count()
     with multiprocessing.Pool(Ncpu) as pool: # spawn the pool
         all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.fna'))]
         pool.map(call_proc, all_fna)
     #pool.join() # The pool will close and wait for each running task to complete
-    
-# =============================================================================
-#     with open("barrnap.log", "w") as f_out:
-#         f_out.write(std)
-# =============================================================================
+
+def barrnap_get(RNA):
+    with open(RNA, "r") as f_in, open(f"{RNA}.16S", "w") as f_out:
+        for line in f_in.readlines():
+            if "16S" in line:
+                f_out.write(line.strip())
+                f_out.write(next(line.strip()))
+                
     
 

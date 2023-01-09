@@ -64,7 +64,7 @@ def parse_args():
     return parser.parse_args()
 
 def arg_handling(args, workingDir):
-    print("handeling arguments")
+    print("Parsing arguments:\n\n")
     #Checking if user is running on a species
     if " " in args.genus: # checking is there is a space in genus/species name
         print(f"Detected species {args.genus.split(' ')[1]}.\n\n")
@@ -72,7 +72,7 @@ def arg_handling(args, workingDir):
     else:
         genus = args.genus
 
-    print("looking at primers")
+
     # Parsing the primers argument
     if args.primers == "False":
         primer_path = workingDir.parent
@@ -80,7 +80,7 @@ def arg_handling(args, workingDir):
     else:
         primer_file = args.primers
         
-    print("reading primers")
+
     # Check primer file exists and is not empty
     primerDf = 0
     if Path(f"{primer_file}").is_file():
@@ -110,7 +110,8 @@ def arg_handling(args, workingDir):
             pass
     elif Path(f"{outdir}").is_dir(): # catch if genus output already exists and clobber was not used
        raise Exception(f"/n/n{outdir} folder already exists. Run again with -c/--clobber or set another output directory/n/n")
-    
+       
+    print("All arguments resolved\n\n")
     return genus, primerDf, outdir
 
 # Un gzip the downloaded NCBI genomes
@@ -121,6 +122,7 @@ def decompress(file_path):
 
 # Remove unwanted characters from anywhere is file (should only be in fasta headers)
 def modify(file_path):
+    print("\n\nModifying fasta headers.\n\n")
     # Open and read the contents of the file
     with open(file_path, "r") as f_in:
         contents = f_in.read()
@@ -157,13 +159,12 @@ def main():
     
     print(f"\n#== RibDif2 is running on: {args.genus} ==#\n\n")
     
-    print("preparing to handel arguments")
     genus, primerDf, outdir = arg_handling(args, workingDir) # handeling arguments
     
     print(outdir)
     print(genus)
     Ncpu = os.cpu_count()
-    print("downloading genomes")
+
     ngd_download.genome_download(genus = genus, outdir = outdir, threads = Ncpu, frag = args.frag) # downloading requierd genomes
     
     
@@ -175,8 +176,15 @@ def main():
     with multiprocessing.Pool(Ncpu) as pool:
         all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.fna'))]
         pool.map(modify, all_fna)
-    
-    barrnap_run.barnap_call(outdir)
+        
+    if args.primers == "False":
+        barrnap_run.barnap_call(outdir)
+        with multiprocessing.Pool(Ncpu):
+            all_RNA = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.rRNA'))]
+        barrnap_run.barrnap_get(barrnap_run.barrnap_get, all_RNA)
+    else:
+        pass
+        # in silico PCR
 
 
 if __name__ == '__main__':
