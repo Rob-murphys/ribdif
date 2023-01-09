@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ribDif"
-version = "1.0.2"
+version = "1.0.3"
 authors = [
   { name="Robert Murphy", email="Robert.murphy@bio.ku.dk" },
 ]

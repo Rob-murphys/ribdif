@@ -12,8 +12,8 @@ import argparse
 import os
 import pandas as pd
 from pathlib import Path
-from ribdif import ngd_download
-from ribdif import barrnap_run
+from ngd_download
+from barrnap_run
 import shutil
 import gzip
 import multiprocessing
