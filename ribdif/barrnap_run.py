@@ -20,10 +20,12 @@ def barnap_call(outdir):
     Ncpu = multiprocessing.cpu_count()
     with multiprocessing.Pool(Ncpu) as pool: # spawn the pool
         all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.fna'))]
-        std.append(pool.apply_async(call_proc, all_fna))
+        pool.map(call_proc, all_fna)
     pool.join() # The pool will close and wait for each running task to complete
     
-    with open("barrnap.log", "w") as f_out:
-        f_out.write(std)
+# =============================================================================
+#     with open("barrnap.log", "w") as f_out:
+#         f_out.write(std)
+# =============================================================================
     
 
