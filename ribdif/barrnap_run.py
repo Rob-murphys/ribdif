@@ -26,8 +26,8 @@ def barnap_call(outdir):
 
 def barrnap_get(RNA):
     with open(RNA, "r") as f_in, open(f"{RNA}.16S", "w") as f_out:
-        for line in f_in.readlines():
-            if "16S" in line:
+        for line in f_in:
+            if line.startswith(">16S_rRNA"):
                 f_out.write(line.strip())
                 f_out.write(next(line.strip()))
                 

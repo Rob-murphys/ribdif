@@ -92,14 +92,14 @@ def arg_handling(args, workingDir):
     elif Path(f"{primer_file}").is_file() == False: # If it does not exist then raise this exception
         raise Exception(f"Error: {primer_file} does not exist")
     
-    print("looking at outdir")
+
     # Checking if user provided own outdir and if not setting to RibDif directory
     if args.outdir == "False":
         outdir = Path(f"{workingDir.parent}/results/{genus}")
     else:
         outdir = Path(args.outdir)
     
-    print("clobber resolution")
+
     # Resolving clobber argument
     if args.clobber == True:
         print(f"Removing old run of {genus}" )
@@ -111,7 +111,7 @@ def arg_handling(args, workingDir):
     elif Path(f"{outdir}").is_dir(): # catch if genus output already exists and clobber was not used
        raise Exception(f"/n/n{outdir} folder already exists. Run again with -c/--clobber or set another output directory/n/n")
        
-    print("All arguments resolved\n\n")
+    print("\n\nAll arguments resolved\n\n")
     return genus, primerDf, outdir
 
 # Un gzip the downloaded NCBI genomes
@@ -122,7 +122,6 @@ def decompress(file_path):
 
 # Remove unwanted characters from anywhere is file (should only be in fasta headers)
 def modify(file_path):
-    print("\n\nModifying fasta headers.\n\n")
     # Open and read the contents of the file
     with open(file_path, "r") as f_in:
         contents = f_in.read()
@@ -161,8 +160,6 @@ def main():
     
     genus, primerDf, outdir = arg_handling(args, workingDir) # handeling arguments
     
-    print(outdir)
-    print(genus)
     Ncpu = os.cpu_count()
 
     ngd_download.genome_download(genus = genus, outdir = outdir, threads = Ncpu, frag = args.frag) # downloading requierd genomes
@@ -172,16 +169,16 @@ def main():
         all_gz = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.gz'))]# Recursively search the directory for .gz files and convert path to string sotring in a list
         pool.map(decompress, all_gz)
     
-
+    print("\n\nModifying fasta headers.\n\n")
     with multiprocessing.Pool(Ncpu) as pool:
         all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.fna'))]
         pool.map(modify, all_fna)
         
     if args.primers == "False":
         barrnap_run.barnap_call(outdir)
-        with multiprocessing.Pool(Ncpu):
+        with multiprocessing.Pool(Ncpu) as pool:
             all_RNA = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.rRNA'))]
-        barrnap_run.barrnap_get(barrnap_run.barrnap_get, all_RNA)
+            pool.map(barrnap_run.barrnap_get, all_RNA)
     else:
         pass
         # in silico PCR
