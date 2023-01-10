@@ -31,9 +31,3 @@ def genome_download(genus, outdir, threads, frag):
         print(f"\n\n{count} genomes of {genus} were downloaded")
     else:
         raise Exception(f"Download failed because {genus} is invalid or there are no records of the requested type in NCBI\n\n")
-
-
-
-    
-
-
