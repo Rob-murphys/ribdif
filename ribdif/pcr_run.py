@@ -11,10 +11,11 @@ def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir):
     command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -r -m -i > {outdir}/amplicons/{genus}-{name}.summary 2> {outdir}/amplicons/{genus}-{name}.temp.amplicons"
     # Passing the command to shell piping the stdout and stderr
     #with open("in_silico_pcr.out", "w") as std_out, open("in_silico_pcr.err", "w") as std_err:
-    p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = p.communicate()
-    print(out)
-    print(err)
+    p = subprocess.run(shlex.split(command), capture_output = True)
+    out, err = p.stdout. p.stderr
+    with open(f"{outdir}/amplicons/{genus}-{name}.summary", "w") as f_std, open(f"{outdir}/amplicons/{genus}-{name}.temp.amplicons", "w") as f_err:
+        f_std.write(out)
+        f_err.write(err)
     return (out, err)
 
 # Multithreading the in silico pcr calls
