@@ -101,7 +101,7 @@ def arg_handling(args, workingDir):
         try:
             shutil.rmtree(Path(f"{outdir}")) # Remove genus and all subdirectories
         except FileNotFoundError: # catch if directory not found
-            print(f"{genus} folder does not exist, ignoring clobber request/n/n")
+            print(f"{genus} folder does not exist, ignoring clobber request")
             pass
     elif Path(f"{outdir}").is_dir(): # catch if genus output already exists and clobber was not used
        raise Exception(f"/n/n{outdir} folder already exists. Run again with -c/--clobber or set another output directory/n/n")
@@ -189,9 +189,9 @@ def main():
                 
             """Do ANI call here"""
         infile = f"{outdir}/full/{genus}.16S"
-        pcr_run.call_proc_pcr(infile, outdir, genus, primer_file)
+        pcr_run.pcr_call(infile, outdir, genus, primer_file)
     else:
-        pcr_run.pcr_call(outdir, genus, primer_file)
+        pcr_run.pcr_parallel_call(outdir, genus, primer_file)
 
 
 if __name__ == '__main__':

@@ -3,7 +3,6 @@ import multiprocessing
 import subprocess
 from pathlib import Path
 import shlex
-import pandas as pd
 
 
 # Spawning the shell call
@@ -28,11 +27,11 @@ def pcr_parallel_call(outdir, genus, primer_file):
                 pool.apply(call_proc_pcr, args = (all_fna, outdir, genus, name, fwd, rvs))
     return
 
-def pcr_call(outdir, genus, primer_file):
+def pcr_call(infile, outdir, genus, primer_file):
     print("\n\nRunning barrnap on downloaded sequences")
     with open(primer_file, "r") as f_primer:
         for primer in f_primer:
             name, fwd, rvs = primer.split("\t")
-            all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.fna'))] # generate list of files ending in .fna
-            call_proc_pcr(all_fna, outdir, genus, name, fwd, rvs)
+            call_proc_pcr(infile, outdir, genus, name, fwd, rvs)
+    return
 
