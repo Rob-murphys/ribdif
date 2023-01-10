@@ -190,8 +190,10 @@ def main():
             """Do ANI call here"""
             
         infile = f"{outdir}/full/{genus}.16S"
+        print("default primers")
         pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
     else:
+        print("custom primers")
         pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir)
 
 

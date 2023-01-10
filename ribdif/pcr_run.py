@@ -9,8 +9,8 @@ import shlex
 def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir):
     # Building the command
     command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -r -m -i > {outdir}/amplicons/{genus}-{name}.summary 2> {outdir}/amplicons/{genus}-{name}.temp.amplicons"
+    print(command)
     # Passing the command to shell piping the stdout and stderr
-    #with open("in_silico_pcr.out", "w") as std_out, open("in_silico_pcr.err", "w") as std_err:
     with open(f"{outdir}/amplicons/{genus}-{name}.summary", "w") as f_std, open(f"{outdir}/amplicons/{genus}-{name}.temp.amplicons", "w") as f_err:
         subprocess.run(shlex.split(command), stdout = f_std, stderr = f_err)
     return

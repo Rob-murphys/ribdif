@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-
+"""
+To add:
+    When a barrnap result file ends up empty(or just no 16S maybe?) take note and war then user to check the barrnap logs and write to the logs which file had no 16S in it
+"""
 import multiprocessing
 import subprocess
 from pathlib import Path
@@ -11,9 +14,9 @@ def call_proc_barrnap(infile):
     # Building the command
     command = f"barrnap --kingdom bac --quiet --threads 1 --reject 0.90 -outseq {infile}.rRNA {infile}"
     # Passing the command to shell piping the stdout and stderr
-    p = subprocess.run(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = p.communicate()
+    subprocess.run(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return
+
 # Multithreading the barrnap calls
 def barnap_call(outdir):
     print("\n\nRunning barrnap on downloaded sequences")
