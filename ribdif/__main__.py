@@ -10,14 +10,15 @@ Created under GPL-3.0 license
 # Importing requierd libraries
 import argparse
 import os
-import pandas as pd
 from pathlib import Path
-import ngd_download
-import barrnap_run
 import shutil
 import gzip
 import multiprocessing
 import re
+
+import ngd_download
+import barrnap_run
+import pcr_run
 
 
 
@@ -79,16 +80,10 @@ def arg_handling(args, workingDir):
         primer_file = Path(f"{primer_path}/docs/default.primers")
     else:
         primer_file = args.primers
-        
-
     # Check primer file exists and is not empty
-    primerDf = 0
-    if Path(f"{primer_file}").is_file():
-        try:
-            primerDf = pd.read_table(primer_file, header = None)
-        except pd.errors.EmptyDataError: # if it exists but is empty they exit with this error message
-            print(f"Error: The provided primer file is empty\n{primer_file}")
-        #print(primerDf)
+    if Path(f"{primer_file}").is_file() and os.stat(f"{primer_file}").st_size == 0:
+        raise Exception(f"Error: The provided primer file is empty.\n{primer_file}\nPlease provide a populated primer file")
+
     elif Path(f"{primer_file}").is_file() == False: # If it does not exist then raise this exception
         raise Exception(f"Error: {primer_file} does not exist")
     
@@ -112,13 +107,14 @@ def arg_handling(args, workingDir):
        raise Exception(f"/n/n{outdir} folder already exists. Run again with -c/--clobber or set another output directory/n/n")
        
     print("\n\nAll arguments resolved\n\n")
-    return genus, primerDf, outdir
+    return genus, primer_file, outdir
 
 # Un gzip the downloaded NCBI genomes
 def decompress(file_path):
     # Open the .gz file and decompress it
     with gzip.open(file_path, "rb") as f_in, open(file_path[:-3], "wb") as f_out:
-        shutil.copyfileobj(f_in, f_out) # copy 
+        shutil.copyfileobj(f_in, f_out) # copy
+    return
 
 # Remove unwanted characters from anywhere is file (should only be in fasta headers)
 def modify(file_path):
@@ -133,6 +129,7 @@ def modify(file_path):
     # Write the modified contents back to file
     with open(file_path, "w") as f_out:
         f_out.write(contents)
+    return
 
 # =============================================================================
 # def modify2(file_path):
@@ -158,7 +155,7 @@ def main():
     
     print(f"\n#== RibDif2 is running on: {args.genus} ==#\n\n")
     
-    genus, primerDf, outdir = arg_handling(args, workingDir) # handling arguments
+    genus, primer_file, outdir = arg_handling(args, workingDir) # handling arguments
     
     Ncpu = os.cpu_count()
 
@@ -173,15 +170,28 @@ def main():
     with multiprocessing.Pool(Ncpu) as pool:
         all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.fna'))]
         pool.map(modify, all_fna)
-        
+    
+    # If using default primers call barrnap
     if args.primers == "False":
         barrnap_run.barnap_call(outdir)
+        
+        #processing barrnap output > fishing out 16S sequences
         with multiprocessing.Pool(Ncpu) as pool:
             all_RNA = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.rRNA'))]
-            pool.map(barrnap_run.barrnap_split, all_RNA)
+            pool.map(barrnap_run.barrnap_process, all_RNA)
+        
+        barrnap_run.barrnap_conc(genus, outdir) # concatinate all 16S to one file
+        
+        if args.ANI:
+            with multiprocessing.Pool(Ncpu) as pool:
+                all_16S = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.16S'))]
+                pool.map(barrnap_run.barrnap_split, all_16S)
+                
+            """Do ANI call here"""
+        infile = f"{outdir}/full/{genus}.16S"
+        pcr_run.call_proc_pcr(infile, outdir, genus, primer_file)
     else:
-        pass
-        # in silico PCR
+        pcr_run.pcr_call(outdir, genus, primer_file)
 
 
 if __name__ == '__main__':
