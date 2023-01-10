@@ -8,8 +8,7 @@ import shlex
 # Spawning the shell call
 def call_proc_pcr(infile, outdir, genus, name, fwd, rvs):
     # Building the command
-    command = f"in_silico_PCR.pl -s -s {fwd} -b {rvs} -r -m -i > {outdir}/amplicons/{genus}-{name}.summary 2> {outdir}/amplicons/{genus}-{name}.temp.amplicons"
-    #command = f"in_silico_PCR.pl -s $genus/full/$genus.16S -a $fwd    -b $rev -r -m -i > $genus/amplicons/$genus-$name.summary 2> $genus/amplicons/$genus-$name.temp.amplicons"
+    command = f"perl in_silico_PCR.pl -s -s {fwd} -b {rvs} -r -m -i > {outdir}/amplicons/{genus}-{name}.summary 2> {outdir}/amplicons/{genus}-{name}.temp.amplicons"
     # Passing the command to shell piping the stdout and stderr
     p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()
