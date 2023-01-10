@@ -2,6 +2,7 @@
 import multiprocessing
 import subprocess
 from pathlib import Path
+from itertools import repeat
 import shlex
 
 
@@ -26,7 +27,7 @@ def pcr_parallel_call(outdir, genus, primer_file, workingDir):
             name, fwd, rvs = primer.split("\t")
             with multiprocessing.Pool(Ncpu) as pool: # spawn the pool
                 all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.fna'))] # generate list of files ending in .fna
-                pool.apply(call_proc_pcr, args = (all_fna, outdir, genus, name, fwd, rvs, workingDir))
+                pool.starmap(call_proc_pcr, zip(all_fna, repeat(outdir), repeat(genus), repeat(name), repeat(fwd), repeat(rvs), repeat(workingDir)))
     return
 
 def pcr_call(infile, outdir, genus, primer_file, workingDir):
