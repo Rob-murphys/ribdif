@@ -194,7 +194,13 @@ def main():
         pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
     else:
         print("custom primers")
-        pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir)
+        with open(f"{outdir}/genbank/bacteria/{genus}_total.fna", "w") as f_out:
+            for file in all_fna:
+                with open(file, "r") as f_in:
+                    f_out.write(f_in.read())
+        infile = f"{outdir}/genbank/bacteria/{genus}_total.fna"
+        pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
+        #pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir)
         pcr_run.pcr_cleaner(outdir, primer_file, genus)
 
 

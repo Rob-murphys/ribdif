@@ -64,5 +64,5 @@ def pcr_cleaner(outdir, primer_file, genus):
                             f_sum.write("\n".join(lines[1:])) # and write everything from the second line
                     else:
                         with open(f"{summary_file}", "w") as f_sum:
-                            f_sum.write(f_in)
+                            f_sum.write(f_in.read())
             # Amplicon file
