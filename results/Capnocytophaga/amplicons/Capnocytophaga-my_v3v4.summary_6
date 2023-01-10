@@ -1,0 +1,5 @@
+AmpId	SequenceId	PositionInSequence	Length
+amp_1	CP012589.1_Capnocytophaga_sp._oral_taxon_323_strain_F0383_complete_genome	416975	460
+amp_2	CP012589.1_Capnocytophaga_sp._oral_taxon_323_strain_F0383_complete_genome	1391913	460	complement
+amp_3	CP012589.1_Capnocytophaga_sp._oral_taxon_323_strain_F0383_complete_genome	1501303	460	complement
+amp_4	CP012589.1_Capnocytophaga_sp._oral_taxon_323_strain_F0383_complete_genome	2496822	460
