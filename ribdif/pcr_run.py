@@ -8,7 +8,7 @@ import shlex
 # Spawning the shell call
 def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir):
     # Building the command
-    command = f"perl {workingDir}/in_silico_PCR.pl -s -s {fwd} -b {rvs} -r -m -i > {outdir}/amplicons/{genus}-{name}.summary 2> {outdir}/amplicons/{genus}-{name}.temp.amplicons"
+    command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -r -m -i > {outdir}/amplicons/{genus}-{name}.summary 2> {outdir}/amplicons/{genus}-{name}.temp.amplicons"
     # Passing the command to shell piping the stdout and stderr
     #with open("in_silico_pcr.out", "w") as std_out, open("in_silico_pcr.err", "w") as std_err:
     p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -19,6 +19,8 @@ def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir):
 
 # Multithreading the in silico pcr calls
 def pcr_parallel_call(outdir, genus, primer_file, workingDir):
+    amplicon_dir = Path(f"{outdir}/amplicons")
+    amplicon_dir.mkdir(parents = True, exist_ok = True)
     print("\n\nGenerating amplicon sequences")
     Ncpu = multiprocessing.cpu_count()
     with open(primer_file, "r") as f_primer:
@@ -30,6 +32,8 @@ def pcr_parallel_call(outdir, genus, primer_file, workingDir):
     return
 
 def pcr_call(infile, outdir, genus, primer_file, workingDir):
+    amplicon_dir = Path(f"{outdir}/amplicons")
+    amplicon_dir.mkdir(parents = True, exist_ok = True)
     print("\n\nGenerating amplicon sequences")
     with open(primer_file, "r") as f_primer:
         for primer in f_primer:
