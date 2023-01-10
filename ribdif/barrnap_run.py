@@ -13,6 +13,8 @@ def call_proc_barrnap(infile):
     # Passing the command to shell piping the stdout and stderr
     p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()
+    print(out)
+    print(err)
     return (out, err)
 
 # Multithreading the barrnap calls
