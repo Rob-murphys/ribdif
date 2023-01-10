@@ -188,10 +188,11 @@ def main():
                 pool.map(barrnap_run.barrnap_split, all_16S)
                 
             """Do ANI call here"""
+            
         infile = f"{outdir}/full/{genus}.16S"
-        pcr_run.pcr_call(infile, outdir, genus, primer_file)
+        pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
     else:
-        pcr_run.pcr_parallel_call(outdir, genus, primer_file)
+        pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir)
 
 
 if __name__ == '__main__':
