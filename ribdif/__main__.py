@@ -195,6 +195,7 @@ def main():
     else:
         print("custom primers")
         pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir)
+        pcr_run.pcr_cleaner(outdir, primer_file, genus)
 
 
 if __name__ == '__main__':

@@ -4,10 +4,12 @@ import subprocess
 from pathlib import Path
 from itertools import repeat
 import shlex
-
+"""
+Implement a producer and consumer setup for writing the pcr output whe multiprocessing: https://stackoverflow.com/questions/11196367/processing-single-file-from-multiple-processes
+"""
 
 # Spawning the shell call
-def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir):
+def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir, counter):
     # Building the command
     command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -r -m -i > {outdir}/amplicons/{genus}-{name}.summary 2> {outdir}/amplicons/{genus}-{name}.temp.amplicons"
     print(command)
@@ -27,16 +29,37 @@ def pcr_parallel_call(outdir, genus, primer_file, workingDir):
             name, fwd, rvs = primer.split("\t")
             with multiprocessing.Pool(Ncpu) as pool: # spawn the pool
                 all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.fna'))] # generate list of files ending in .fna
-                pool.starmap(call_proc_pcr, zip(all_fna, repeat(outdir), repeat(genus), repeat(name), repeat(fwd), repeat(rvs), repeat(workingDir)))
+                counter = range(len(all_fna))
+                pool.starmap(call_proc_pcr, zip(all_fna, repeat(outdir), repeat(genus), repeat(name), repeat(fwd), repeat(rvs), repeat(workingDir), counter))
     return
 
 def pcr_call(infile, outdir, genus, primer_file, workingDir):
+    counter = 0
     amplicon_dir = Path(f"{outdir}/amplicons")
     amplicon_dir.mkdir(parents = True, exist_ok = True)
     print("\n\nGenerating amplicon sequences")
     with open(primer_file, "r") as f_primer:
         for primer in f_primer:
             name, fwd, rvs = primer.split("\t")
-            call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir)
+            call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir, counter)
     return
 
+def pcr_cleaner(outdir, primer_file, genus):
+    amplicon_dir = Path(f"{outdir}/amplicons")
+    with open(primer_file, "r") as f_primer:
+        for primer in f_primer:
+            name = primer.split("\t")[0]
+            
+            # Summary file
+            summary_file = f"{amplicon_dir}/{genus}-{name}.summary"
+            all_sum = [str(i) for i in list(Path(f"{amplicon_dir}/").rglob('*{name}.summary*'))] # getting all summary files
+            for file in all_sum: # looping over them
+                with open(file, "r") as f_in: # open each one
+                    if Path(summary_file).is_file(): # if the master summary file already exists
+                        with open(f"{summary_file}", "a") as f_sum: # open it in append mode
+                            lines = f_in.splitlines()
+                            f_sum.write("\n".join(lines[1:])) # and write everything from the second line
+                    else:
+                        with open(f"{summary_file}", "w") as f_sum:
+                            f_sum.write(f_in)
+            # Amplicon file
