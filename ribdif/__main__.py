@@ -12,13 +12,13 @@ import argparse
 import os
 from pathlib import Path
 import shutil
-import gzip
 import multiprocessing
-import re
+
 
 import ngd_download
 import barrnap_run
 import pcr_run
+import utils
 
 
 
@@ -109,44 +109,6 @@ def arg_handling(args, workingDir):
     print("\n\nAll arguments resolved\n\n")
     return genus, primer_file, outdir
 
-# Un gzip the downloaded NCBI genomes
-def decompress(file_path):
-    # Open the .gz file and decompress it
-    with gzip.open(file_path, "rb") as f_in, open(file_path[:-3], "wb") as f_out:
-        shutil.copyfileobj(f_in, f_out) # copy
-    return
-
-# Remove unwanted characters from anywhere is file (should only be in fasta headers)
-def modify(file_path):
-    # Open and read the contents of the file
-    with open(file_path, "r") as f_in:
-        contents = f_in.read()
-        
-    # Preform substitutions for unwanted characters
-    contents = re.sub(r"[:,/()=#\x27]", "", contents)
-    contents = re.sub(r"[: ]", "_", contents)
-
-    # Write the modified contents back to file
-    with open(file_path, "w") as f_out:
-        f_out.write(contents)
-    return
-
-# =============================================================================
-# def modify2(file_path):
-#     # Open and read the contents of the file
-#     with open(file_path, "rb") as f_in:
-#         contentsB = f_in.read()
-#         
-#     # Preform substitutions for unwanted characters
-#     table = bytes().maketrans(b" ", b"_")
-#     contentsS = contentsB.translate(None, b":,/()=#").translate(table).decode()
-# 
-#     # Write the modified contents back to file
-#     with open(file_path, "w") as f_out:
-#         f_out.write(contentsS)
-# =============================================================================
-
-
 
 def main():
     workingDir = Path(os.path.realpath(os.path.dirname(__file__))) # getting the path the script is running from
@@ -155,53 +117,68 @@ def main():
     
     print(f"\n#== RibDif2 is running on: {args.genus} ==#\n\n")
     
-    genus, primer_file, outdir = arg_handling(args, workingDir) # handling arguments
+    #Argument handeling
+    genus, primer_file, outdir = arg_handling(args, workingDir)
     
+    # CPU count for multiporocessing
     Ncpu = os.cpu_count()
 
-    ngd_download.genome_download(genus = genus, outdir = outdir, threads = Ncpu, frag = args.frag) # downloading requierd genomes
+    # Download genomes from NCBI
+    ngd_download.genome_download(genus = genus, outdir = outdir, threads = Ncpu, frag = args.frag)
     
-    
+    # Un gziping fasta files
     with multiprocessing.Pool(Ncpu) as pool: # Create a multiprocessing pool with Ncpu workers
         all_gz = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.gz'))]# Recursively search the directory for .gz files and convert path to string sotring in a list
-        pool.map(decompress, all_gz)
+        pool.map(utils.decompress, all_gz)
     
+    # Remove unwanted characters from anywhere is file (should only be in fasta headers)
     print("\n\nModifying fasta headers.\n\n")
     with multiprocessing.Pool(Ncpu) as pool:
         all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.fna'))]
-        pool.map(modify, all_fna)
+        pool.map(utils.modify, all_fna)
     
     # If using default primers call barrnap
     if args.primers == "False":
         barrnap_run.barnap_call(outdir)
         
-        #processing barrnap output > fishing out 16S sequences
+        # Processing barrnap output > fishing out 16S sequences
         with multiprocessing.Pool(Ncpu) as pool:
             all_RNA = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.rRNA'))]
             pool.map(barrnap_run.barrnap_process, all_RNA)
         
         barrnap_run.barrnap_conc(genus, outdir) # concatinate all 16S to one file
         
+        #If ANI is true canculate
         if args.ANI:
+            # First need to split whole 16S sequences into seperate files
             with multiprocessing.Pool(Ncpu) as pool:
                 all_16S = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.16S'))]
                 pool.map(barrnap_run.barrnap_split, all_16S)
                 
             """Do ANI call here"""
-            
-        infile = f"{outdir}/full/{genus}.16S"
+        
+        # PCR for default primers
+        infile = f"{outdir}/full/{genus}.16S" # path to concatinated 16S barrnap output
         print("default primers")
-        pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
+        name =  pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
+        
+        # Rename amplicon fasta headers to origin contig
+        utils.amp_replace(outdir, genus, name)
     else:
+        # PCR for custom primers
         print("custom primers")
+        # Concatinate all downloaded genomes
         with open(f"{outdir}/genbank/bacteria/{genus}_total.fna", "w") as f_out:
             for file in all_fna:
                 with open(file, "r") as f_in:
                     f_out.write(f_in.read())
-        infile = f"{outdir}/genbank/bacteria/{genus}_total.fna"
+        infile = f"{outdir}/genbank/bacteria/{genus}_total.fna" # path to cocatinate genus genomes
         pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
+        
+        # Rename amplicon fasta headers to origin contig
+        utils.amp_replace(outdir, genus, name)
         #pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir)
-        pcr_run.pcr_cleaner(outdir, primer_file, genus)
+        #pcr_run.pcr_cleaner(outdir, primer_file, genus)
 
 
 if __name__ == '__main__':
