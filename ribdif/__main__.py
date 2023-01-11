@@ -39,7 +39,7 @@ def parse_args():
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-r", dest = "rerun",
                         help = "Rerun on same of different primers. Avoids having to redownload the same genomes",
-                        action = "store_true") # Action store true  will default to false when argument is not present
+                        action = "store_true") # Action store true will default to false when argument is not present
     
     group.add_argument("-c", dest = "clobber",
                         help="Delete previous run if present in output directory", 
@@ -73,6 +73,7 @@ def parse_args():
 
 def arg_handling(args, workingDir):
     print("Parsing arguments:\n\n")
+    
     #Checking if user is running on a species
     if " " in args.genus: # checking is there is a space in genus/species name
         print(f"Detected species {args.genus.split(' ')[1]}.\n\n")
@@ -103,7 +104,7 @@ def arg_handling(args, workingDir):
     
     if args.rerun == True:
         if Path(f"{outdir}").is_dir() == False:
-            print("No records of {genus} exists. Ignoring rerun request and downloading genomes")
+            print(f"No records of {genus} exists. Ignoring rerun request and downloading genomes")
             rerun = False
         else:
             print("Reusing previously downloaded {genus} genomes")
