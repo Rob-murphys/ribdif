@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 To add:
-    When a barrnap result file ends up empty(or just no 16S maybe?) take note and war then user to check the barrnap logs and write to the logs which file had no 16S in it
+    When a barrnap result file ends up empty(or just no 16S maybe?) take note and warn then user to check the barrnap logs and write to the logs which file had no 16S in it
 """
 import multiprocessing
 import subprocess
@@ -35,7 +35,7 @@ def barrnap_process(in_RNA):
             if line.startswith(">16S_rRNA"):
                 f_out.write(">" + line.strip().strip(">16S_rRNA::") + f"_{count}\n") # write the fasta header to file removing >16S_rRNA:: and adding a counter
                 f_out.write(next(f_in)) # write next line also
-        count += 1 # incriment count by one
+                count += 1 # incriment count by one
     return
 
 # Splits barrnap output sequences from barrnap_process output
