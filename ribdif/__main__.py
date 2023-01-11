@@ -35,9 +35,16 @@ def parse_args():
                         help = "Output direcotry path. Default is current directory",
                         default = "False")
     
-    parser.add_argument("-c", dest = "clobber",
-                        help="Delete previous run if present in output directory", 
+    # Mutually exclusive group of rerun and clobber
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-r", dest = "rerun",
+                        help = "Rerun on same of different primers. Avoids having to redownload the same genomes",
                         action = "store_true") # Action store true  will default to false when argument is not present
+    
+    group.add_argument("-c", dest = "clobber",
+                        help="Delete previous run if present in output directory", 
+                        action = "store_true")
+    
     
     parser.add_argument("-p", dest = "primers", 
                         help = "Path to custom primer-file, must be a tab seperated file with name, forward and reverse primers. See default.primers",
@@ -94,7 +101,14 @@ def arg_handling(args, workingDir):
     else:
         outdir = Path(args.outdir)
     
-
+    if args.rerun == True:
+        if Path(f"{outdir}").is_dir() == False:
+            print("No records of {genus} exists. Ignoring rerun request and downloading genomes")
+            rerun = False
+        else:
+            print("Reusing previously downloaded {genus} genomes")
+            rerun = True
+    
     # Resolving clobber argument
     if args.clobber == True:
         print(f"Removing old run of {genus}" )
@@ -103,11 +117,11 @@ def arg_handling(args, workingDir):
         except FileNotFoundError: # catch if directory not found
             print(f"{genus} folder does not exist, ignoring clobber request")
             pass
-    elif Path(f"{outdir}").is_dir(): # catch if genus output already exists and clobber was not used
-       raise Exception(f"/n/n{outdir} folder already exists. Run again with -c/--clobber or set another output directory/n/n")
+    elif Path(f"{outdir}").is_dir() and args.rerun == False: # catch if genus output already exists and rerun was not specified and clobber was not used
+       raise Exception(f"/n/n{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory/n/n")
        
     print("\n\nAll arguments resolved\n\n")
-    return genus, primer_file, outdir
+    return genus, primer_file, outdir, rerun
 
 
 def main():
@@ -118,26 +132,28 @@ def main():
     print(f"\n#== RibDif2 is running on: {args.genus} ==#\n\n")
     
     #Argument handeling
-    genus, primer_file, outdir = arg_handling(args, workingDir)
+    genus, primer_file, outdir, rerun = arg_handling(args, workingDir)
     
     # CPU count for multiporocessing
     Ncpu = os.cpu_count()
-
-    # Download genomes from NCBI
-    ngd_download.genome_download(genus = genus, outdir = outdir, threads = Ncpu, frag = args.frag)
     
-    # Un gziping fasta files
-    with multiprocessing.Pool(Ncpu) as pool: # Create a multiprocessing pool with Ncpu workers
-        all_gz = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.gz'))]# Recursively search the directory for .gz files and convert path to string sotring in a list
-        pool.map(utils.decompress, all_gz)
+    # If rerun is false, download and handle genomes from NCBI
+    if rerun == False:
+        # Download genomes from NCBI
+        ngd_download.genome_download(genus = genus, outdir = outdir, threads = Ncpu, frag = args.frag)
     
-    # Remove unwanted characters from anywhere is file (should only be in fasta headers)
-    print("\n\nModifying fasta headers.\n\n")
-    with multiprocessing.Pool(Ncpu) as pool:
-        all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.fna'))]
-        pool.map(utils.modify, all_fna)
+        # Un gziping fasta files
+        with multiprocessing.Pool(Ncpu) as pool: # Create a multiprocessing pool with Ncpu workers
+            all_gz = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.gz'))]# Recursively search the directory for .gz files and convert path to string sotring in a list
+            pool.map(utils.decompress, all_gz)
+        
+        # Remove unwanted characters from anywhere is file (should only be in fasta headers)
+        print("\n\nModifying fasta headers.\n\n")
+        with multiprocessing.Pool(Ncpu) as pool:
+            all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.fna'))]
+            pool.map(utils.modify, all_fna)
     
-    # If using default primers call barrnap
+    # If using default primers call barrnap and rerun is false - this assume
     if args.primers == "False":
         barrnap_run.barnap_call(outdir)
         
@@ -148,7 +164,7 @@ def main():
         
         barrnap_run.barrnap_conc(genus, outdir) # concatinate all 16S to one file
         
-        #If ANI is true canculate
+        #If ANI is true calculate
         if args.ANI:
             # First need to split whole 16S sequences into seperate files
             with multiprocessing.Pool(Ncpu) as pool:
