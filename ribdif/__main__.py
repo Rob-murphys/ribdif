@@ -21,6 +21,7 @@ import barrnap_run
 import pcr_run
 import pyani_run
 import utils
+import msa_run
 
 
 
@@ -190,6 +191,11 @@ def main():
             pyani_run.pyani_call(outdir)
         else:
             print("Skipping detailed intra-genomic analysis and ANI (if needed, use -a/--ANI).\n\n")
+        
+        #  ALignment of full 16S genes recoverd from barrnap
+        print("Alligning full-length 16S genes within genomes with muscle and building trees with fastree.\n\n")
+        msa_run.muscle_call(outdir)
+        
         
         # PCR for default primers
         infile = f"{outdir}/full/{genus}.16S" # path to concatinated 16S barrnap output
