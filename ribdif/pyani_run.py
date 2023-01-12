@@ -3,7 +3,7 @@ from glob import glob
 import multiprocessing
 import subprocess
 import shlex
-from pathling import Path
+from pathlib import Path
 
 # Spawning the shell call
 def call_proc_pyani(indir):
