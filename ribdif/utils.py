@@ -51,5 +51,4 @@ def amp_replace(outdir, genus, name):
                amp = line.strip().strip(">")
                line = line.replace(amp, dict_sum[amp] + f"_{amp.strip('amp_')}")
            f_out.write(line)
-           
-           
+    return
