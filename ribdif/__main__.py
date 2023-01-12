@@ -155,13 +155,13 @@ def main():
     
         # Un gziping fasta files
         with multiprocessing.Pool(Ncpu) as pool: # Create a multiprocessing pool with Ncpu workers
-            all_gz = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.gz'))]# Recursively search the directory for .gz files and convert path to string sotring in a list
+            all_gz = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.gz', depth = 1))]# Recursively search the directory for .gz files and convert path to string sotring in a list
             pool.map(utils.decompress, all_gz)
         
         # Remove unwanted characters from anywhere is file (should only be in fasta headers)
         print("\n\nModifying fasta headers.\n\n")
         with multiprocessing.Pool(Ncpu) as pool:
-            all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.fna'))]
+            all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.fna', depth = 1))]
             pool.map(utils.modify, all_fna)
             
         # Genome statistic summary
@@ -173,7 +173,7 @@ def main():
         
         # Processing barrnap output > fishing out 16S sequences
         with multiprocessing.Pool(Ncpu) as pool:
-            all_RNA = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.rRNA'))]
+            all_RNA = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.rRNA', depth = 1))]
             pool.map(barrnap_run.barrnap_process, all_RNA)
         
         barrnap_run.barrnap_conc(genus, outdir) # concatinate all 16S to one file
@@ -183,7 +183,7 @@ def main():
             
             # First need to split whole 16S sequences into seperate files
             with multiprocessing.Pool(Ncpu) as pool:
-                all_16S = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.16S'))]
+                all_16S = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.16S', depth = 1))]
                 pool.map(barrnap_run.barrnap_split, all_16S)
                
             # Call pyani
@@ -192,7 +192,7 @@ def main():
         else:
             print("Skipping detailed intra-genomic analysis and ANI (if needed, use -a/--ANI).\n\n")
         
-        #  ALignment of full 16S genes recoverd from barrnap
+        # ALignment of full 16S genes recoverd from barrnap
         print("Alligning full-length 16S genes within genomes with muscle and building trees with fastree.\n\n")
         msa_run.muscle_call(outdir)
         
