@@ -7,9 +7,9 @@ import shlex
 
 # Spawning the shell call
 def call_proc_muscle(infile):
-    outfile = str(Path(infile).stem)
+    outfile = str(Path(infile).parent / Path(infile).stem)
     # Building the command
-    command1 = f"'muscle -in {infile} -out {outfile}.16sAln -quiet" # Do I need to strip the alignement file of white space and commas?
+    command1 = f"muscle -align {infile} -output {outfile}.16sAln" # Do I need to strip the alignement file of white space and commas?
     command2 = f"fasttree -quiet -nopr -gtr -nt {outfile}.16sAln > {outfile}.16sTree"
     # Passing the command to shell piping the stdout and stderr
     subprocess.run(shlex.split(command1), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
