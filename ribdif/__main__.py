@@ -104,6 +104,7 @@ def arg_handling(args, workingDir):
     else:
         outdir = Path(args.outdir)
     
+    #Resolving rerun argument
     if args.rerun == True:
         if Path(f"{outdir}").is_dir() == False:
             print(f"No records of {genus} exists. Ignoring rerun request and downloading genomes")
@@ -137,6 +138,12 @@ def main():
     #Argument handeling
     genus, primer_file, outdir, rerun = arg_handling(args, workingDir)
     
+    print(genus)
+    print(primer_file)
+    print(outdir)
+    print(rerun)
+    print(args.ANI)
+    
     # CPU count for multiporocessing
     Ncpu = os.cpu_count()
     
@@ -160,6 +167,7 @@ def main():
     
     # If using default primers call barrnap and rerun is false - this assume
     if args.primers == "False":
+        print("Running barrnap on downloaded sequences\n\n")
         barrnap_run.barnap_call(outdir)
         
         # Processing barrnap output > fishing out 16S sequences
@@ -171,6 +179,7 @@ def main():
         
         #If ANI is true calculate
         if args.ANI:
+            
             # First need to split whole 16S sequences into seperate files
             with multiprocessing.Pool(Ncpu) as pool:
                 all_16S = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.16S'))]
@@ -189,6 +198,7 @@ def main():
         
         # Rename amplicon fasta headers to origin contig
         utils.amp_replace(outdir, genus, name)
+        
     else:
         # PCR for custom primers
         print("custom primers")
