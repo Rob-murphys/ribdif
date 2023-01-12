@@ -43,13 +43,13 @@ def decompress(file_path):
 
 # Rename amplicon fasta headers to origin contig
 def amp_replace(outdir, genus, name):
-    df_sum = pd.read_csv(f"{outdir}/amplicons/{genus}-{name}.summary", sep = "\t")
+    df_sum = pd.read_csv(f"{outdir}/amplicons/{genus}-{name}.summary", sep = "\t", header = None, names = ["AmpId", "SequenceId", "PositionInSequence", "Length", "Misc"])
     dict_sum = dict(zip(df_sum.AmpId, df_sum.SequenceId))
     with open (f"{outdir}/amplicons/{genus}-{name}.temp.amplicons", "r") as f_in, open(f"{outdir}/amplicons/{genus}-{name}.amplicons", "w") as f_out:
        for line in f_in:
            if ">amp" in line:
                amp = line.strip().strip(">")
-               line = line.replace(amp, dict_sum[amp])
+               line = line.replace(amp, dict_sum[amp] + f"_{amp.strip('amp_')}")
            f_out.write(line)
            
            
