@@ -155,7 +155,7 @@ def main():
         # Remove unwanted characters from anywhere is file (should only be in fasta headers)
         print("\n\nModifying fasta headers.\n\n")
         with multiprocessing.Pool(Ncpu) as pool:
-            all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('**/*.fna'))]
+            all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.fna'))]
             pool.map(utils.modify, all_fna)
             
         # Genome statistic summary
@@ -167,7 +167,7 @@ def main():
         
         # Processing barrnap output > fishing out 16S sequences
         with multiprocessing.Pool(Ncpu) as pool:
-            all_RNA = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('**/*.rRNA'))]
+            all_RNA = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.rRNA'))]
             pool.map(barrnap_run.barrnap_process, all_RNA)
         
         barrnap_run.barrnap_conc(genus, outdir) # concatinate all 16S to one file
@@ -177,7 +177,7 @@ def main():
             
             # First need to split whole 16S sequences into seperate files
             with multiprocessing.Pool(Ncpu) as pool:
-                all_16S = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('**/*.16S'))]
+                all_16S = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.16S'))]
                 pool.map(barrnap_run.barrnap_split, all_16S)
                
             # Call pyani
@@ -203,7 +203,7 @@ def main():
         # PCR for custom primers
         print("custom primers")
         # Concatinate all downloaded genomes
-        all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('**/**.fna'))]
+        all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.fna'))]
         with open(f"{outdir}/genbank/bacteria/{genus}_total.fna", "w") as f_out:
             for file in all_fna:
                 with open(file, "r") as f_in:

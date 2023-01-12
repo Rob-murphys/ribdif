@@ -21,7 +21,7 @@ def call_proc_barrnap(infile):
 def barnap_call(outdir):
     Ncpu = multiprocessing.cpu_count()
     with multiprocessing.Pool(Ncpu) as pool: # spawn the pool
-        all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('**/*.fna'))] # generate list of files ending in .rna
+        all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.fna'))] # generate list of files ending in .rna
         pool.map(call_proc_barrnap, all_fna)
     return
         
@@ -52,7 +52,7 @@ def barrnap_split(in_16S):
 
 # Concatinates fished out 16S barrnap output into a single file
 def barrnap_conc(genus, outdir):
-    all_16S = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('**/*.16S'))]
+    all_16S = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.16S'))]
     full_path = Path(f"{outdir}/full")
     full_path.mkdir(parents = True, exist_ok = True)
     with open(f"{full_path}/{genus}.16S", "w") as f_out:
