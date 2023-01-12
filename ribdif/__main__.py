@@ -15,9 +15,11 @@ import shutil
 import multiprocessing
 
 
+
 import ngd_download
 import barrnap_run
 import pcr_run
+import pyani_run
 import utils
 
 
@@ -107,7 +109,7 @@ def arg_handling(args, workingDir):
             print(f"No records of {genus} exists. Ignoring rerun request and downloading genomes")
             rerun = False
         else:
-            print("Reusing previously downloaded {genus} genomes")
+            print(f"Reusing previously downloaded {genus} genomes")
             rerun = True
     
     # Resolving clobber argument
@@ -153,6 +155,8 @@ def main():
         with multiprocessing.Pool(Ncpu) as pool:
             all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.fna'))]
             pool.map(utils.modify, all_fna)
+            
+        # Genome statistic summary
     
     # If using default primers call barrnap and rerun is false - this assume
     if args.primers == "False":
@@ -171,8 +175,12 @@ def main():
             with multiprocessing.Pool(Ncpu) as pool:
                 all_16S = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.16S'))]
                 pool.map(barrnap_run.barrnap_split, all_16S)
-                
-            """Do ANI call here"""
+               
+            # Call pyani
+            print("Calculating intra-genomic mismatches and ANI for each genome.\n\n")
+            pyani_run.pyani_call(outdir)
+        else:
+            print("Skipping detailed intra-genomic analysis and ANI (if needed, use -a/--ANI).\n\n")
         
         # PCR for default primers
         infile = f"{outdir}/full/{genus}.16S" # path to concatinated 16S barrnap output
@@ -185,12 +193,13 @@ def main():
         # PCR for custom primers
         print("custom primers")
         # Concatinate all downloaded genomes
+        all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.fna'))]
         with open(f"{outdir}/genbank/bacteria/{genus}_total.fna", "w") as f_out:
             for file in all_fna:
                 with open(file, "r") as f_in:
                     f_out.write(f_in.read())
         infile = f"{outdir}/genbank/bacteria/{genus}_total.fna" # path to cocatinate genus genomes
-        pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
+        name = pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
         
         # Rename amplicon fasta headers to origin contig
         utils.amp_replace(outdir, genus, name)
