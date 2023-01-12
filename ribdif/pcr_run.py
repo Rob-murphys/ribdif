@@ -43,7 +43,7 @@ def pcr_call(infile, outdir, genus, primer_file, workingDir):
     print("\n\nGenerating amplicon sequences")
     with open(primer_file, "r") as f_primer:
         for primer in f_primer:
-            name, fwd, rvs = primer.strip.split("\t")
+            name, fwd, rvs = primer.strip().split("\t")
             call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir)
     return name
 
