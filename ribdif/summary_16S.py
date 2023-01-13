@@ -42,13 +42,14 @@ def shannon_calc(alignment_path):
             
             return sum(divs)
 
-def summary_16S_run(indir, outdir, genus):
+def summary_16S_run(in_aln, outdir, genus):
     
+    indir = Path(in_aln).parent
     # Paths for all needed files
     mismatch_path   = f"{indir}/ani/ANIm_similarity_errors.tab"
-    alignment_path  = str(Path(indir) / Path(indir).stem) + ".16sAln"
-    tree_path       = str(Path(indir) / Path(indir).stem) + ".16STree"
-    pdf_out = str(Path(indir) / Path(indir).stem) + "_16S_div.pdf"
+    alignment_path = in_aln
+    tree_path = in_aln.strip(".16sAln") + ".16STree"
+    pdf_out = in_aln.strip(".16sAln") + "_16S_div.pdf"
     
     # Getting sequences name details from first record of the alignment fasta
     with open(alignment_path, "r") as f_in:
@@ -99,8 +100,8 @@ def summary_16S_run(indir, outdir, genus):
 def multiproc_sumamry(outdir, genus):
     Ncpu = multiprocessing.cpu_count()
     with multiprocessing.Pool(Ncpu) as pool:
-        all_genomes = [i for i in glob(f"{outdir}/genbank/bacteria/*")]
-        pool.starmap(summary_16S_run, zip(all_genomes, repeat(outdir), repeat(genus)))
+        all_aln = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.16sAln'))]
+        pool.starmap(summary_16S_run, zip(all_fna, repeat(outdir), repeat(genus)))
     return
 
         
