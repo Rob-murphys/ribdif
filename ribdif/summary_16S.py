@@ -48,8 +48,8 @@ def summary_16S_run(in_aln, outdir, genus):
     # Paths for all needed files
     mismatch_path   = f"{indir}/ani/ANIm_similarity_errors.tab"
     alignment_path = in_aln
-    tree_path = in_aln.strip(".16sAln") + ".16STree"
-    pdf_out = in_aln.strip(".16sAln") + "_16S_div.pdf"
+    tree_path = in_aln.replace(".16sAln", ".16STree")
+    pdf_out = in_aln.replace(".16sAln", "_16S_div.pdf")
     
     # Getting sequences name details from first record of the alignment fasta
     with open(alignment_path, "r") as f_in:
@@ -101,7 +101,7 @@ def multiproc_sumamry(outdir, genus):
     Ncpu = multiprocessing.cpu_count()
     with multiprocessing.Pool(Ncpu) as pool:
         all_aln = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.16sAln'))]
-        pool.starmap(summary_16S_run, zip(all_fna, repeat(outdir), repeat(genus)))
+        pool.starmap(summary_16S_run, zip(all_aln, repeat(outdir), repeat(genus)))
     return
 
         
