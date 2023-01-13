@@ -16,12 +16,14 @@ import multiprocessing
 
 
 
+
 import ngd_download
 import barrnap_run
 import pcr_run
 import pyani_run
 import utils
 import msa_run
+import summary_16S
 
 
 
@@ -159,7 +161,10 @@ def main():
             pool.map(utils.modify, all_fna)
             
         # Genome statistic summary
-    
+        with open(f"{outdir}/{genus}_summary,tsv", "w") as f_out:
+            f_out.write("GCF\tGenus\tSpecies\t#16S\tMean\tSD\tMin\tMax\tTotalDiv")
+        summary_16S.multiproc_sumamry(outdir)
+            
     # If using default primers call barrnap and rerun is false - this assume
     if args.primers == "False":
         print("Running barrnap on downloaded sequences\n\n")
