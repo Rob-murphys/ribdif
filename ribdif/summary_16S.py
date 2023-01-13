@@ -3,6 +3,7 @@
 from pathlib import Path
 import multiprocessing
 from glob import glob
+from itertools import repeat
 
 import numpy as np
 import pandas as pd
@@ -15,7 +16,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 def writer(outdir, genus, stats):
-    with open(f"{outdir}/{genus}_summary,tsv", "a") as f_app:
+    with open(f"{outdir}/{genus}_summary.tsv", "a") as f_app:
         f_app.write("\t".join(stats) + "\n")
 
 def plot_tree(tree, pdf_out):
@@ -41,7 +42,7 @@ def shannon_calc(alignment_path):
             
             return sum(divs)
 
-def summary_16S_run(indir, genus):
+def summary_16S_run(indir, outdir, genus):
     
     # Paths for all needed files
     mismatch_path   = f"{indir}/ani/ANIm_similarity_errors.tab"
@@ -83,23 +84,23 @@ def summary_16S_run(indir, genus):
             plot_tree(tree, pdf_out)
             
             stats = [GCF, genera, species, mean_mis, sd_mis, max_mis, min_mis, total_div]
-            writer(stats)
+            writer(stats, outdir, genus)
 
         else:
             mean_mis, sd_mis, max_mis, min_mis = (str(0), str(0), str(0), str(0))
             stats = [GCF, genera, species, mean_mis, sd_mis, max_mis, min_mis, total_div]
-            writer(stats)
+            writer(stats, outdir, genus)
     else:
         mean_mis, sd_mis, max_mis, min_mis = ("-", "-", "-", "-")
         stats = [GCF, genera, species, mean_mis, sd_mis, max_mis, min_mis, total_div]
-        writer(stats)
+        writer(stats, outdir, genus)
         
             
 def multiproc_sumamry(outdir, genus):
     Ncpu = multiprocessing.cpu_count()
     with multiprocessing.Pool(Ncpu) as pool:
         all_genomes = [i for i in glob(f"{outdir}/genbank/bacteria/*")]
-        pool.map(summary_16S_run, all_genomes)
+        pool.starmap(summary_16S_run, zip(all_genomes, repeat(genus), repeat(outdir)))
     return
 
         

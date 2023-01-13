@@ -161,9 +161,9 @@ def main():
             pool.map(utils.modify, all_fna)
             
         # Genome statistic summary
-        with open(f"{outdir}/{genus}_summary,tsv", "w") as f_out:
-            f_out.write("GCF\tGenus\tSpecies\t#16S\tMean\tSD\tMin\tMax\tTotalDiv")
-        summary_16S.multiproc_sumamry(outdir)
+        with open(f"{outdir}/{genus}_summary.tsv", "w") as f_out:
+            f_out.write("GCF\tGenus\tSpecies\t#16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
+        summary_16S.multiproc_sumamry(outdir, genus)
             
     # If using default primers call barrnap and rerun is false - this assume
     if args.primers == "False":
