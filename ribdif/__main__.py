@@ -160,10 +160,6 @@ def main():
             all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.fna'))]
             pool.map(utils.modify, all_fna)
             
-        # Genome statistic summary
-        with open(f"{outdir}/{genus}_summary.tsv", "w") as f_out:
-            f_out.write("GCF\tGenus\tSpecies\t#16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
-        summary_16S.multiproc_sumamry(outdir, genus)
             
     # If using default primers call barrnap and rerun is false - this assume
     if args.primers == "False":
@@ -195,6 +191,10 @@ def main():
         print("Alligning full-length 16S genes within genomes with muscle and building trees with fastree.\n\n")
         msa_run.muscle_call(outdir)
         
+        # Genome statistic summary
+        with open(f"{outdir}/{genus}_summary.tsv", "w") as f_out:
+            f_out.write("GCF\tGenus\tSpecies\t#16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
+        summary_16S.multiproc_sumamry(outdir, genus)
         
         # PCR for default primers
         infile = f"{outdir}/full/{genus}.16S" # path to concatinated 16S barrnap output

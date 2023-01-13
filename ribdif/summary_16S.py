@@ -100,7 +100,7 @@ def multiproc_sumamry(outdir, genus):
     Ncpu = multiprocessing.cpu_count()
     with multiprocessing.Pool(Ncpu) as pool:
         all_genomes = [i for i in glob(f"{outdir}/genbank/bacteria/*")]
-        pool.starmap(summary_16S_run, zip(all_genomes, repeat(genus), repeat(outdir)))
+        pool.starmap(summary_16S_run, zip(all_genomes, repeat(outdir), repeat(genus)))
     return
 
         
