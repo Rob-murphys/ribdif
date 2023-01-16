@@ -196,7 +196,7 @@ def main():
         
         # Running msa on concatinated 16S sequences
         if args.msa == True:
-            print("Alligning all 16S rRNA genes with Muscle and building tree with fasttree.\n")
+            print(f"Alligning all {genus} 16S rRNA genes with muscle and building tree with fasttree.\n")
             infile , outAln, outTree = f"{outdir}/full/{genus}.16S", f"{outdir}/full/{genus}.16sAln", f"{outdir}/full/{genus}.16sAln" # Asigning in and out files
             msa_run.muscle_call_single(infile, outAln, outTree)
         else:
@@ -204,10 +204,9 @@ def main():
             
         # PCR for default primers
         infile = f"{outdir}/full/{genus}.16S" # path to concatinated 16S barrnap output
-        name =  pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
+        names =  pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
         
-        # Rename amplicon fasta headers to origin contig
-        utils.amp_replace(outdir, genus, name)
+
         
 
     # PCR for custom primers   
@@ -221,23 +220,27 @@ def main():
                     
         
         infile = f"{outdir}/genbank/bacteria/{genus}_total.fna" # path to cocatinate genus genomes
-        name = pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
-        
-        # Rename amplicon fasta headers to origin contig
-        utils.amp_replace(outdir, genus, name)
+        names = pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
         #pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir, threads)
         #pcr_run.pcr_cleaner(outdir, primer_file, genus)
+    
+    for name in names:
+        # Rename amplicon fasta headers to origin contig
+        utils.amp_replace(outdir, genus, name)
+        
         
     # msa on all amplicons
     if args.msa == True:
-        print("Alligning all ampliconss with Muscle and building tree with fasttree.\n")
-        infile , outAln, outTree = f"{outdir}/amplicons/{genus}-{name}.amplicons", f"{outdir}/amplicons/{genus}-{name}.aln", f"{outdir}/amplicons/{genus}-{name}.tree" # Asigning in and out files
-        msa_run.muscle_call_single(infile, outAln, outTree)
+        print("Alligning all amplicons with Muscle and building tree with fasttree.\n")
+        for name in names:
+            infile , outAln, outTree = f"{outdir}/amplicons/{genus}-{name}.amplicons", f"{outdir}/amplicons/{genus}-{name}.aln", f"{outdir}/amplicons/{genus}-{name}.tree" # Asigning in and out files
+            msa_run.muscle_call_single(infile, outAln, outTree)
     else:
         print("Skipping alignments and trees generation for amplicons (if needed, use -m/--msa).\n\n")
     
     print ("Making unique clusters with vsearch.\n\n")
-    vsearch_run.vsearch_call(outdir, genus, name)
+    for name in names:
+        vsearch_run.vsearch_call(outdir, genus, name, args.id)
 
 
 if __name__ == '__main__':
