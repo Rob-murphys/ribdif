@@ -48,12 +48,18 @@ def summary_16S_run(in_aln, outdir, genus):
     # Paths for all needed files
     mismatch_path   = f"{indir}/ani/ANIm_similarity_errors.tab"
     alignment_path = in_aln
-    tree_path = in_aln.replace(".16sAln", ".16STree")
+    tree_path = in_aln.replace(".16sAln", ".16sTree")
     pdf_out = in_aln.replace(".16sAln", "_16S_div.pdf")
     
     # Getting sequences name details from first record of the alignment fasta
     with open(alignment_path, "r") as f_in:
-        splitname = f_in.readline().strip().split("_")
+        count_16S = 0
+        for value, line in enumerate(f_in):
+            if value == 0:
+                splitname = line.strip().split("_")
+            elif line.startswith(">"):
+                count_16S += 1
+        
     
     # Taking fasta header and getting important bits out
     GCF = splitname[0].strip(">")
@@ -84,17 +90,17 @@ def summary_16S_run(in_aln, outdir, genus):
             tree = Phylo.read(tree_path, "newick")
             plot_tree(tree, pdf_out)
             
-            stats = [GCF, genera, species, mean_mis, sd_mis, max_mis, min_mis, total_div]
-            writer(stats, outdir, genus)
+            stats = [GCF, genera, species,count_16S,  mean_mis, sd_mis, max_mis, min_mis, total_div]
+            writer(outdir, genus, stats)
 
         else:
             mean_mis, sd_mis, max_mis, min_mis = (str(0), str(0), str(0), str(0))
-            stats = [GCF, genera, species, mean_mis, sd_mis, max_mis, min_mis, total_div]
-            writer(stats, outdir, genus)
+            stats = [GCF, genera, species, count_16S, mean_mis, sd_mis, max_mis, min_mis, total_div]
+            writer(outdir, genus, stats)
     else:
         mean_mis, sd_mis, max_mis, min_mis = ("-", "-", "-", "-")
-        stats = [GCF, genera, species, mean_mis, sd_mis, max_mis, min_mis, total_div]
-        writer(stats, outdir, genus)
+        stats = [GCF, genera, species, count_16S, mean_mis, sd_mis, max_mis, min_mis, total_div]
+        writer(outdir, genus, stats)
         
             
 def multiproc_sumamry(outdir, genus):
