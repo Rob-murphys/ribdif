@@ -38,7 +38,7 @@ def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir): # removed 
 def pcr_call(infile, outdir, genus, primer_file, workingDir):
     amplicon_dir = Path(f"{outdir}/amplicons")
     amplicon_dir.mkdir(parents = True, exist_ok = True)
-    print("\n\nGenerating amplicon sequences")
+    print("#= Generating amplicon sequences =#\n\n")
     with open(primer_file, "r") as f_primer:
         for primer in f_primer:
             name, fwd, rvs = primer.strip().split("\t")

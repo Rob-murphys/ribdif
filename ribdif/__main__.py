@@ -78,7 +78,7 @@ def parse_args():
     return parser.parse_args()
 
 def arg_handling(args, workingDir):
-    print("Parsing arguments:\n\n")
+    print("#= Parsing arguments =#\n\n")
     
     #Checking if user is running on a species
     if " " in args.genus: # checking is there is a space in genus/species name
@@ -161,7 +161,7 @@ def main():
             
     # If using default primers call barrnap and rerun is false - this assume
     if args.primers == "False":
-        print("Running barrnap on downloaded sequences\n\n")
+        print("#= Running barrnap on downloaded sequences =#\n\n")
         barrnap_run.barnap_call(outdir, threads = args.threads)
         
         # Processing barrnap output > fishing out 16S sequences
@@ -174,7 +174,6 @@ def main():
         
         #If ANI is true calculate
         if args.ANI:
-            
             # First need to split whole 16S sequences into seperate files
             with multiprocessing.Pool(args.threads) as pool:
                 all_16S = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.16S'))]
@@ -201,7 +200,7 @@ def main():
             infile , outAln, outTree = f"{outdir}/full/{genus}.16S", f"{outdir}/full/{genus}.16sAln", f"{outdir}/full/{genus}.16sAln" # Asigning in and out files
             msa_run.muscle_call_single(infile, outAln, outTree)
         else:
-            print("Skipping alignments and tree generation (if needed, use -m/--msa).\n\n")
+            print("Skipping alignments and tree generation for 16S rRNA genes (if needed, use -m/--msa).\n\n")
             
         # PCR for default primers
         infile = f"{outdir}/full/{genus}.16S" # path to concatinated 16S barrnap output
@@ -219,6 +218,8 @@ def main():
             for file in all_fna:
                 with open(file, "r") as f_in:
                     f_out.write(f_in.read())
+                    
+        
         infile = f"{outdir}/genbank/bacteria/{genus}_total.fna" # path to cocatinate genus genomes
         name = pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
         
@@ -233,7 +234,7 @@ def main():
         infile , outAln, outTree = f"{outdir}/amplicons/{genus}-{name}.amplicons", f"{outdir}/amplicons/{genus}-{name}.aln", f"{outdir}/amplicons/{genus}-{name}.tree" # Asigning in and out files
         msa_run.muscle_call_single(infile, outAln, outTree)
     else:
-        print("Skipping alignments and trees generation (if needed, use -m/--msa).\n\n")
+        print("Skipping alignments and trees generation for amplicons (if needed, use -m/--msa).\n\n")
     
     print ("Making unique clusters with vsearch.\n\n")
     vsearch_run.vsearch_call(outdir, genus, name)
