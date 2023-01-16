@@ -134,13 +134,15 @@ def arg_handling(args, workingDir):
 
 def main():
     workingDir = Path(os.path.realpath(os.path.dirname(__file__))) # getting the path the script is running from
-
+    
     args = parse_args()
     
     print(f"\n#== RibDif2 is running on: {args.genus} ==#\n\n")
     
     #Argument handeling
     genus, primer_file, outdir, rerun = arg_handling(args, workingDir)
+    
+    log_dir = Path(outdir) / "ribdif_logs"
     
     # If rerun is false, download and handle genomes from NCBI
     if rerun == False:
@@ -240,7 +242,7 @@ def main():
     
     print ("Making unique clusters with vsearch.\n\n")
     for name in names:
-        vsearch_run.vsearch_call(outdir, genus, name, args.id)
+        vsearch_run.vsearch_call(outdir, genus, name, args.id, log_dir)
 
 
 if __name__ == '__main__':
