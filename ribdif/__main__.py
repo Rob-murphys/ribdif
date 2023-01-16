@@ -198,7 +198,6 @@ def main():
         
         # PCR for default primers
         infile = f"{outdir}/full/{genus}.16S" # path to concatinated 16S barrnap output
-        print("default primers")
         name =  pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
         
         # Rename amplicon fasta headers to origin contig
