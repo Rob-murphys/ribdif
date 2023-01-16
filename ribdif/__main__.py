@@ -143,6 +143,7 @@ def main():
     genus, primer_file, outdir, rerun = arg_handling(args, workingDir)
     
     log_dir = Path(outdir) / "ribdif_logs"
+    Path(log_dir).mkdir(exist_ok = True, parents = True)
     
     # If rerun is false, download and handle genomes from NCBI
     if rerun == False:
