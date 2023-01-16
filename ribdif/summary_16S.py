@@ -60,6 +60,7 @@ def summary_16S_run(in_aln, outdir, genus):
             elif line.startswith(">"):
                 count_16S += 1
         
+        
     
     # Taking fasta header and getting important bits out
     GCF = splitname[0].strip(">")
@@ -90,16 +91,16 @@ def summary_16S_run(in_aln, outdir, genus):
             tree = Phylo.read(tree_path, "newick")
             plot_tree(tree, pdf_out)
             
-            stats = [GCF, genera, species,count_16S,  mean_mis, sd_mis, max_mis, min_mis, total_div]
+            stats = [GCF, genera, species, str(count_16S),  mean_mis, sd_mis, max_mis, min_mis, total_div]
             writer(outdir, genus, stats)
 
         else:
             mean_mis, sd_mis, max_mis, min_mis = (str(0), str(0), str(0), str(0))
-            stats = [GCF, genera, species, count_16S, mean_mis, sd_mis, max_mis, min_mis, total_div]
+            stats = [GCF, genera, species, str(count_16S), mean_mis, sd_mis, max_mis, min_mis, total_div]
             writer(outdir, genus, stats)
     else:
         mean_mis, sd_mis, max_mis, min_mis = ("-", "-", "-", "-")
-        stats = [GCF, genera, species, count_16S, mean_mis, sd_mis, max_mis, min_mis, total_div]
+        stats = [GCF, genera, species, str(count_16S), mean_mis, sd_mis, max_mis, min_mis, total_div]
         writer(outdir, genus, stats)
         
             
