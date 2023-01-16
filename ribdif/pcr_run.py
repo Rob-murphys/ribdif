@@ -40,10 +40,12 @@ def pcr_call(infile, outdir, genus, primer_file, workingDir):
     amplicon_dir.mkdir(parents = True, exist_ok = True)
     print("#= Generating amplicon sequences =#\n\n")
     with open(primer_file, "r") as f_primer:
+        names = []
         for primer in f_primer:
             name, fwd, rvs = primer.strip().split("\t")
             call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir)
-    return name
+            names.append(name)
+    return names
 
 # Cleaning multithreaded PCR call (concatinating etc)
 # =============================================================================
