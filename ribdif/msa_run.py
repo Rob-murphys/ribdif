@@ -20,9 +20,15 @@ def call_proc_muscle(infile):
 
 
 # Multithreading the pyani calls
-def muscle_call(outdir):
-    Ncpu = multiprocessing.cpu_count()
-    with multiprocessing.Pool(Ncpu) as pool: # spawn the pool
+def muscle_call(outdir, threads):
+    with multiprocessing.Pool(threads) as pool: # spawn the pool
+        all_16S = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.16S'))]
+        pool.map(call_proc_muscle, all_16S)
+    return
+
+
+def mafft_call(outdir, threads):
+    with multiprocessing.Pool(threads) as pool: # spawn the pool
         all_16S = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.16S'))]
         pool.map(call_proc_muscle, all_16S)
     return

@@ -18,9 +18,8 @@ def call_proc_barrnap(infile):
     return
 
 # Multithreading the barrnap calls
-def barnap_call(outdir):
-    Ncpu = multiprocessing.cpu_count()
-    with multiprocessing.Pool(Ncpu) as pool: # spawn the pool
+def barnap_call(outdir, threads):
+    with multiprocessing.Pool(threads) as pool: # spawn the pool
         all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.fna'))] # generate list of files ending in .rna
         pool.map(call_proc_barrnap, all_fna)
     return

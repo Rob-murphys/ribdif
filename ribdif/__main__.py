@@ -141,22 +141,19 @@ def main():
     #Argument handeling
     genus, primer_file, outdir, rerun = arg_handling(args, workingDir)
     
-    # CPU count for multiporocessing
-    Ncpu = os.cpu_count()
-    
     # If rerun is false, download and handle genomes from NCBI
     if rerun == False:
         # Download genomes from NCBI
-        ngd_download.genome_download(genus = genus, outdir = outdir, threads = Ncpu, frag = args.frag)
+        ngd_download.genome_download(genus = genus, outdir = outdir, threads = args.threads, frag = args.frag)
     
         # Un gziping fasta files
-        with multiprocessing.Pool(Ncpu) as pool: # Create a multiprocessing pool with Ncpu workers
+        with multiprocessing.Pool(args.threads) as pool: # Create a multiprocessing pool with #threads workers
             all_gz = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('**/*.gz'))]# Recursively search the directory for .gz files and convert path to string sotring in a list
             pool.map(utils.decompress, all_gz)
         
         # Remove unwanted characters from anywhere is file (should only be in fasta headers)
         print("\n\nModifying fasta headers.\n\n")
-        with multiprocessing.Pool(Ncpu) as pool:
+        with multiprocessing.Pool(args.threads) as pool:
             all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.fna'))]
             pool.map(utils.modify, all_fna)
             
@@ -164,37 +161,38 @@ def main():
     # If using default primers call barrnap and rerun is false - this assume
     if args.primers == "False":
         print("Running barrnap on downloaded sequences\n\n")
-        barrnap_run.barnap_call(outdir)
+        barrnap_run.barnap_call(outdir, threads = args.threads)
         
         # Processing barrnap output > fishing out 16S sequences
-        with multiprocessing.Pool(Ncpu) as pool:
+        with multiprocessing.Pool(args.threads) as pool:
             all_RNA = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.rRNA'))]
             pool.map(barrnap_run.barrnap_process, all_RNA)
         
-        barrnap_run.barrnap_conc(genus, outdir) # concatinate all 16S to one file
+        # Concatinate all 16S to one file
+        barrnap_run.barrnap_conc(genus, outdir)
         
         #If ANI is true calculate
         if args.ANI:
             
             # First need to split whole 16S sequences into seperate files
-            with multiprocessing.Pool(Ncpu) as pool:
+            with multiprocessing.Pool(args.threads) as pool:
                 all_16S = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.16S'))]
                 pool.map(barrnap_run.barrnap_split, all_16S)
                
             # Call pyani
             print("Calculating intra-genomic mismatches and ANI for each genome.\n\n")
-            pyani_run.pyani_call(outdir)
+            pyani_run.pyani_call(outdir, args.threads)
         else:
             print("Skipping detailed intra-genomic analysis and ANI (if needed, use -a/--ANI).\n\n")
         
         # ALignment of full 16S genes recoverd from barrnap
         print("Alligning full-length 16S genes within genomes with muscle and building trees with fastree.\n\n")
-        msa_run.muscle_call(outdir)
+        msa_run.muscle_call(outdir, args.threads)
         
         # Genome statistic summary
         with open(f"{outdir}/{genus}_summary.tsv", "w") as f_out:
             f_out.write("GCF\tGenus\tSpecies\t#16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
-        summary_16S.multiproc_sumamry(outdir, genus)
+        summary_16S.multiproc_sumamry(outdir, genus, args.threads)
         
         # PCR for default primers
         infile = f"{outdir}/full/{genus}.16S" # path to concatinated 16S barrnap output
@@ -202,10 +200,9 @@ def main():
         
         # Rename amplicon fasta headers to origin contig
         utils.amp_replace(outdir, genus, name)
-        
+        Path.unlink()
+    # PCR for custom primers   
     else:
-        # PCR for custom primers
-        print("custom primers")
         # Concatinate all downloaded genomes
         all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.fna'))]
         with open(f"{outdir}/genbank/bacteria/{genus}_total.fna", "w") as f_out:
@@ -217,7 +214,7 @@ def main():
         
         # Rename amplicon fasta headers to origin contig
         utils.amp_replace(outdir, genus, name)
-        #pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir)
+        #pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir, threads)
         #pcr_run.pcr_cleaner(outdir, primer_file, genus)
 
 

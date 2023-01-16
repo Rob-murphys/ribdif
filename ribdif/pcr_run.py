@@ -21,15 +21,14 @@ def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir): # removed 
 
 # Multithreading the in silico pcr calls
 # =============================================================================
-# def pcr_parallel_call(outdir, genus, primer_file, workingDir):
+# def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads):
 #     amplicon_dir = Path(f"{outdir}/amplicons")
 #     amplicon_dir.mkdir(parents = True, exist_ok = True)
 #     print("\n\nGenerating amplicon sequences")
-#     Ncpu = multiprocessing.cpu_count()
 #     with open(primer_file, "r") as f_primer:
 #         for primer in f_primer:
 #             name, fwd, rvs = primer.split("\t")
-#             with multiprocessing.Pool(Ncpu) as pool: # spawn the pool
+#             with multiprocessing.Pool(threads) as pool: # spawn the pool
 #                 all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.fna'))] # generate list of files ending in .fna
 #                 counter = range(len(all_fna))
 #                 pool.starmap(call_proc_pcr, zip(all_fna, repeat(outdir), repeat(genus), repeat(name), repeat(fwd), repeat(rvs), repeat(workingDir), counter))
@@ -46,6 +45,7 @@ def pcr_call(infile, outdir, genus, primer_file, workingDir):
             call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir)
     return name
 
+# Cleaning multithreaded PCR call (concatinating etc)
 # =============================================================================
 # def pcr_cleaner(outdir, primer_file, genus):
 #     print("cleaning files")
