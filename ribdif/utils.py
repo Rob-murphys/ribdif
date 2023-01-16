@@ -3,6 +3,7 @@ import pandas as pd
 import re
 import gzip
 import shutil
+from pathlib import Path
 
 # Remove unwanted characters from anywhere is file (should only be in fasta headers)
 def modify(file_path):
@@ -51,4 +52,5 @@ def amp_replace(outdir, genus, name):
                amp = line.strip().strip(">")
                line = line.replace(amp, dict_sum[amp] + f"_{amp.strip('amp_')}")
            f_out.write(line)
+    Path.unlink(f"{outdir}/amplicons/{genus}-{name}.temp.amplicons")
     return
