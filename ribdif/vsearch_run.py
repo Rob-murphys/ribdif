@@ -21,6 +21,6 @@ def vsearch_call(outdir, genus, name, ident, log_dir, threads):
         # Passing the command to shell piping the stdout and stderr
         subprocess.run(shlex.split(command), stdout = out, stderr = err)
     
-    if os.stat(err).st_size == 0:
-        raise Exception(f"Something went wrong with VSEARCH\n\nPlease check: {err}")
+    if os.stat(f"{log_dir}/vsearch_{name}.err").st_size == 0:
+        raise Exception(f"Something went wrong with VSEARCH\n\nPlease check: {log_dir}/vsearch_{name}.err")
     return

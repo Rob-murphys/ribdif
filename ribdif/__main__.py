@@ -248,7 +248,7 @@ def main():
     
     print ("Making unique clusters with vsearch.\n\n")
     for name in names:
-        vsearch_run.vsearch_call(outdir, genus, name, args.id, log_dir, threads)
+        vsearch_run.vsearch_call(outdir, genus, name, args.id, log_dir, args.threads)
 
 
 if __name__ == '__main__':
