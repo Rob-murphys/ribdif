@@ -63,7 +63,7 @@ def summary_16S_run(in_aln, outdir, genus):
         
     
     # Taking fasta header and getting important bits out
-    GCF = str(splitname[:2]).strip(">")
+    GCF = "_".join(splitname[:2]).strip(">")
     #NZ = splitname[2] # Currently unused?
     genera = splitname[3]
     species = splitname[4]
