@@ -32,7 +32,7 @@ def barrnap_process(in_RNA, gene_num):
     with open(in_RNA, "r") as f_in, open(f"{in_RNA}.16S", "w") as f_out: 
         for line in f_in:
             if line.startswith(">16S_rRNA"):
-                f_out.write(">" + GCF + line.strip().strip(">16S_rRNA::").split(":")[0] + f"_{gene_num}\n") # write the fasta header to file removing >16S_rRNA:: and adding a counter
+                f_out.write(">" + GCF + "_" + line.strip().strip(">16S_rRNA::").split(":")[0] + f"_{gene_num}\n") # write the fasta header to file removing >16S_rRNA:: and adding a counter
                 f_out.write(next(f_in)) # write next line also
                 #count += 1 # incriment count by one
     return
