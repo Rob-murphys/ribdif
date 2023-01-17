@@ -63,9 +63,10 @@ def summary_16S_run(in_aln, outdir, genus):
         
     
     # Taking fasta header and getting important bits out
-    GCF = splitname[0].strip(">")
-    genera = splitname[1]
-    species = splitname[2]
+    GCF = str(splitname[:2]).strip(">")
+    #NZ = splitname[2] # Currently unused?
+    genera = splitname[3]
+    species = splitname[4]
     
     # If ANI was run then do following
     if Path(mismatch_path).is_file():
