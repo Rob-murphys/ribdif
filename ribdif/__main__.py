@@ -138,7 +138,10 @@ def main():
     
     args = parse_args()
     
-    print(f"\n#== RibDif2 is running on: {args.genus} ==#\n\n")
+    print(f"""\n
+          #=========================================#
+          #== RibDif2 is running on: {args.genus} ==#
+          #=========================================#\n\n""")
     
     #Argument handeling
     genus, primer_file, outdir, rerun = arg_handling(args, workingDir)
@@ -165,15 +168,13 @@ def main():
             
     # If using default primers call barrnap and rerun is false - this assume
     if args.primers == "False":
-        print("""#===========================================#
-              #= Running barrnap on downloaded sequences =#
-              #===========================================#\n\n""")
+        print("#= Running barrnap on downloaded sequences =#\n\n")
         barrnap_run.barnap_call(outdir, threads = args.threads)
         
         # Processing barrnap output > fishing out 16S sequences
         with multiprocessing.Pool(args.threads) as pool:
             all_RNA = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.rRNA'))]
-            gene_num = range(len(all_RNA)) # adding gene num count here (in congruence with v1. Could also just use in silico pcr amp count)
+            gene_num = [*range(len(all_RNA))] # adding gene num count here (in congruence with v1. Could also just use in silico pcr amp count)
             pool.starmap(barrnap_run.barrnap_process, zip(all_RNA, gene_num))
         
         # Concatinate all 16S to one file
