@@ -26,15 +26,15 @@ def barnap_call(outdir, threads):
         
 
 # Fishes out 16S sequences and saves them to file
-def barrnap_process(in_RNA, gene_num):
-    #count = 0 # genome wide count: we are not going to use this
+def barrnap_process(in_RNA):
+    count = 0 # genome wide count: we are not going to use this
     GCF = str(Path(in_RNA).parent).split(r"/")[-1]
     with open(in_RNA, "r") as f_in, open(f"{in_RNA}.16S", "w") as f_out: 
         for line in f_in:
             if line.startswith(">16S_rRNA"):
-                f_out.write(">" + GCF + "_" + line.strip().strip(">16S_rRNA::").split(":")[0] + f"_{gene_num}\n") # write the fasta header to file removing >16S_rRNA:: and adding a counter
+                f_out.write(">" + GCF + "_" + line.strip().strip(">16S_rRNA::").split(":")[0] + f"_{count}\n") # write the fasta header to file removing >16S_rRNA:: and adding a counter
                 f_out.write(next(f_in)) # write next line also
-                #count += 1 # incriment count by one
+                count += 1 # incriment count by one
     return
 
 # Splits barrnap output sequences from barrnap_process output
