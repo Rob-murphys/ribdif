@@ -50,7 +50,7 @@ def amp_replace(outdir, genus, name):
        for line in f_in:
            if ">amp" in line:
                amp = line.strip().strip(">")
-               line = line.replace(amp, dict_sum[amp])# removed " + f"_{amp.strip('amp_')}" as it was redudant as sequences are already numberd by the 16S sequence they originate from
+               line = line.replace(amp, dict_sum[amp] + f"_{amp.strip('amp_')}")
            f_out.write(line)
     Path.unlink(f"{outdir}/amplicons/{genus}-{name}.temp.amplicons")
     return
