@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 import shutil
 import multiprocessing
+from itertools import repeat
 
 
 
@@ -164,13 +165,16 @@ def main():
             
     # If using default primers call barrnap and rerun is false - this assume
     if args.primers == "False":
-        print("#= Running barrnap on downloaded sequences =#\n\n")
+        print("""#===========================================#
+              #= Running barrnap on downloaded sequences =#
+              #===========================================#\n\n""")
         barrnap_run.barnap_call(outdir, threads = args.threads)
         
         # Processing barrnap output > fishing out 16S sequences
         with multiprocessing.Pool(args.threads) as pool:
             all_RNA = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.rRNA'))]
-            pool.map(barrnap_run.barrnap_process, all_RNA)
+            gene_num = range(len(all_RNA)) # adding gene num count here (in congruence with v1. Could also just use in silico pcr amp count)
+            pool.starmap(barrnap_run.barrnap_process, zip(all_RNA, gene_num))
         
         # Concatinate all 16S to one file
         barrnap_run.barrnap_conc(genus, outdir)
@@ -243,7 +247,7 @@ def main():
     
     print ("Making unique clusters with vsearch.\n\n")
     for name in names:
-        vsearch_run.vsearch_call(outdir, genus, name, args.id, log_dir)
+        vsearch_run.vsearch_call(outdir, genus, name, args.id, log_dir, threads)
 
 
 if __name__ == '__main__':
