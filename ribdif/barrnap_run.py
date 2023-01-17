@@ -27,7 +27,7 @@ def barnap_call(outdir, threads):
 
 # Fishes out 16S sequences and saves them to file
 def barrnap_process(in_RNA, gene_num):
-    #count = 0
+    #count = 0 # genome wide count: we are not going to use this
     with open(in_RNA, "r") as f_in, open(f"{in_RNA}.16S", "w") as f_out: 
         for line in f_in:
             if line.startswith(">16S_rRNA"):
