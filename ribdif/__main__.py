@@ -26,6 +26,7 @@ import utils
 import msa_run
 import summary_16S
 import vsearch_run
+import make_heatmap
 
 
 
@@ -249,7 +250,16 @@ def main():
     print ("Making unique clusters with vsearch.\n\n")
     for name in names:
         vsearch_run.vsearch_call(outdir, genus, name, args.id, log_dir, args.threads)
-
+    
+    if args.msa == True:
+        print("Making amplicon summary file for tree viewer import.\n\n")
+        msa_run.format_trees(outdir, genus, name)
+        
+    # Generating the heatmap
+    all_gcfs, uc_dict_clean, gcf_species, cluster_count = make_heatmap.uc_cleaner(outdir, genus, name)
+    cluster_dict = make_heatmap.cluster_matrix(all_gcfs, uc_dict_clean, cluster_count)
+    make_heatmap.species_overlap(cluster_dict, cluster_count, gcf_species)
+    make_heatmap.gcf_overlaps(all_gcfs, uc_dict_clean, gcf_species)
 
 if __name__ == '__main__':
     main()
