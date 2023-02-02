@@ -288,7 +288,8 @@ def main():
     plot_dendo = make_heatmap.pairwise_heatmap(pairwise_match, row_palette, species_series)
     
     # Save the heatmaps
-    make_heatmap.pdf_save([plot_clus, plot_dendo], outdir, genus, name)
+    plots = (plot_clus, plot_dendo)
+    make_heatmap.pdf_save(plots, outdir, genus, name)
 
 if __name__ == '__main__':
     main()
