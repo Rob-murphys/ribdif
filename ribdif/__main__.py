@@ -150,7 +150,7 @@ def main():
           #=========================================#\n\n""")
     
     #Argument handeling
-    genus, primer_file, outdir, rerun, fast_mode = arg_handling(args, workingDir)
+    genus, primer_file, outdir, rerun = arg_handling(args, workingDir)
     
     log_dir = Path(outdir) / "ribdif_logs"
     Path(log_dir).mkdir(exist_ok = True, parents = True)
