@@ -136,11 +136,7 @@ def arg_handling(args, workingDir):
        
     print("\n\nAll arguments resolved\n\n")
     
-    if args.speed == True:
-        fast_mode = True
-    else:
-        fast_mode = False
-    return genus, primer_file, outdir, rerun, fast_mode
+    return genus, primer_file, outdir, rerun
 
 
 def main():
@@ -203,7 +199,7 @@ def main():
         else:
             print("Skipping detailed intra-genomic analysis and ANI (if needed, use -a/--ANI).\n\n")
         
-        if fast_mode:
+        if args.speed:
             pass
         else:
             # ALignment of full 16S genes recoverd from barrnap
@@ -213,7 +209,7 @@ def main():
         # Genome statistic summary
         with open(f"{outdir}/{genus}_summary.tsv", "w") as f_out:
             f_out.write("GCF\tGenus\tSpecies\t#16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
-        summary_16S.multiproc_sumamry(outdir, genus, args.threads, fast_mode)
+        summary_16S.multiproc_sumamry(outdir, genus, args.threads, args.speed)
         
         # Running msa on concatinated 16S sequences
         if args.msa == True:
