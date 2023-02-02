@@ -51,8 +51,7 @@ def parse_args():
     
     group.add_argument("-c", dest = "clobber",
                         help="Delete previous run if present in output directory", 
-                        action = "store_true")
-    
+                        action = "store_true") 
     
     parser.add_argument("-p", dest = "primers", 
                         help = "Path to custom primer-file, must be a tab seperated file with name, forward and reverse primers. See default.primers",
@@ -77,6 +76,9 @@ def parse_args():
     parser.add_argument("-t", dest = "threads",
                         help = "Number of threads to use. Default is all avaliable",
                         default = os.cpu_count())
+    parser.add_argument("-s", dest = "speed", 
+                        help = argparse.SUPPRESS,
+                        action = "store_true")
     return parser.parse_args()
 
 def arg_handling(args, workingDir):
@@ -118,6 +120,8 @@ def arg_handling(args, workingDir):
         else:
             print(f"Reusing previously downloaded {genus} genomes")
             rerun = True
+    else:
+        rerun = False
     
     # Resolving clobber argument
     if args.clobber == True:
@@ -131,7 +135,12 @@ def arg_handling(args, workingDir):
        raise Exception(f"/n/n{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory/n/n")
        
     print("\n\nAll arguments resolved\n\n")
-    return genus, primer_file, outdir, rerun
+    
+    if args.speed == True:
+        fast_mode = True
+    else:
+        fast_mode = False
+    return genus, primer_file, outdir, rerun, fast_mode
 
 
 def main():
@@ -145,7 +154,7 @@ def main():
           #=========================================#\n\n""")
     
     #Argument handeling
-    genus, primer_file, outdir, rerun = arg_handling(args, workingDir)
+    genus, primer_file, outdir, rerun, fast_mode = arg_handling(args, workingDir)
     
     log_dir = Path(outdir) / "ribdif_logs"
     Path(log_dir).mkdir(exist_ok = True, parents = True)
@@ -194,14 +203,17 @@ def main():
         else:
             print("Skipping detailed intra-genomic analysis and ANI (if needed, use -a/--ANI).\n\n")
         
-        # ALignment of full 16S genes recoverd from barrnap
-        print("Alligning full-length 16S genes within genomes with muscle and building trees with fastree.\n\n")
-        msa_run.muscle_call_multi(outdir, args.threads)
+        if fast_mode:
+            pass
+        else:
+            # ALignment of full 16S genes recoverd from barrnap
+            print("Alligning full-length 16S genes within genomes with muscle and building trees with fastree.\n\n")
+            msa_run.muscle_call_multi(outdir, args.threads)
         
         # Genome statistic summary
         with open(f"{outdir}/{genus}_summary.tsv", "w") as f_out:
             f_out.write("GCF\tGenus\tSpecies\t#16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
-        summary_16S.multiproc_sumamry(outdir, genus, args.threads)
+        summary_16S.multiproc_sumamry(outdir, genus, args.threads, fast_mode)
         
         # Running msa on concatinated 16S sequences
         if args.msa == True:

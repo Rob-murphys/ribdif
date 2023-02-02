@@ -42,7 +42,7 @@ def shannon_calc(alignment_path):
             
             return sum(divs)
 
-def summary_16S_run(in_aln, outdir, genus):
+def summary_16S_run(in_aln, outdir, genus, fast_mode):
     
     indir = Path(in_aln).parent
     # Paths for all needed files
@@ -89,8 +89,11 @@ def summary_16S_run(in_aln, outdir, genus):
             
             # roll_means_30 = np.convolve(divs, np.ones(30), "valid")/30   
             
-            tree = Phylo.read(tree_path, "newick")
-            plot_tree(tree, pdf_out)
+            if fast_mode:
+                pass
+            else:
+                tree = Phylo.read(tree_path, "newick")
+                plot_tree(tree, pdf_out)
             
             stats = [GCF, genera, species, str(count_16S),  mean_mis, sd_mis, max_mis, min_mis, total_div]
             writer(outdir, genus, stats)
