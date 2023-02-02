@@ -99,11 +99,11 @@ def summary_16S_run(in_aln, outdir, genus, fast_mode):
             writer(outdir, genus, stats)
 
         else:
-            mean_mis, sd_mis, max_mis, min_mis = (str(0), str(0), str(0), str(0))
+            mean_mis, sd_mis, max_mis, min_mis, total_div = (str(0), str(0), str(0), str(0), str(0))
             stats = [GCF, genera, species, str(count_16S), mean_mis, sd_mis, max_mis, min_mis, total_div]
             writer(outdir, genus, stats)
     else:
-        mean_mis, sd_mis, max_mis, min_mis = ("-", "-", "-", "-")
+        mean_mis, sd_mis, max_mis, min_mis, total_div = ("-", "-", "-", "-", "-")
         stats = [GCF, genera, species, str(count_16S), mean_mis, sd_mis, max_mis, min_mis, total_div]
         writer(outdir, genus, stats)
         
