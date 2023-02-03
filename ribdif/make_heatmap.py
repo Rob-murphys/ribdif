@@ -159,7 +159,8 @@ def pairwise_heatmap(pairwise_match, row_palette, species_series):
     
     return plot_dendo, pairwise_df
 
-def pdf_save(plots, outdir, genus, name):
+def pdf_save(plot_clus, plot_dendo, outdir, genus, name):
+    plots = [plot_clus, plot_dendo]
     with PdfPages(f"{outdir}/amplicons/{genus}-{name}.pdf") as pdf_pages:
         for plot in plots:
             pdf_pages.savefig(plot.fig)
