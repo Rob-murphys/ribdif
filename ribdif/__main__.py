@@ -76,6 +76,7 @@ def parse_args():
     parser.add_argument("-t", dest = "threads",
                         help = "Number of threads to use. Default is all avaliable",
                         default = os.cpu_count())
+    
     parser.add_argument("-s", dest = "speed", 
                         help = "Run in fast mode skipping all but the nessacary steps (No barrnap, msa, ani etc.)",
                         action = "store_true")
@@ -83,6 +84,9 @@ def parse_args():
 
 def arg_handling(args, workingDir):
     print("#= Parsing arguments =#\n\n")
+    
+    if args.speed:
+        print("Running in fast mode skipping all but the nessacary steps (No barrnap, msa, ani etc.)")
     
     #Checking if user is running on a species
     if " " in args.genus: # checking is there is a space in genus/species name
@@ -134,7 +138,7 @@ def arg_handling(args, workingDir):
     elif Path(f"{outdir}").is_dir() and args.rerun == False: # catch if genus output already exists and rerun was not specified and clobber was not used
        raise Exception(f"/n/n{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory/n/n")
        
-    print("\n\nAll arguments resolved\n\n")
+    print("\n\n#= All arguments resolved =#\n\n")
     
     return genus, primer_file, outdir, rerun
 
@@ -173,7 +177,7 @@ def main():
             
             
     # If using default primers call barrnap and rerun is false - this assume
-    if args.primers == "False" and not args.speed:
+    if args.primers == "False" and not args.speed: # Is skipping barrnap actually faster?
         print("#= Running barrnap on downloaded sequences =#\n\n")
         barrnap_run.barnap_call(outdir, threads = args.threads)
         
@@ -288,8 +292,7 @@ def main():
     plot_dendo = make_heatmap.pairwise_heatmap(pairwise_match, row_palette, species_series)
     
     # Save the heatmaps
-    plots = [plot_clus, plot_dendo]
-    make_heatmap.pdf_save(plots, outdir, genus, name)
+    make_heatmap.pdf_save(plot_clus, plot_dendo, outdir, genus, name)
 
 if __name__ == '__main__':
     main()
