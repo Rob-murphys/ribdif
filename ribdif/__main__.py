@@ -136,7 +136,7 @@ def arg_handling(args, workingDir):
             print(f"{genus} folder does not exist, ignoring clobber request")
             pass
     elif Path(f"{outdir}").is_dir() and args.rerun == False: # catch if genus output already exists and rerun was not specified and clobber was not used
-       raise Exception(f"/n/n{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory/n/n")
+       raise FileExistsError(f"""/n/n{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory/n/n""")
        
     print("\n\n#= All arguments resolved =#\n\n")
     
@@ -266,33 +266,34 @@ def main():
     if args.msa == True:
         print("Making amplicon summary file for tree viewer import.\n\n")
         msa_run.format_trees(outdir, genus, name)
-        
+    
     # Generating the heatmaps #
-    
-    # Cleaning vsearch clustering data
-    all_gcfs, uc_dict_clean, gcf_species, cluster_count = make_heatmap.uc_cleaner(outdir, genus, name)
-    
-    # Generate a dictionary (that will become a matrix) of GCF cluster membership  
-    cluster_dict = make_heatmap.cluster_matrix(all_gcfs, uc_dict_clean, cluster_count)
-    
-    # Find all species overlap in the cluster_dict
-    combinations = make_heatmap.species_overlap(cluster_dict, cluster_count, gcf_species)
-    
-    # Find all GCF overlaps in the cluster dictionary
-    pairwise_match = make_heatmap.gcf_overlaps(all_gcfs, uc_dict_clean, gcf_species)
-    utils.pairwise_to_csv(pairwise_match, gcf_species, outdir, genus, name)
-    
-    # Generate metadata for heatmaps
-    row_palette, species_series = make_heatmap.heatmap_meta(gcf_species)
-    
-    # Plot the cluster matrix
-    plot_clus = make_heatmap.cluster_heatmap(cluster_dict, row_palette, species_series)
-    
-    # Plot the GCF overlap matrix
-    plot_dendo = make_heatmap.pairwise_heatmap(pairwise_match, row_palette, species_series)
-    
-    # Save the heatmaps
-    make_heatmap.pdf_save(plot_clus, plot_dendo, outdir, genus, name)
+    for name in names:
+        print(f"Making heatmaps for {name}\n\n")
+        # Cleaning vsearch clustering data
+        all_gcfs, uc_dict_clean, gcf_species, cluster_count = make_heatmap.uc_cleaner(outdir, genus, name)
+        
+        # Generate a dictionary (that will become a matrix) of GCF cluster membership  
+        cluster_dict = make_heatmap.cluster_matrix(all_gcfs, uc_dict_clean, cluster_count)
+        
+        # Find all species overlap in the cluster_dict
+        combinations = make_heatmap.species_overlap(cluster_dict, cluster_count, gcf_species)
+        
+        # Find all GCF overlaps in the cluster dictionary
+        pairwise_match = make_heatmap.gcf_overlaps(all_gcfs, uc_dict_clean, gcf_species)
+        utils.pairwise_to_csv(pairwise_match, gcf_species, outdir, genus, name)
+        
+        # Generate metadata for heatmaps
+        row_palette, species_series = make_heatmap.heatmap_meta(gcf_species)
+        
+        # Plot the cluster matrix
+        plot_clus = make_heatmap.cluster_heatmap(cluster_dict, row_palette, species_series)
+        
+        # Plot the GCF overlap matrix
+        plot_dendo, pairwise_df = make_heatmap.pairwise_heatmap(pairwise_match, row_palette, species_series)
+        
+        # Save the heatmaps
+        make_heatmap.pdf_save(plot_clus, plot_dendo, outdir, genus, name)
 
 if __name__ == '__main__':
     main()
