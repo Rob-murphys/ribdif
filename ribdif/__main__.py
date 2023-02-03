@@ -77,7 +77,7 @@ def parse_args():
                         help = "Number of threads to use. Default is all avaliable",
                         default = os.cpu_count())
     parser.add_argument("-s", dest = "speed", 
-                        help = argparse.SUPPRESS,
+                        help = "Run in fast mode skipping all but the nessacary steps (No barrnap, msa, ani etc.)",
                         action = "store_true")
     return parser.parse_args()
 
@@ -173,7 +173,7 @@ def main():
             
             
     # If using default primers call barrnap and rerun is false - this assume
-    if args.primers == "False":
+    if args.primers == "False" and not args.speed:
         print("#= Running barrnap on downloaded sequences =#\n\n")
         barrnap_run.barnap_call(outdir, threads = args.threads)
         
@@ -288,7 +288,7 @@ def main():
     plot_dendo = make_heatmap.pairwise_heatmap(pairwise_match, row_palette, species_series)
     
     # Save the heatmaps
-    plots = (plot_clus, plot_dendo)
+    plots = [plot_clus, plot_dendo]
     make_heatmap.pdf_save(plots, outdir, genus, name)
 
 if __name__ == '__main__':
