@@ -57,6 +57,6 @@ def amp_replace(outdir, genus, name):
 
 def pairwise_to_csv(pairwise_match, gcf_species, outdir, genus, name):
     pairwise_save_df = pd.DataFrame(pairwise_match, index = gcf_species.values())
-    pairwise_save_df.to_csv(f"{outdir}/amplicons/{genus}-{name}.csv", sep = ",", index = False)
+    pairwise_save_df.to_csv(f"{outdir}/amplicons/{genus}-{name}_confusion.csv", sep = ",", index = False)
     return
     
