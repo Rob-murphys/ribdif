@@ -27,7 +27,6 @@ def call_proc_muscle(infile):
 def muscle_call_multi(outdir, threads):
     with multiprocessing.Pool(threads) as pool: # spawn the pool
         all_16S = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.16S'))]
-        print("Mapping to pool")
         pool.map(call_proc_muscle, all_16S)
     return
 
