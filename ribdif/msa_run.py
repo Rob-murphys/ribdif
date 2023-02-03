@@ -11,7 +11,6 @@ import re
 
 # Spawning the shell call
 def call_proc_muscle(infile):
-    print(f"Worker for: {infile}")
     outfile = str(Path(infile).parent / Path(infile).stem)
     # Building the command
     command1 = f"muscle -align {infile} -output {outfile}.16sAln" # Do I need to strip the alignement file of white space and commas?
@@ -26,7 +25,6 @@ def call_proc_muscle(infile):
 
 # Multithreading the pyani calls
 def muscle_call_multi(outdir, threads):
-    print("Opening the pool")
     with multiprocessing.Pool(threads) as pool: # spawn the pool
         all_16S = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.16S'))]
         print("Mapping to pool")
