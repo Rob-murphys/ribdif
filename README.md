@@ -5,9 +5,10 @@ RibDif evaluates the usefulness of a given amplicon at differentiating within a 
 # Installation
 Ribdif is most easily installed with pip. make sure your pip version is up to date
 
-`pip install git+https://github.com/Rob-murphys/RibDif2.git`
+`pip install git+https://github.com/Rob-murphys/ribdif.git`
 
 Next we need to install some dependencies:
+
 `conda install vsearch fasttree muscle barrnap -y`
 
 # Running
