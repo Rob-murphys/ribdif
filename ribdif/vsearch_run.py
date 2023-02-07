@@ -5,8 +5,6 @@ import shlex
 from pathlib import Path
 import os
 
-
-
 def vsearch_call(outdir, genus, name, ident, log_dir, threads):
     # Defining in and out files/dirs
     infile = f"{outdir}/amplicons/{genus}-{name}.amplicons"
