@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 import ncbi_genome_download as ngd
 from pathlib import Path
 

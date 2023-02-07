@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 """
 To add:
     When a barrnap result file ends up empty(or just no 16S maybe?) take note and warn then user to check the barrnap logs and write to the logs which file had no 16S in it
