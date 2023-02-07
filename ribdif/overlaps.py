@@ -90,7 +90,7 @@ def gcf_overlaps(all_gcfs, uc_dict_clean, gcf_species):
     return pairwise_match
 
 
-def overlap_report(combinations, gcf_species, cluster_df, genus, name):
+def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir):
     
     genome_count = len(cluster_df.index)
     named_genomes = len([s for s in gcf_species.values() if s != "sp."]) # Recovering species names that are not equal so "sp."
@@ -108,7 +108,7 @@ def overlap_report(combinations, gcf_species, cluster_df, genus, name):
         has_overlap = []
         
     count_overlap = len(has_overlap)
-    with open(f"{genus}_{name}_summary.txt", "w+") as f_out:
+    with open(f"{outdir}/{genus}/{genus}_{name}_summary.txt", "w+") as f_out:
         f_out.write(f"""Summary of {genus} differentiation by {name} amplicons:\n
                     Genomes downloaded: {genome_count}
                     \tWith species name: {named_genomes}

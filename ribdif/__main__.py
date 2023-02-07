@@ -14,6 +14,7 @@ from pathlib import Path
 import shutil
 import multiprocessing
 from itertools import repeat
+from hatch.cli import command
 
 
 
@@ -298,7 +299,7 @@ def main():
         # Save the heatmaps
         make_heatmap.pdf_save(plot_clus, plot_dendo, outdir, genus, name)
         
-        overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name)
+        overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir)
 
 if __name__ == '__main__':
     main()
