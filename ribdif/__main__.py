@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """
 A program to analyse the usefulness of amplicon sequences
-
 Created under GPL-3.0 license
-
 @author: Robert Murphy
 @email: robert.murphy@bio.ku.dk
 """
@@ -14,7 +12,7 @@ from pathlib import Path
 import shutil
 import multiprocessing
 from itertools import repeat
-from hatch.cli import command
+
 
 
 
