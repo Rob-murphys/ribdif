@@ -17,16 +17,18 @@ from itertools import repeat
 
 
 
-import ngd_download
-import barrnap_run
-import pcr_run
-import pyani_run
-import utils
-import msa_run
-import summary_16S
-import vsearch_run
-import overlaps
-import make_heatmap
+from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_16S, vsearch_run, overlaps, make_heatmap
+# =============================================================================
+# import barrnap_run
+# import pcr_run
+# import pyani_run
+# import utils
+# import msa_run
+# import summary_16S
+# import vsearch_run
+# import overlaps
+# import make_heatmap
+# =============================================================================
 
 
 
