@@ -30,8 +30,12 @@ dependencies = [
   "ncbi_genome_download >= 0.3.1"
 ]
 
-[tool.hatch.include]
-    "docs" = ["docs/default.primers"]
+[tool.hatch.build.targets.wheel]
+only-include = ["ribdif", "docs"]
+
+[tool.hatch.build.targets.wheel.sources]
+"ribdif" = ""
+"docs" = "ribdif/docs"
 
 [project.scripts]
 ribdif = "ribdif.__main__:main"
