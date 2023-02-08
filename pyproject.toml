@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ribdif"
-version = "1.1.1"
+version = "1.1.2"
 authors = [
   { name="Robert Murphy", email="Robert.murphy@bio.ku.dk" },
 ]
@@ -30,6 +30,8 @@ dependencies = [
   "ncbi_genome_download >= 0.3.1"
 ]
 
+[project.scripts]
+ribdif = "ribdif.__main__:main"
 
 [project.urls]
 "Homepage" = "https://github.com/Rob-murphys/RibDif2"
