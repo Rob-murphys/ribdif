@@ -100,20 +100,21 @@ def arg_handling(args, workingDir):
 
     # Parsing the primers argument
     if args.primers == "False":
-        primer_file = Path(f"{workingDir.parent}/ribdif/default.primers")
+        primer_file = Path(f"{workingDir}/default.primers")
     else:
         primer_file = args.primers
     # Check primer file exists and is not empty
+
     if Path(f"{primer_file}").is_file() and os.stat(f"{primer_file}").st_size == 0:
-        raise Exception(f"\n\nError: The provided primer file is empty.\n{primer_file}\nPlease provide a populated primer file")
+        raise Exception(f"The provided primer file is empty.\n{primer_file}\nPlease provide a populated primer file")
 
     elif Path(f"{primer_file}").is_file() == False: # If it does not exist then raise this exception
-        raise FileNotFoundError(f"\n\nError: {primer_file} does not exist")
+        raise FileNotFoundError(f"{primer_file} does not exist")
     
 
     # Checking if user provided own outdir and if not setting to RibDif directory
     if args.outdir == "False":
-        outdir = Path(f"{workingDir.parent}/results/{genus}")
+        outdir = Path(f"{Path.home()}/results/{genus}")
     else:
         outdir = Path(args.outdir)
     
@@ -137,7 +138,8 @@ def arg_handling(args, workingDir):
             print(f"{genus} folder does not exist, ignoring clobber request")
             pass
     elif Path(f"{outdir}").is_dir() and args.rerun == False: # catch if genus output already exists and rerun was not specified and clobber was not used
-       raise FileExistsError(f"""/n/n{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory/n/n""")
+        raise FileExistsError(f"{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory")
+
        
     print("\n\n#= All arguments resolved =#\n\n")
     
