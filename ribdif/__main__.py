@@ -151,10 +151,9 @@ def main():
     
     args = parse_args()
     
-    print(f"""\n
-          #=========================================#
-          #== RibDif2 is running on: {args.genus} ==#
-          #=========================================#\n\n""")
+    genus_line = f"#== RibDif2 is running on: {args.genus} ==#"
+    block_line = f"#{'=' * (len(genus_line)-2)}#"
+    print(f"\n{block_line}\n{genus_line}\n{block_line}\n\n")
     
     #Argument handeling
     genus, primer_file, outdir, rerun = arg_handling(args, workingDir)
