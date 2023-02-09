@@ -79,7 +79,7 @@ def pairwise_heatmap(pairwise_match, row_palette, species_series):
 
 def pdf_save(plot_clus, plot_dendo, outdir, genus, name):
     plots = [plot_clus, plot_dendo]
-    with PdfPages(f"{outdir}/amplicons/{genus}-{name}.pdf") as pdf_pages:
+    with PdfPages(f"{outdir}/amplicons/{genus}-{name}_heatmaps.pdf") as pdf_pages:
         for plot in plots:
             pdf_pages.savefig(plot.fig)
     return
@@ -101,7 +101,7 @@ def create_graph(pairwise_df):
     n_subplots = len(graph_subs) # determine the number of sub graps
     return graph_subs, n_subplots
 
-def draw_graphs(graph_subs, n_subplots, species_palette, row_palette):
+def draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, genus, name):
 
     
     # Determine the number of rows and columns needed to keep the figure a square
@@ -123,10 +123,10 @@ def draw_graphs(graph_subs, n_subplots, species_palette, row_palette):
     
     # Create a dumy legend
     for k, v in species_palette.items():
-        plt.scatter([],[], color = v, label=f'Group{k}')
+        plt.scatter([],[], color = v, label = k)
     plt.legend(ncol = n_cols)
     
     # Save the figure
-    plt.savefig("test.pdf", bbox_inches = "tight")
+    plt.savefig(f"{outdir}/amplicons/{genus}-{name}_graphs.pdf", bbox_inches = "tight")
     return
 
