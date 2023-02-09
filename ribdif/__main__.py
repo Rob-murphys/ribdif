@@ -100,16 +100,15 @@ def arg_handling(args, workingDir):
 
     # Parsing the primers argument
     if args.primers == "False":
-        primer_path = workingDir.parent
-        primer_file = Path(f"{primer_path}/docs/default.primers")
+        primer_file = Path(f"{workingDir.parent}/default.primers")
     else:
         primer_file = args.primers
     # Check primer file exists and is not empty
     if Path(f"{primer_file}").is_file() and os.stat(f"{primer_file}").st_size == 0:
-        raise Exception(f"Error: The provided primer file is empty.\n{primer_file}\nPlease provide a populated primer file")
+        raise Exception(f"\n\nError: The provided primer file is empty.\n{primer_file}\nPlease provide a populated primer file")
 
     elif Path(f"{primer_file}").is_file() == False: # If it does not exist then raise this exception
-        raise Exception(f"Error: {primer_file} does not exist")
+        raise FileNotFoundError(f"\n\nError: {primer_file} does not exist")
     
 
     # Checking if user provided own outdir and if not setting to RibDif directory
