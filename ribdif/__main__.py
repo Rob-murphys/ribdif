@@ -100,7 +100,7 @@ def arg_handling(args, workingDir):
 
     # Parsing the primers argument
     if args.primers == "False":
-        primer_file = Path(f"{workingDir.parent}/default.primers")
+        primer_file = Path(f"{workingDir.parent}/ribdif/default.primers")
     else:
         primer_file = args.primers
     # Check primer file exists and is not empty
