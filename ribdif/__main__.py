@@ -303,7 +303,7 @@ def main():
         graph_subs, n_subplots = figures.create_graph(pairwise_df)
         
         # Draw the generated graps into on plot
-        figures.draw_graphsdraw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, genus, name)
+        figures.draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, genus, name)
         
         overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir)
 
