@@ -17,7 +17,7 @@ from itertools import repeat
 
 
 
-from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_16S, vsearch_run, overlaps, make_heatmap
+from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_16S, vsearch_run, overlaps, figures
 # =============================================================================
 # import barrnap_run
 # import pcr_run
@@ -27,7 +27,7 @@ from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run
 # import summary_16S
 # import vsearch_run
 # import overlaps
-# import make_heatmap
+# import figures
 # =============================================================================
 
 
@@ -288,16 +288,22 @@ def main():
         utils.pairwise_to_csv(pairwise_match, gcf_species, outdir, genus, name)
         
         # Generate metadata for heatmaps
-        row_palette, species_series = make_heatmap.heatmap_meta(gcf_species)
+        row_palette, species_series, species_palette = figures.heatmap_meta(gcf_species)
         
         # Plot the cluster matrix
-        plot_clus, cluster_df = make_heatmap.cluster_heatmap(cluster_dict, row_palette, species_series)
+        plot_clus, cluster_df = figures.cluster_heatmap(cluster_dict, row_palette, species_series)
         
         # Plot the GCF overlap matrix
-        plot_dendo, pairwise_df = make_heatmap.pairwise_heatmap(pairwise_match, row_palette, species_series)
+        plot_dendo, pairwise_df = figures.pairwise_heatmap(pairwise_match, row_palette, species_series)
         
         # Save the heatmaps
-        make_heatmap.pdf_save(plot_clus, plot_dendo, outdir, genus, name)
+        figures.pdf_save(plot_clus, plot_dendo, outdir, genus, name)
+        
+        # Generate graps from the pairwise dataframe
+        graph_subs, n_subplots = figures.create_graph(pairwise_df)
+        
+        # Draw the generated graps into on plot
+        figures.draw_graphsdraw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, genus, name)
         
         overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir)
 
