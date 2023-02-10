@@ -122,3 +122,5 @@ def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir):
                 f_out.write(f"Group {i}:\t" + ' / '.join(members) + "\n")
         f_out.seek(0)
         print(f_out.read())
+        
+#[i.replace("sp.", f"sp._{x}") for x, i in enumerate(combinations) if "sp." in i]

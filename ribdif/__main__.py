@@ -296,6 +296,9 @@ def main():
         # Plot the GCF overlap matrix
         plot_dendo, pairwise_df = figures.pairwise_heatmap(pairwise_match, row_palette, species_series)
         
+        plot_clus = figures.figure_fix(plot_clus)
+        plot_dendo = figures.figure_fix(plot_dendo)
+        
         # Save the heatmaps
         figures.pdf_save(plot_clus, plot_dendo, outdir, genus, name)
         
