@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-#import multiprocessing
+import multiprocessing
 import subprocess
 from pathlib import Path
-#from itertools import repeat
+from itertools import repeat
 import shlex
 """
 Implement a producer and consumer setup for writing the pcr output whe multiprocessing: https://stackoverflow.com/questions/11196367/processing-single-file-from-multiple-processes
@@ -11,39 +11,50 @@ I removed the counter from all functions for labeling output files as it seems t
 """
 
 # Spawning the shell call
-def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir): # removed , counter
-    # Building the command
-    command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -r -m -i > {outdir}/amplicons/{genus}-{name}.summary 2> {outdir}/amplicons/{genus}-{name}.temp.amplicons"
-    # Passing the command to shell piping the stdout and stderr
-    with open(f"{outdir}/amplicons/{genus}-{name}.summary", "w") as f_std, open(f"{outdir}/amplicons/{genus}-{name}.temp.amplicons", "w") as f_err:
-        subprocess.run(shlex.split(command), stdout = f_std, stderr = f_err)
+def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir, multi): # removed , counter
+    # Checking if running on multi processing mode
+    if not multi:    
+        # Building the command
+        command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -r -m -i > {outdir}/amplicons/{genus}-{name}.summary 2> {outdir}/amplicons/{genus}-{name}.temp.amplicons"
+        # Passing the command to shell piping the stdout and stderr
+        with open(f"{outdir}/amplicons/{genus}-{name}.summary", "w") as f_std, open(f"{outdir}/amplicons/{genus}-{name}.temp.amplicons", "w") as f_err:
+            subprocess.run(shlex.split(command), stdout = f_std, stderr = f_err)
+    # If running with multi then output is directed to seperate files for later processing
+    else:
+        outfile = Path(infile).stem
+        command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -r -m -i > {outdir}/amplicons/{outfile}.summary 2> {outdir}/amplicons/{genus}-{name}.temp.amplicons"
+        
+        with open(f"{outdir}/amplicons/{outfile}.summary", "w") as f_std, open(f"{outdir}/amplicons/{outfile}.amplicons", "w") as f_err:
+            subprocess.run(shlex.split(command), stdout = f_std, stderr = f_err)
     return 
 
 # Multithreading the in silico pcr calls
-# =============================================================================
-# def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads):
-#     amplicon_dir = Path(f"{outdir}/amplicons")
-#     amplicon_dir.mkdir(parents = True, exist_ok = True)
-#     print("\n\nGenerating amplicon sequences")
-#     with open(primer_file, "r") as f_primer:
-#         for primer in f_primer:
-#             name, fwd, rvs = primer.split("\t")
-#             with multiprocessing.Pool(threads) as pool: # spawn the pool
-#                 all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").rglob('*.fna'))] # generate list of files ending in .fna
-#                 counter = range(len(all_fna))
-#                 pool.starmap(call_proc_pcr, zip(all_fna, repeat(outdir), repeat(genus), repeat(name), repeat(fwd), repeat(rvs), repeat(workingDir), counter))
-#     return
-# =============================================================================
-
-def pcr_call(infile, outdir, genus, primer_file, workingDir):
+def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads):
     amplicon_dir = Path(f"{outdir}/amplicons")
     amplicon_dir.mkdir(parents = True, exist_ok = True)
+    multi = True
+    print("\n\nGenerating amplicon sequences")
+    with open(primer_file, "r") as f_primer:
+        names = []
+        for primer in f_primer:
+            name, fwd, rvs = primer.split("\t")
+            with multiprocessing.Pool(threads) as pool: # spawn the pool
+                all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").rglob('*.fna'))] # generate list of files ending in .fna
+                #counter = range(len(all_fna))
+                pool.starmap(call_proc_pcr, zip(all_fna, repeat(outdir), repeat(genus), repeat(name), repeat(fwd), repeat(rvs), repeat(workingDir), repeat(multi))) # removed counter
+            names.append(name)
+    return names
+
+def pcr_call(infile, outdir, genus, primer_file, workingDir, multi):
+    amplicon_dir = Path(f"{outdir}/amplicons")
+    amplicon_dir.mkdir(parents = True, exist_ok = True)
+    multi = False
     print("#= Generating amplicon sequences =#\n\n")
     with open(primer_file, "r") as f_primer:
         names = []
         for primer in f_primer:
             name, fwd, rvs = primer.strip().split("\t")
-            call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir)
+            call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir, multi)
             names.append(name)
     return names
 
@@ -73,3 +84,6 @@ def pcr_call(infile, outdir, genus, primer_file, workingDir):
 #             # Amplicon file
 # 
 # =============================================================================
+
+#def multi_cleaner():
+    
