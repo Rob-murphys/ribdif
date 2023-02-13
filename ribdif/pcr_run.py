@@ -29,7 +29,7 @@ def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir): # removed 
 #         for primer in f_primer:
 #             name, fwd, rvs = primer.split("\t")
 #             with multiprocessing.Pool(threads) as pool: # spawn the pool
-#                 all_fna = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").rglob('*.fna'))] # generate list of files ending in .fna
+#                 all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").rglob('*.fna'))] # generate list of files ending in .fna
 #                 counter = range(len(all_fna))
 #                 pool.starmap(call_proc_pcr, zip(all_fna, repeat(outdir), repeat(genus), repeat(name), repeat(fwd), repeat(rvs), repeat(workingDir), counter))
 #     return
