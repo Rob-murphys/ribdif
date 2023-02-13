@@ -93,7 +93,6 @@ def amplicon_cat(outdir, genus, name):
 # Writing the total summary dictionary to a tsv
 def sum_dict_write(outdir, genus, name, total_sum_dict):
     with open(f"{outdir}/amplicons/{genus}-{name}.summary", "w", newline = '') as sum_out:
-    with open("test.summary", "w", newline = '') as sum_out:
         writer = csv.writer(sum_out, delimiter = "\t") # generate a  csv writer
         writer.writerow(["AmpId", "SequenceId", "PositionInSequence", "Length", "Misc"]) # write the headers
         for key in total_sum_dict.keys():
