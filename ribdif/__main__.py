@@ -37,49 +37,53 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="RibDif2 evaluates the differences in user defined amplicons  within a genus or species to indicate if that amplicon can differentiate between the taxanomic groups")
 
-    parser.add_argument("-g", dest="genus", 
+    parser.add_argument("-g", "--genus", dest = "genus", 
                         help="The genus you want to search within. E.g. 'Staphylococcus' OR 'Staphylococcus aurea' if wanting to use a species", 
                         required = True)
     
-    parser.add_argument("-o", dest = "outdir",
+    parser.add_argument("--ignore_sp", dest = "sp_ignore",
+                        help = "Ignore downloaded genomes with unspecified species (i.e. their species is 'sp.')",
+                        action = "store_true")
+    
+    parser.add_argument("-o", "--outdir", dest = "outdir",
                         help = "Output direcotry path. Default is current directory",
                         default = "False")
     
     # Mutually exclusive group of rerun and clobber
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-r", dest = "rerun",
+    group.add_argument("-r", "--rerun", dest = "rerun",
                         help = "Rerun on same of different primers. Avoids having to redownload the same genomes",
                         action = "store_true") # Action store true will default to false when argument is not present
     
-    group.add_argument("-c", dest = "clobber",
+    group.add_argument("-c", "--clobber", dest = "clobber",
                         help="Delete previous run if present in output directory", 
                         action = "store_true") 
     
-    parser.add_argument("-p", dest = "primers", 
+    parser.add_argument("-p", "--primers", dest = "primers", 
                         help = "Path to custom primer-file, must be a tab seperated file with name, forward and reverse primers. See default.primers",
                         default = "False")
     
-    parser.add_argument("-a", dest = "ANI", 
+    parser.add_argument("-a", "--ani", dest = "ANI", 
                         help = "ANI is off by default, turn on if you care about individual genomes. The $genus-summary.csv-file will only contain a list of genomes when off",
                         action = "store_true")
     
-    parser.add_argument("-f", dest="frag", 
+    parser.add_argument("-f", "--frag", dest = "frag", 
                         help = "Allow use of fragmented genomes. Full genomes are recomended/requierd for detecting all 16S-genes, use with caution. Off by default",
                         action = "store_true")
     
-    parser.add_argument("-m", dest = "msa",
+    parser.add_argument("-m", "--msa", dest = "msa",
                         help = "make multiple sequence alignment and trees",
                         action = "store_true")
     
-    parser.add_argument("-i", dest = "id",
+    parser.add_argument("-i", "--id", dest = "id",
                         help = "Identity to cluster amplicons at if not using the deafult 100%%. e.g. .99. Does not cluster at the genome level, so beware",
                         default = 1)
     
-    parser.add_argument("-t", dest = "threads",
+    parser.add_argument("-t", "--threads", dest = "threads",
                         help = "Number of threads to use. Default is all avaliable",
                         default = os.cpu_count())
     
-    parser.add_argument("-s", dest = "speed", 
+    parser.add_argument("-s", "--speed", dest = "speed", 
                         help = "Run in fast mode skipping all but the nessacary steps (No barrnap, msa, ani etc.)",
                         action = "store_true")
     return parser.parse_args()
