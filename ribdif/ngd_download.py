@@ -25,9 +25,9 @@ def genome_download(genus, outdir, threads, frag):
                assembly_levels = "complete",
                parallel = threads*2,
                groups = 'bacteria')
-    
+        
     if Path(f"{outdir}/refseq/bacteria").is_dir():
-        count = len(list(Path(f"{outdir}/genbank/bacteria").rglob("*.fna.gz")))
+        count = len(list(Path(f"{outdir}/genbank/bacteria").glob("*/*.fna.gz")))
         dir_count = len(list(Path(f"{outdir}/refseq/bacteria").glob("*")))
         print(f"\n\n{count} genomes of {genus} were downloaded")
         if count != dir_count:
