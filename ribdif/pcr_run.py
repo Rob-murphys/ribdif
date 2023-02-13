@@ -4,6 +4,8 @@ import subprocess
 from pathlib import Path
 from itertools import repeat
 import shlex
+import csv
+import fileinput
 """
 Implement a producer and consumer setup for writing the pcr output whe multiprocessing: https://stackoverflow.com/questions/11196367/processing-single-file-from-multiple-processes
 
@@ -58,32 +60,45 @@ def pcr_call(infile, outdir, genus, primer_file, workingDir, multi):
             names.append(name)
     return names
 
-# Cleaning multithreaded PCR call (concatinating etc)
-# =============================================================================
-# def pcr_cleaner(outdir, primer_file, genus):
-#     print("cleaning files")
-#     amplicon_dir = Path(f"{outdir}/amplicons")
-#     with open(primer_file, "r") as f_primer:
-#         for primer in f_primer:
-#             name = primer.split("\t")[0]
-#             print(f"looking for {name}")
-#             
-#             # Summary file
-#             summary_file = f"{amplicon_dir}/{genus}-{name}.summary"
-#             print(f"master summary: {summary_file}")
-#             all_sum = [str(i) for i in list(Path(f"{amplicon_dir}/").rglob(f"*{name}.summary*"))] # getting all summary files
-#             for file in all_sum: # looping over them
-#                 with open(file, "r") as f_in: # open each one
-#                     if Path(summary_file).is_file(): # if the master summary file already exists
-#                         with open(f"{summary_file}", "a") as f_sum: # open it in append mode
-#                             lines = f_in.read().splitlines()
-#                             f_sum.write("\n".join(lines[1:])) # and write everything from the second line
-#                     else:
-#                         with open(f"{summary_file}", "w") as f_sum:
-#                             f_sum.write(f_in.read())
-#             # Amplicon file
-# 
-# =============================================================================
 
-#def multi_cleaner():
+# House keeping of multithreaded pcr to ensure same naming convention as though they were PCRed in a from a single concatinated file
+def multi_cleaner(outdir):
+    amp_counter = 1
+    total_sum_dict = {}
+    # Loop through all amplicon files
+    for file in Path(f"{outdir}/amplicons").glob("*.amplicons"):
+        # Open the summary file and turn it into a dictionary
+        with open(file.replace("amplicons", "summary")) as fin:
+             rows = ( line.strip().split('\t') for line in fin )
+             sum_dict = { row[0]:row[1:] for row in rows if "AmpId" not in row} # ignoring the header row
+        with fileinput.input(file, inplace = True) as amp_in: # In place changing the amplicon file
+            for line in amp_in:
+                if ">amp_" in line: # if this is in the line
+                    sum_dict[f"amp_{amp_counter}"] = sum_dict.pop(line.strip().strip(">")) # Update the respective row in the summary file dictionary
+                    line = f">amp_{amp_counter}\n" # Change the line
+                    print(line, end = '') # write it in place to the file
+                    amp_counter += 1 # incrament by one
+                else:
+                    print(line, end = '') # Writing the nucleotide lines
+        total_sum_dict.update(sum_dict) # appending to the total dict
+    return total_sum_dict
+                      
+# Just concatinating all corrected amplicon files  
+def amplicon_cat(outdir, genus, name):
+    for file in Path(f"{outdir}/amplicons").glob("*.amplicons"):
+        with open(f"{outdir}/amplicons/{genus}-{name}.amplicons", "w") as amp_out:
+            amp_out.write(file)
+    return
+
+# Writing the total summary dictionary to a tsv
+def sum_dict_write(outdir, genus, name, total_sum_dict):
+    with open(f"{outdir}/amplicons/{genus}-{name}.summary", "w", newline = '') as sum_out:
+    with open("test.summary", "w", newline = '') as sum_out:
+        writer = csv.writer(sum_out, delimiter = "\t") # generate a  csv writer
+        writer.writerow(["AmpId", "SequenceId", "PositionInSequence", "Length", "Misc"]) # write the headers
+        for key in total_sum_dict.keys():
+            total_sum_dict[key].insert(0, key) # append the value with the key
+            writer.writerow(total_sum_dict[key]) # write each value to file
+    return
+            
     

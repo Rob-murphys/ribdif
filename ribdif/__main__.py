@@ -251,7 +251,10 @@ def main():
         #infile = f"{outdir}/refseq/bacteria/{genus}_total.fna" # path to cocatinate genus genomes
         #names = pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
         names = pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir, args.threads)
-        #pcr_run.pcr_cleaner(outdir, primer_file, genus)
+        pcr_run.multi_cleaner(outdir)
+        for name in names:
+            total_sum_dict = pcr_run.amplicon_cat(outdir, genus, name)
+            pcr_run.sum_dict_write(outdir, genus, name, total_sum_dict)
     
     for name in names:
         # Rename amplicon fasta headers to origin contig
