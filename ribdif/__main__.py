@@ -112,7 +112,7 @@ def arg_handling(args, workingDir):
         raise FileNotFoundError(f"{primer_file} does not exist")
     
 
-    # Checking if user provided own outdir and if not setting to RibDif directory
+    # Checking if user provided own outdir and if not setting to root directory
     if args.outdir == "False":
         outdir = Path(f"{Path.home()}/results/{genus}")
     else:
@@ -303,7 +303,8 @@ def main():
         figures.pdf_save(plot_clus, plot_dendo, outdir, genus, name)
         
         # Generate graps from the pairwise dataframe
-        graph_subs, n_subplots = figures.create_graph(pairwise_df)
+        adjacency_df = figures.create_adjacency(pairwise_df, cluster_df)
+        graph_subs, n_subplots = figures.create_graph(adjacency_df)
         
         # Draw the generated graps into on plot
         figures.draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, genus, name)
