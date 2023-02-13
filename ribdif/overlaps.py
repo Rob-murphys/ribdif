@@ -31,7 +31,8 @@ def uc_cleaner(outdir, genus, name):
     uc_dict_clean = uc_df_clean.T.to_dict("list") # Chaging the dataframe to a dictionary
     gcf_species = dict(zip(uc_df_clean.GCF, uc_df_clean.Species)) # dicttionary of GCF to species
     all_gcfs = uc_df_clean.GCF.unique() # getting an array of all GCFs
-    cluster_count = len(uc_df_clean[1].unique()) # getting a count of how many cluster there are
+    #cluster_count = len(uc_df_clean[1].unique()) # getting a count of how many cluster there are
+    cluster_count = max(uc_df_clean[1]) +1
     return all_gcfs, uc_dict_clean, gcf_species, cluster_count
     
 
