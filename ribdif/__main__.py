@@ -168,7 +168,7 @@ def main():
     # If rerun is false, download and handle genomes from NCBI
     if rerun == False:
         # Download genomes from NCBI
-        genome_count = ngd_download.genome_download(genus = genus, outdir = outdir, threads = args.threads, frag = args.frag)
+        genome_count = ngd_download.genome_download(genus = genus, outdir = outdir, threads = args.threads, frag = args.frag, sp_ignore = args.sp_ignore)
     
         # Un gziping fasta files
         with multiprocessing.Pool(args.threads) as pool: # Create a multiprocessing pool with #threads workers
