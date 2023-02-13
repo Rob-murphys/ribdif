@@ -8,7 +8,7 @@ def genome_download(genus, outdir, threads, frag):
     
     if frag: # if the user wants fragmented genomes
         print(f"Downloading all genome recoreds of {genus} fron NCBI")
-        ngd.download(section='genbank', 
+        ngd.download(section='refseq', 
                file_formats = 'fasta', 
                genera = genus,  
                output = outdir, 
@@ -18,7 +18,7 @@ def genome_download(genus, outdir, threads, frag):
         
     else: # if the user (correctly) only want complete genomes
         print(f"Downloading all complete genome records of {genus} from NCBI")
-        ngd.download(section='genbank', 
+        ngd.download(section='refseq', 
                file_formats = 'fasta', 
                genera = genus,  
                output = outdir, 
