@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import scipy
 from matplotlib.backends.backend_pdf import PdfPages
 import networkx as nx
+from itertools import combinations
 
 def heatmap_meta(gcf_species):
     # Turn gcf species cross dictionary into series
@@ -129,11 +130,21 @@ def pdf_save(plot_clus, plot_dendo, outdir, genus, name):
             pdf_pages.savefig(plot.fig)
     return
 
-def create_graph(pairwise_df):
-    # copy the pairwise df so we can make it an adjacency df
-    adjacency_df = pairwise_df.copy()
-    np.fill_diagonal(adjacency_df.values, 0)# Ensure the diagonal is 0s otherwise we get looped networks
-    
+def create_adjacency(pairwise_df, cluster_df):
+    # Create new dataframe filled with the zame index and column as pairwise_df but filled with 0s
+    adjacency_df = pd.DataFrame(np.zeros((len(pairwise_df), len(pairwise_df.columns))), index=pairwise_df.index, columns=pairwise_df.columns)
+    # Get all possible pairs of indexs
+    pairs = list(combinations(cluster_df.index,2))
+    # For each pair mask where they both belong to the same cluster
+    for i,j in pairs:
+        mask = (cluster_df.loc[i] > 0) & (cluster_df.loc[j] > 0)
+        adjacency_df[j][i] = mask.sum()
+        adjacency_df[i][j] = mask.sum()
+        
+    return adjacency_df
+
+def create_graph(adjacency_df):
+
     # Create the graph
     graph = nx.from_pandas_adjacency(adjacency_df)
     graph.remove_nodes_from(list(nx.isolates(graph)))# Remove singletons
@@ -157,8 +168,11 @@ def draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, ge
     fig, axs = plt.subplots(n_rows, n_cols, figsize = (n_cols * 5, n_rows * 5))
     axs = axs.flatten()
     for i, graph in enumerate(graph_subs):
+        #pos = nx.spring_layout(graph)
+        #edge_labels = {(n1, n2): graph[n1][n2]['weight'] for n1, n2 in graph.edges()}
         node_cols = [row_palette[s] for s in graph.nodes] # get colours for current nodes
         nx.draw(graph, ax=axs[i], node_color = node_cols) # draw specific graph
+        #nx.draw_networkx_edge_labels(graph, pos, edge_labels = edge_labels)
         
     # Make any unused subplots blank
     for i in range(n_subplots, n_rows * n_cols):
@@ -170,7 +184,7 @@ def draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, ge
     for k, v in species_palette.items():
         plt.scatter([],[], color = v, label = k)
     plt.legend(ncol = n_cols)
-    
+    plt.savefig("test_weights.pdf", bbox_inches="tight")
     # Save the figure
     plt.savefig(f"{outdir}/amplicons/{genus}-{name}_graphs.pdf", bbox_inches = "tight")
     return
