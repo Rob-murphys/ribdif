@@ -144,7 +144,6 @@ def create_adjacency(pairwise_df, cluster_df):
     return adjacency_df
 
 def create_graph(adjacency_df):
-
     # Create the graph
     graph = nx.from_pandas_adjacency(adjacency_df)
     graph.remove_nodes_from(list(nx.isolates(graph)))# Remove singletons
