@@ -26,9 +26,9 @@ def genome_download(genus, outdir, threads, frag):
                parallel = threads*2,
                groups = 'bacteria')
     
-    if Path(f"{outdir}/genbank/bacteria").is_dir():
+    if Path(f"{outdir}/refseq/bacteria").is_dir():
         count = len(list(Path(f"{outdir}/genbank/bacteria").rglob("*.fna.gz")))
-        dir_count = len(list(Path(f"{outdir}/genbank/bacteria").glob("*")))
+        dir_count = len(list(Path(f"{outdir}/refseq/bacteria").glob("*")))
         print(f"\n\n{count} genomes of {genus} were downloaded")
         if count != dir_count:
             raise FileNotFoundError(repr(f"{genus} is a real genus but some (or no) genomes were not downloaded"))

@@ -110,7 +110,7 @@ def summary_16S_run(in_aln, outdir, genus, fast_mode):
             
 def multiproc_sumamry(outdir, genus, threads, fast_mode):
     with multiprocessing.Pool(threads) as pool:
-        all_aln = [str(i) for i in list(Path(f"{outdir}/genbank/bacteria/").glob('*/*.16sAln'))]
+        all_aln = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.16sAln'))]
         pool.starmap(summary_16S_run, zip(all_aln, repeat(outdir), repeat(genus), repeat(fast_mode)))
     return
 
