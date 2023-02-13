@@ -248,9 +248,9 @@ def main():
                     f_out.write(f_in.read())
                     
         
-        infile = f"{outdir}/refseq/bacteria/{genus}_total.fna" # path to cocatinate genus genomes
-        names = pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
-        #pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir, threads)
+        #infile = f"{outdir}/refseq/bacteria/{genus}_total.fna" # path to cocatinate genus genomes
+        #names = pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
+        names = pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir, args.threads)
         #pcr_run.pcr_cleaner(outdir, primer_file, genus)
     
     for name in names:
