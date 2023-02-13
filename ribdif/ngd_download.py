@@ -27,13 +27,35 @@ def genome_download(genus, outdir, threads, frag):
                groups = 'bacteria')
         
     if Path(f"{outdir}/refseq/bacteria").is_dir():
-        count = len(list(Path(f"{outdir}/genbank/bacteria").glob("*/*.fna.gz")))
+
+        count = len(list(Path(f"{outdir}/refseq/bacteria").glob("*/*.fna.gz")))
         dir_count = len(list(Path(f"{outdir}/refseq/bacteria").glob("*")))
-        print(f"\n\n{count} genomes of {genus} were downloaded")
+        
         if count != dir_count:
+            print(count)
+            print(dir_count)
             raise FileNotFoundError(repr(f"{genus} is a real genus but some (or no) genomes were not downloaded"))
+        
+# =============================================================================
+#         if sp_ignore:
+#             sp_count = sp_remove(outdir)
+#             print(f"\n\n{count} genomes of {genus} were downloaded and {sp_count} were removed due to being unnamed species")
+# =============================================================================
+        print(f"\n\n{count} genomes of {genus} were downloaded")
         return count
     
     else:
         raise NotADirectoryError(repr(f"Download failed because {genus} is invalid or there are no records of the requested type in NCBI\n\n"))
         return
+
+def sp_remove(outdir):
+    sp_count = 0
+    downloads = list(Path(f"{outdir}/genbank/bacteria").rglob("*.fna.gz"))
+    for download in downloads:
+        with open(download, "r") as f_in:
+            line = f_in.readline()
+            splitline = line.strip().split("_")
+            if splitline[4] == "sp.":
+                Path.remdir(Path(download).parent)
+                sp_count += 1
+    
