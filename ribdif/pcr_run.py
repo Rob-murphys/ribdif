@@ -71,21 +71,23 @@ def multi_cleaner(outdir, name):
         with open(str(file).replace(".amplicons", ".summary")) as f_in:
              rows = ( line.strip().split('\t') for line in f_in )
              sum_dict = { row[0]:row[1:] for row in rows if "AmpId" not in row} # ignoring the header row
-        with fileinput.input(file, inplace = True) as amp_in: # In place changing the amplicon file
+        #with fileinput.input(file, inplace = True) as amp_in: # In place changing the amplicon file
+        with open(file, "r") as amp_in:
             for line in amp_in:
                 if ">amp_" in line: # if this is in the line
                     sum_dict[f"amp_{amp_counter}"] = sum_dict.pop(line.strip().strip(">")) # Update the respective row in the summary file dictionary
-                    line = f">amp_{amp_counter}\n" # Change the line
-                    print(line, end = '') # write it in place to the file
+                    #line = f">amp_{amp_counter}\n" # Change the line
+                    #print(line, end = '') # write it in place to the file
                     amp_counter += 1 # incrament by one
                 else:
-                    print(line, end = '') # Writing the nucleotide lines
+                    pass
+                    #print(line, end = '') # Writing the nucleotide lines
         total_sum_dict.update(sum_dict) # appending to the total dict
     return total_sum_dict
                       
 # Just concatinating all corrected amplicon files  
 def amplicon_cat(outdir, genus, name):
-    with open(f"{outdir}/amplicons/{genus}-{name}.amplicons", "w") as amp_out:
+    with open(f"{outdir}/amplicons/{genus}-{name}.temp.amplicons", "w") as amp_out:
         for file in Path(f"{outdir}/amplicons").glob(f"*{name}.amplicons"):
             with open(file, "r") as f_in:
                 f_read = f_in.read()
@@ -94,7 +96,7 @@ def amplicon_cat(outdir, genus, name):
 
 # Writing the total summary dictionary to a tsv
 def sum_dict_write(outdir, genus, name, total_sum_dict):
-    with open(f"{outdir}/amplicons/{genus}-{name}.summary", "w", newline = '') as sum_out:
+    with open(f"{outdir}/amplicons/{genus}-{name}_2.summary", "w", newline = '') as sum_out:
         writer = csv.writer(sum_out, delimiter = "\t") # generate a  csv writer
         writer.writerow(["AmpId", "SequenceId", "PositionInSequence", "Length", "Misc"]) # write the headers
         for key in total_sum_dict.keys():
