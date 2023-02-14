@@ -42,7 +42,7 @@ def parse_args():
                         required = True)
     
     parser.add_argument("--ignore_sp", dest = "sp_ignore",
-                        help = "Ignore downloaded genomes with unspecified species (i.e. their species is 'sp.')",
+                        help = "Ignore genomes with unspecified species (i.e. their species is 'sp.')",
                         action = "store_true")
     
     parser.add_argument("-o", "--outdir", dest = "outdir",
@@ -52,7 +52,7 @@ def parse_args():
     # Mutually exclusive group of rerun and clobber
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-r", "--rerun", dest = "rerun",
-                        help = "Rerun on same of different primers. Avoids having to redownload the same genomes",
+                        help = "Rerun on same or different primers. Avoids having to redownload the same genomes",
                         action = "store_true") # Action store true will default to false when argument is not present
     
     group.add_argument("-c", "--clobber", dest = "clobber",
@@ -120,7 +120,7 @@ def arg_handling(args, workingDir):
     if args.outdir == "False":
         outdir = Path(f"{Path.home()}/results/{genus}")
     else:
-        outdir = Path(args.outdir)
+        outdir = Path(f"{args.outdir})/{genus}")
     
     #Resolving rerun argument
     if args.rerun == True:
@@ -226,7 +226,7 @@ def main():
         # Running msa on concatinated 16S sequences
         if args.msa == True:
             print(f"Alligning all {genus} 16S rRNA genes with muscle and building tree with fasttree.\n")
-            infile , outAln, outTree = f"{outdir}/full/{genus}.16S", f"{outdir}/full/{genus}.16sAln", f"{outdir}/full/{genus}.16sAln" # Asigning in and out files
+            infile , outAln, outTree = f"{outdir}/full/{genus}.16S", f"{outdir}/full/{genus}.16sAln", f"{outdir}/full/{genus}.16sTree" # Asigning in and out files
             msa_run.muscle_call_single(infile, outAln, outTree)
         else:
             print("Skipping alignments and tree generation for 16S rRNA genes (if needed, use -m/--msa).\n\n")
@@ -241,11 +241,13 @@ def main():
     # PCR for custom primers   
     else:
         # Concatinate all downloaded genomes
-        all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.fna'))]
-        with open(f"{outdir}/refseq/bacteria/{genus}_total.fna", "w") as f_out:
-            for file in all_fna:
-                with open(file, "r") as f_in:
-                    f_out.write(f_in.read())
+# =============================================================================
+#         all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.fna'))]
+#         with open(f"{outdir}/refseq/bacteria/{genus}_total.fna", "w") as f_out:
+#             for file in all_fna:
+#                 with open(file, "r") as f_in:
+#                     f_out.write(f_in.read())
+# =============================================================================
                     
         
         #infile = f"{outdir}/refseq/bacteria/{genus}_total.fna" # path to cocatinate genus genomes
