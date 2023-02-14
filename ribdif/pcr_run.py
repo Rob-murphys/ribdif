@@ -68,8 +68,8 @@ def multi_cleaner(outdir):
     # Loop through all amplicon files
     for file in Path(f"{outdir}/amplicons").glob("*.amplicons"):
         # Open the summary file and turn it into a dictionary
-        with open(file.replace("amplicons", "summary")) as fin:
-             rows = ( line.strip().split('\t') for line in fin )
+        with open(str(file).replace(".amplicons", ".summary")) as f_in:
+             rows = ( line.strip().split('\t') for line in f_in )
              sum_dict = { row[0]:row[1:] for row in rows if "AmpId" not in row} # ignoring the header row
         with fileinput.input(file, inplace = True) as amp_in: # In place changing the amplicon file
             for line in amp_in:
@@ -85,9 +85,10 @@ def multi_cleaner(outdir):
                       
 # Just concatinating all corrected amplicon files  
 def amplicon_cat(outdir, genus, name):
-    for file in Path(f"{outdir}/amplicons").glob("*.amplicons"):
-        with open(f"{outdir}/amplicons/{genus}-{name}.amplicons", "w") as amp_out:
-            amp_out.write(file)
+    with open(f"{outdir}/amplicons/{genus}-{name}.amplicons", "w") as amp_out:
+        for file in Path(f"{outdir}/amplicons").glob("*.amplicons"):
+            with open(file, "r") as f_in:
+                amp_out.write(f_in)
     return
 
 # Writing the total summary dictionary to a tsv
