@@ -77,6 +77,7 @@ def multi_cleaner(outdir, name):
             for line in amp_in:
                 if ">amp_" in line: # if this is in the line
                     total_sum_dict2.update(sum_dict)
+                    total_sum_dict[f"amp_{amp_counter}"] = sum_dict[line.strip().strip(">")]
                     sum_dict[f"amp_{amp_counter}"] = sum_dict.pop(line.strip().strip(">")) # Update the respective row in the summary file dictionary
                     #line = f">amp_{amp_counter}\n" # Change the line
                     #print(line, end = '') # write it in place to the file
