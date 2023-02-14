@@ -26,7 +26,7 @@ def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir, multi): # r
         outfile = Path(infile).stem
         command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -r -m -i > {outdir}/amplicons/{outfile}.summary 2> {outdir}/amplicons/{genus}-{name}.temp.amplicons"
         
-        with open(f"{outdir}/amplicons/{outfile}.summary", "w") as f_std, open(f"{outdir}/amplicons/{outfile}.amplicons", "w") as f_err:
+        with open(f"{outdir}/amplicons/{outfile}_{name}.summary", "w") as f_std, open(f"{outdir}/amplicons/{outfile}_{name}.amplicons", "w") as f_err:
             subprocess.run(shlex.split(command), stdout = f_std, stderr = f_err)
     return 
 
@@ -62,11 +62,11 @@ def pcr_call(infile, outdir, genus, primer_file, workingDir, multi):
 
 
 # House keeping of multithreaded pcr to ensure same naming convention as though they were PCRed in a from a single concatinated file
-def multi_cleaner(outdir):
+def multi_cleaner(outdir, name):
     amp_counter = 1
     total_sum_dict = {}
     # Loop through all amplicon files
-    for file in Path(f"{outdir}/amplicons").glob("*.amplicons"):
+    for file in Path(f"{outdir}/amplicons").glob(f"*{name}.amplicons"):
         # Open the summary file and turn it into a dictionary
         with open(str(file).replace(".amplicons", ".summary")) as f_in:
              rows = ( line.strip().split('\t') for line in f_in )
@@ -86,9 +86,10 @@ def multi_cleaner(outdir):
 # Just concatinating all corrected amplicon files  
 def amplicon_cat(outdir, genus, name):
     with open(f"{outdir}/amplicons/{genus}-{name}.amplicons", "w") as amp_out:
-        for file in Path(f"{outdir}/amplicons").glob("*.amplicons"):
+        for file in Path(f"{outdir}/amplicons").glob(f"*{name}.amplicons"):
             with open(file, "r") as f_in:
-                amp_out.write(f_in)
+                f_read = f_in.read()
+                amp_out.write(f_read)
     return
 
 # Writing the total summary dictionary to a tsv
