@@ -165,7 +165,7 @@ def draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, ge
     
     # Create a figure and subplots using a loop
     fig, axs = plt.subplots(n_rows, n_cols, figsize = (n_cols * 5, n_rows * 5))
-    if n_rows == 1 and n_cols == 1:
+    if n_rows > 1 and n_cols > 1:
         axs = axs.flatten()
     for i, graph in enumerate(graph_subs):
         #pos = nx.spring_layout(graph)
