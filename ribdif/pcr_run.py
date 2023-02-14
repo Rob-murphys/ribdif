@@ -65,6 +65,7 @@ def pcr_call(infile, outdir, genus, primer_file, workingDir, multi):
 def multi_cleaner(outdir, name):
     amp_counter = 1
     total_sum_dict = {}
+    total_sum_dict2 = {}
     # Loop through all amplicon files
     for file in Path(f"{outdir}/amplicons").glob(f"*{name}.amplicons"):
         # Open the summary file and turn it into a dictionary
@@ -73,9 +74,9 @@ def multi_cleaner(outdir, name):
              sum_dict = { row[0]:row[1:] for row in rows if "AmpId" not in row} # ignoring the header row
         #with fileinput.input(file, inplace = True) as amp_in: # In place changing the amplicon file
         with open(file, "r") as amp_in:
-            amp_read = amp_in.readlines()
-            for line in amp_read:
+            for line in amp_in:
                 if ">amp_" in line: # if this is in the line
+                    total_sum_dict2.update(sum_dict)
                     sum_dict[f"amp_{amp_counter}"] = sum_dict.pop(line.strip().strip(">")) # Update the respective row in the summary file dictionary
                     #line = f">amp_{amp_counter}\n" # Change the line
                     #print(line, end = '') # write it in place to the file
@@ -86,6 +87,7 @@ def multi_cleaner(outdir, name):
         total_sum_dict.update(sum_dict) # appending to the total dict
         with open("test.txt", "w") as f:
             print(total_sum_dict, file=f)
+            print(total_sum_dict2, file=f)
     return total_sum_dict
                       
 # Just concatinating all corrected amplicon files  
