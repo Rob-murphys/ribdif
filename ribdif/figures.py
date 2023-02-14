@@ -165,7 +165,8 @@ def draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, ge
     
     # Create a figure and subplots using a loop
     fig, axs = plt.subplots(n_rows, n_cols, figsize = (n_cols * 5, n_rows * 5))
-    axs = axs.flatten()
+    if n_rows == 1 and n_cols == 1:
+        axs = axs.flatten()
     for i, graph in enumerate(graph_subs):
         #pos = nx.spring_layout(graph)
         #edge_labels = {(n1, n2): graph[n1][n2]['weight'] for n1, n2 in graph.edges()}
@@ -178,12 +179,13 @@ def draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, ge
         axs[i].axis('off')
         axs[i].set_xlim([0, 1])
         axs[i].set_ylim([0, 1])
+
     
     # Create a dumy legend
     for k, v in species_palette.items():
         plt.scatter([],[], color = v, label = k)
     plt.legend(ncol = n_cols)
-    plt.savefig("test_weights.pdf", bbox_inches="tight")
+    #plt.savefig("test_weights.pdf", bbox_inches="tight")
     # Save the figure
     plt.savefig(f"{outdir}/amplicons/{genus}-{name}_graphs.pdf", bbox_inches = "tight")
     return
