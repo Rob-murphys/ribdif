@@ -120,7 +120,7 @@ def arg_handling(args, workingDir):
     if args.outdir == "False":
         outdir = Path(f"{Path.home()}/results/{genus}")
     else:
-        outdir = Path(f"{args.outdir})/{genus}")
+        outdir = Path(f"{args.outdir}/{genus}")
     
     #Resolving rerun argument
     if args.rerun == True:
