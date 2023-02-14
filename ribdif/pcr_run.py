@@ -83,6 +83,8 @@ def multi_cleaner(outdir, name):
                     pass
                     #print(line, end = '') # Writing the nucleotide lines
         total_sum_dict.update(sum_dict) # appending to the total dict
+        with open("test.txt", "w") as f:
+            print(total_sum_dict, file=f)
     return total_sum_dict
                       
 # Just concatinating all corrected amplicon files  
