@@ -83,16 +83,19 @@ def parse_args():
                         help = "Number of threads to use. Default is all avaliable",
                         default = os.cpu_count())
     
-    parser.add_argument("-s", "--speed", dest = "speed", 
-                        help = "Run in fast mode skipping all but the nessacary steps (No barrnap, msa, ani etc.)",
+    parser.add_argument("-w", "--whole-genome", dest = "whole", 
+                        help = "Indicate the primers given are to be run on the whole genome so no barrnap, msa, ani (Required if your primers are non 16S)",
                         action = "store_true")
     return parser.parse_args()
 
 def arg_handling(args, workingDir):
     print("#= Parsing arguments =#\n\n")
     
-    if args.speed:
-        print("Running in fast mode skipping all but the nessacary steps (No barrnap, msa, ani etc.)")
+    if not args.whole and args.primers != "False":
+        print("You are using custom primers on only the 16S genes as you didn't enable whole-genome mode. This is not a problem (if they are 16S primers), but we are just letting you know")
+    elif args.whole and args.primers == "False":
+        print("You are running in whole-genome mode but using the default primers. This is not a problem but will 'skip' barrnap and other potentially useful mectrics scrapped from the whole 16S genes" )
+    
     
     #Checking if user is running on a species
     if " " in args.genus: # checking is there is a space in genus/species name
@@ -118,7 +121,7 @@ def arg_handling(args, workingDir):
 
     # Checking if user provided own outdir and if not setting to root directory
     if args.outdir == "False":
-        outdir = Path(f"{Path.home()}/results/{genus}")
+        outdir = Path(f"{Path.cwd()}/results/{genus}")
     else:
         outdir = Path(f"{args.outdir}/{genus}")
     
@@ -184,8 +187,8 @@ def main():
         genome_count = len(list(Path(f"{outdir}/refseq/bacteria").glob("*")))
         print(f"\n\n{genome_count} previously downloaded genomes of {genus} were found")
             
-    # If using default primers call barrnap and rerun is false - this assume
-    if args.primers == "False" and not args.speed: # Is skipping barrnap actually faster?
+    # If not using whole-genome mode assume the primers being used are 16S (which they are if default)
+    if not args.whole:
         print("#= Running barrnap on downloaded sequences =#\n\n")
         barrnap_run.barnap_call(outdir, threads = args.threads)
         
@@ -211,17 +214,19 @@ def main():
         else:
             print("Skipping detailed intra-genomic analysis and ANI (if needed, use -a/--ANI).\n\n")
         
-        if args.speed:
-            pass
-        else:
-            # ALignment of full 16S genes recoverd from barrnap
-            print("Alligning full-length 16S genes within genomes with muscle and building trees with fastree.\n\n")
-            msa_run.muscle_call_multi(outdir, args.threads)
-        
+# =============================================================================
+#         if args.speed:
+#             pass
+#         else:
+#             # ALignment of full 16S genes recoverd from barrnap
+#             print("Alligning full-length 16S genes within genomes with muscle and building trees with fastree.\n\n")
+#             msa_run.muscle_call_multi(outdir, args.threads)
+#         
+# =============================================================================
         # Genome statistic summary
         with open(f"{outdir}/{genus}_summary.tsv", "w") as f_out:
             f_out.write("GCF\tGenus\tSpecies\t#16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
-        summary_16S.multiproc_sumamry(outdir, genus, args.threads, args.speed)
+        summary_16S.multiproc_sumamry(outdir, genus, args.threads)
         
         # Running msa on concatinated 16S sequences
         if args.msa == True:
@@ -239,7 +244,7 @@ def main():
         
 
     # PCR for custom primers   
-    else:
+    elif args.whole:
         # Concatinate all downloaded genomes
 # =============================================================================
 #         all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.fna'))]

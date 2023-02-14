@@ -19,11 +19,13 @@ def writer(outdir, genus, stats):
     with open(f"{outdir}/{genus}_summary.tsv", "a") as f_app:
         f_app.write("\t".join(stats) + "\n")
 
-def plot_tree(tree, pdf_out):
-    plt.figure(figsize=(25, 35), dpi=200)
-    Phylo.draw(tree, do_show = False)
-    plt.savefig(pdf_out)
-    return
+# =============================================================================
+# def plot_tree(tree, pdf_out):
+#     plt.figure(figsize=(25, 35), dpi=200)
+#     Phylo.draw(tree, do_show = False)
+#     plt.savefig(pdf_out)
+#     return
+# =============================================================================
 
 def shannon_calc(alignment_path):
             # Read in alignment file and generate a dist of sequences
@@ -42,7 +44,7 @@ def shannon_calc(alignment_path):
             
             return sum(divs)
 
-def summary_16S_run(in_aln, outdir, genus, fast_mode):
+def summary_16S_run(in_aln, outdir, genus):
     
     indir = Path(in_aln).parent
     # Paths for all needed files
@@ -89,11 +91,13 @@ def summary_16S_run(in_aln, outdir, genus, fast_mode):
             
             # roll_means_30 = np.convolve(divs, np.ones(30), "valid")/30   
             
-            if fast_mode:
-                pass
-            else:
-                tree = Phylo.read(tree_path, "newick")
-                plot_tree(tree, pdf_out)
+# =============================================================================
+#             if fast_mode:
+#                 pass
+#             else:
+#                 tree = Phylo.read(tree_path, "newick")
+#                 plot_tree(tree, pdf_out)
+# =============================================================================
             
             stats = [GCF, genera, species, str(count_16S),  mean_mis, sd_mis, max_mis, min_mis, total_div]
             writer(outdir, genus, stats)
@@ -108,10 +112,10 @@ def summary_16S_run(in_aln, outdir, genus, fast_mode):
         writer(outdir, genus, stats)
         
             
-def multiproc_sumamry(outdir, genus, threads, fast_mode):
+def multiproc_sumamry(outdir, genus, threads):
     with multiprocessing.Pool(threads) as pool:
         all_aln = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.16sAln'))]
-        pool.starmap(summary_16S_run, zip(all_aln, repeat(outdir), repeat(genus), repeat(fast_mode)))
+        pool.starmap(summary_16S_run, zip(all_aln, repeat(outdir), repeat(genus)))
     return
 
         
