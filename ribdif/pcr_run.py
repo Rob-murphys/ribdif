@@ -73,7 +73,8 @@ def multi_cleaner(outdir, name):
              sum_dict = { row[0]:row[1:] for row in rows if "AmpId" not in row} # ignoring the header row
         #with fileinput.input(file, inplace = True) as amp_in: # In place changing the amplicon file
         with open(file, "r") as amp_in:
-            for line in amp_in:
+            amp_read = amp_in.readlines()
+            for line in amp_read:
                 if ">amp_" in line: # if this is in the line
                     sum_dict[f"amp_{amp_counter}"] = sum_dict.pop(line.strip().strip(">")) # Update the respective row in the summary file dictionary
                     #line = f">amp_{amp_counter}\n" # Change the line
