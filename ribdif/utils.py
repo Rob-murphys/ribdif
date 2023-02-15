@@ -4,24 +4,41 @@ import re
 import gzip
 import shutil
 from pathlib import Path
+import fileinput
 
-# Remove unwanted characters from anywhere is file (should only be in fasta headers)
-def modify(file_path):
-    # Open and read the contents of the file
-    with open(file_path, "r") as f_in:
-        contents = f_in.read()
-        
-    # Preform substitutions for unwanted characters
-    contents = re.sub(r"[:,/()=#\x27]", "", contents)
-    contents = re.sub(r"[: ]", "_", contents)
-
-    # Write the modified contents back to file
-    with open(file_path, "w") as f_out:
-        f_out.write(contents)
-    return
 
 # =============================================================================
-# def modify2(file_path):
+# def modify(file_path):
+#     # Open and read the contents of the file
+#     with open(file_path, "r") as f_in:
+#         contents = f_in.read()
+#         
+#     # Preform substitutions for unwanted characters
+#     contents = re.sub(r"[:,/()=#\x27]", "", contents)
+#     contents = re.sub(r"[: ]", "_", contents)
+# 
+#     # Write the modified contents back to file
+#     with open(file_path, "w") as f_out:
+#         f_out.write(contents)
+#     return
+# =============================================================================
+
+# Remove unwanted characters from anywhere is file (should only be in fasta headers)
+def modify2(file_path):
+    GCF = str(Path(file_path).parent).split(r"/")[-1]
+    # Open and read the contents of the file
+    with fileinput.input(file_path, inplace = True) as f_in:
+        for line in f_in:
+            if line.startswith(">"):
+                re.sub(r"[:,/()=#\x27]", "", line)
+                re.sub(r"[: ]", "_", line)
+                line = f"{line[0]}{GCF}_{line[1:]}" 
+                print(line, end = '')
+            else:
+                print(line, end = '')
+
+# =============================================================================
+# def modify3(file_path):
 #     # Open and read the contents of the file
 #     with open(file_path, "rb") as f_in:
 #         contentsB = f_in.read()
