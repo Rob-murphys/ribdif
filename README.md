@@ -20,17 +20,32 @@ Ribdif is most easily installed with pip inside a virtual environment. Make sure
 
 Next we need to install some dependencies:
 
-`conda install -c bioconda vsearch fasttree muscle barrnap -y`
+`conda install -c bioconda vsearch fasttree muscle barrnap pyani -y`
 
 Check your install:
 
 `ribdif -h`
 
-# Running
+# Usage
 
-`ribdif/ribdif -g <some genus name>`
+## Running with default primers
+
+`ribdif -g <some genus name>`
 
 Use `-h` for full options list.
+
+An example run with Ruegeria as the genus:
+
+`ribdif -g Ruegeria`
+
+You can also run with a species aswell:
+
+`ribdig -g "Mycoplasma bovis"`
+
+## Running with custom primers
+
+`ribdif -g <some genus name> -p /path/to/my_primer_file.txt`
+
 
 
 
