@@ -11,7 +11,6 @@ import os
 from pathlib import Path
 import shutil
 import multiprocessing
-from itertools import repeat
 
 
 
@@ -182,7 +181,7 @@ def main():
         print("\n\nModifying fasta headers.\n\n")
         with multiprocessing.Pool(args.threads) as pool:
             all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.fna'))]
-            pool.map(utils.modify, all_fna)
+            pool.map(utils.modify2, all_fna)
     else:
         genome_count = len(list(Path(f"{outdir}/refseq/bacteria").glob("*")))
         print(f"\n\n{genome_count} previously downloaded genomes of {genus} were found")
