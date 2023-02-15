@@ -2,7 +2,7 @@
 
 from pathlib import Path
 import multiprocessing
-from glob import glob
+#from glob import glob
 from itertools import repeat
 
 import numpy as np
@@ -11,9 +11,11 @@ import pandas as pd
 from Bio import SeqIO
 from collections import Counter
 
-from Bio import Phylo
-import matplotlib
-import matplotlib.pyplot as plt
+# =============================================================================
+# from Bio import Phylo
+# import matplotlib
+# import matplotlib.pyplot as plt
+# =============================================================================
 
 def writer(outdir, genus, stats):
     with open(f"{outdir}/{genus}_16S_summary.tsv", "a") as f_app:
@@ -50,8 +52,8 @@ def summary_16S_run(in_aln, outdir, genus):
     # Paths for all needed files
     mismatch_path   = f"{indir}/ani/ANIm_similarity_errors.tab"
     alignment_path = in_aln
-    tree_path = in_aln.replace(".16sAln", ".16sTree")
-    pdf_out = in_aln.replace(".16sAln", "_16S_div.pdf")
+    #tree_path = in_aln.replace(".16sAln", ".16sTree")
+    #pdf_out = in_aln.replace(".16sAln", "_16S_div.pdf")
     
     # Getting sequences name details from first record of the alignment fasta
     with open(alignment_path, "r") as f_in:
@@ -71,6 +73,9 @@ def summary_16S_run(in_aln, outdir, genus):
     genera = splitname[4]
     species = splitname[5]
     
+    # Calculate total shanon diversity
+    total_div = str(shannon_calc(alignment_path))
+    
     # If ANI was run then do following
     if Path(mismatch_path).is_file():
         
@@ -88,8 +93,6 @@ def summary_16S_run(in_aln, outdir, genus):
             max_mis = str(max(upper_mismatch))
             min_mis = str(min(upper_mismatch))
             
-            total_div = str(shannon_calc(alignment_path))
-            
             # roll_means_30 = np.convolve(divs, np.ones(30), "valid")/30   
             
 # =============================================================================
@@ -104,18 +107,19 @@ def summary_16S_run(in_aln, outdir, genus):
             writer(outdir, genus, stats)
 
         else:
-            mean_mis, sd_mis, max_mis, min_mis, total_div = (str(0), str(0), str(0), str(0), str(0))
+            mean_mis, sd_mis, max_mis, min_mis = (str(0), str(0), str(0), str(0))
             stats = [GCF, genera, species, str(count_16S), mean_mis, sd_mis, max_mis, min_mis, total_div]
             writer(outdir, genus, stats)
     else:
-        mean_mis, sd_mis, max_mis, min_mis, total_div = ("-", "-", "-", "-", "-")
+        mean_mis, sd_mis, max_mis, min_mis = ("-", "-", "-", "-")
         stats = [GCF, genera, species, str(count_16S), mean_mis, sd_mis, max_mis, min_mis, total_div]
         writer(outdir, genus, stats)
         
             
 def multiproc_sumamry(outdir, genus, threads):
     with multiprocessing.Pool(threads) as pool:
-        all_aln = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.16s'))]
+        all_aln = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.16sAln'))]
+        print(all_aln)
         pool.starmap(summary_16S_run, zip(all_aln, repeat(outdir), repeat(genus)))
     return
 
