@@ -17,7 +17,7 @@ def uc_cleaner(outdir, genus, name):
     
     # Create new columns
     uc_df_clean.loc[:, "GCF"] = ["_".join(i.split("_")[:2]) for i in uc_df_clean[8]] # GCF column
-    uc_df_clean.loc[:, "Species"] = [i.split("_")[4] for i in uc_df_clean[8]]  # Species column
+    uc_df_clean.loc[:, "Species"] = [i.split("_")[5] for i in uc_df_clean[8]]  # Species column
     
     # Sorting dataframe
     #uc_df_clean = uc_df_clean.sort_values(by = ["GCF"]) # check if this matters later on
