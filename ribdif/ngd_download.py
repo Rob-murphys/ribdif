@@ -6,12 +6,12 @@ import gzip
 # Using Kai's NCBI genome downloader to get all genones of the specified genus
 # Avaliable at: https://github.com/kblin/ncbi-genome-download
 def genome_download(genus, outdir, threads, frag, sp_ignore):
-    
+    genera = genus.replace("_", " ")
     if frag: # if the user wants fragmented genomes
         print(f"Downloading all genome recoreds of {genus} fron NCBI\n")
         ngd.download(section='refseq', 
                file_formats = 'fasta', 
-               genera = genus,  
+               genera = genera,  
                output = outdir, 
                parallel = threads*2,
                groups = 'bacteria')
@@ -21,7 +21,7 @@ def genome_download(genus, outdir, threads, frag, sp_ignore):
         print(f"Downloading all complete genome records of {genus} from NCBI\n")
         ngd.download(section='refseq', 
                file_formats = 'fasta', 
-               genera = genus,  
+               genera = genera,  
                output = outdir, 
                assembly_levels = "complete",
                parallel = threads*2,
@@ -43,7 +43,7 @@ def genome_download(genus, outdir, threads, frag, sp_ignore):
         return count
     
     else:
-        raise NotADirectoryError(repr(f"Download failed because {genus} is invalid or there are no records of the requested type in NCBI\n\n"))
+        raise NotADirectoryError(repr(f"Download failed because {genus} is invalid or there are no records of the requested type in NCBI"))
         return
 
 def sp_remove(outdir):
