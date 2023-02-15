@@ -13,18 +13,18 @@ I removed the counter from all functions for labeling output files as it seems t
 """
 
 # Spawning the shell call
-def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir, multi): # removed , counter
+def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, length, workingDir, multi): # removed , counter
     # Checking if running on multi processing mode
     if not multi:    
         # Building the command
-        command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -r -m -i > {outdir}/amplicons/{genus}-{name}.summary 2> {outdir}/amplicons/{genus}-{name}.temp.amplicons"
+        command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -l {length} -r -m -i > {outdir}/amplicons/{genus}-{name}.summary 2> {outdir}/amplicons/{genus}-{name}.temp.amplicons"
         # Passing the command to shell piping the stdout and stderr
         with open(f"{outdir}/amplicons/{genus}-{name}.summary", "w") as f_std, open(f"{outdir}/amplicons/{genus}-{name}.temp.amplicons", "w") as f_err:
             subprocess.run(shlex.split(command), stdout = f_std, stderr = f_err)
     # If running with multi then output is directed to seperate files for later processing
     else:
         outfile = Path(infile).stem
-        command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -r -m -i > {outdir}/amplicons/{outfile}.summary 2> {outdir}/amplicons/{genus}-{name}.temp.amplicons"
+        command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -l {length} -r -m -i > {outdir}/amplicons/{outfile}.summary 2> {outdir}/amplicons/{genus}-{name}.temp.amplicons"
         
         with open(f"{outdir}/amplicons/{outfile}_{name}.summary", "w") as f_std, open(f"{outdir}/amplicons/{outfile}_{name}.amplicons", "w") as f_err:
             subprocess.run(shlex.split(command), stdout = f_std, stderr = f_err)
@@ -39,11 +39,11 @@ def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads):
     with open(primer_file, "r") as f_primer:
         names = []
         for primer in f_primer:
-            name, fwd, rvs = primer.split("\t")
+            name, fwd, rvs, length = primer.split("\t")
             with multiprocessing.Pool(threads) as pool: # spawn the pool
                 all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").rglob('*.fna'))] # generate list of files ending in .fna
                 #counter = range(len(all_fna))
-                pool.starmap(call_proc_pcr, zip(all_fna, repeat(outdir), repeat(genus), repeat(name), repeat(fwd), repeat(rvs), repeat(workingDir), repeat(multi))) # removed counter
+                pool.starmap(call_proc_pcr, zip(all_fna, repeat(outdir), repeat(genus), repeat(name), repeat(fwd), repeat(rvs), repeat(length), repeat(workingDir), repeat(multi))) # removed counter
             names.append(name)
     return names
 
@@ -55,8 +55,8 @@ def pcr_call(infile, outdir, genus, primer_file, workingDir, multi):
     with open(primer_file, "r") as f_primer:
         names = []
         for primer in f_primer:
-            name, fwd, rvs = primer.strip().split("\t")
-            call_proc_pcr(infile, outdir, genus, name, fwd, rvs, workingDir, multi)
+            name, fwd, rvs, length = primer.strip().split("\t")
+            call_proc_pcr(infile, outdir, genus, name, fwd, rvs, length, workingDir, multi)
             names.append(name)
     return names
 
