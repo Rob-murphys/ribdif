@@ -37,7 +37,7 @@ def cluster_heatmap(cluster_dict, row_palette, species_series):
                    linecolor = "grey",
                    linewidths = 0.1)
     
-
+#sns.heatmap(cluster_df)
 # =============================================================================
 #     plot_clus.ax_heatmap.tick_params(axis='x', labelsize=8,)
 #     plot_clus.ax_row_colors.tick_params(bottom = False) # remove tickmark under row colours
@@ -159,7 +159,7 @@ def create_graph(adjacency_df):
 def draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, genus, name):
 
     
-    # Determine the number of rows and columns needed to keep the figure a square
+    # Determine the number of rows and columns needed to keep the figure a rectangle
     n_rows = int(np.ceil(np.sqrt(n_subplots))) # rounding the sqrt of subplot number
     n_cols = int(np.ceil(n_subplots / n_rows))
     
@@ -171,7 +171,10 @@ def draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, ge
         #pos = nx.spring_layout(graph)
         #edge_labels = {(n1, n2): graph[n1][n2]['weight'] for n1, n2 in graph.edges()}
         node_cols = [row_palette[s] for s in graph.nodes] # get colours for current nodes
-        nx.draw(graph, ax=axs[i], node_color = node_cols) # draw specific graph
+        try: 
+            nx.draw(graph, ax=axs[i], node_color = node_cols) # draw specific graph
+        except TypeError:
+            nx.draw(graph, ax=axs, node_color = node_cols)
         #nx.draw_networkx_edge_labels(graph, pos, edge_labels = edge_labels)
         
     # Make any unused subplots blank
