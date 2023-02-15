@@ -33,8 +33,6 @@ def genome_download(genus, outdir, threads, frag, sp_ignore):
         dir_count = len(list(Path(f"{outdir}/refseq/bacteria").glob("*")))
         
         if count != dir_count:
-            print(count)
-            print(dir_count)
             raise FileNotFoundError(repr(f"{genus} is a real genus but some (or no) genomes were not downloaded"))
         if sp_ignore:
             sp_count = sp_remove(outdir)
