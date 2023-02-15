@@ -212,16 +212,11 @@ def main():
             pyani_run.pyani_call(outdir, args.threads)
         else:
             print("Skipping detailed intra-genomic analysis and ANI (if needed, use -a/--ANI).\n\n")
+
+        # ALignment of full 16S genes recoverd from barrnap
+        print("Alligning full-length 16S genes within genomes with muscle and building trees with fastree.\n\n")
+        msa_run.muscle_call_multi(outdir, args.threads)
         
-# =============================================================================
-#         if args.speed:
-#             pass
-#         else:
-#             # ALignment of full 16S genes recoverd from barrnap
-#             print("Alligning full-length 16S genes within genomes with muscle and building trees with fastree.\n\n")
-#             msa_run.muscle_call_multi(outdir, args.threads)
-#         
-# =============================================================================
         # Genome statistic summary
         with open(f"{outdir}/{genus}_summary.tsv", "w") as f_out:
             f_out.write("GCF\tGenus\tSpecies\t#16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
