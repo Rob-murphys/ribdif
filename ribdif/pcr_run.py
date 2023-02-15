@@ -47,7 +47,7 @@ def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads):
             names.append(name)
     return names
 
-def pcr_call(infile, outdir, genus, primer_file, workingDir, multi):
+def pcr_call(infile, outdir, genus, primer_file, workingDir):
     amplicon_dir = Path(f"{outdir}/amplicons")
     amplicon_dir.mkdir(parents = True, exist_ok = True)
     multi = False
