@@ -59,6 +59,7 @@ def summary_16S_run(in_aln, outdir, genus):
         for value, line in enumerate(f_in):
             if value == 0:
                 splitname = line.strip().split("_")
+                count_16S += 1
             elif line.startswith(">"):
                 count_16S += 1
         
