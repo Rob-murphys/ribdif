@@ -16,7 +16,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 def writer(outdir, genus, stats):
-    with open(f"{outdir}/{genus}_summary.tsv", "a") as f_app:
+    with open(f"{outdir}/{genus}_16S_summary.tsv", "a") as f_app:
         f_app.write("\t".join(stats) + "\n")
 
 # =============================================================================
@@ -115,7 +115,7 @@ def summary_16S_run(in_aln, outdir, genus):
             
 def multiproc_sumamry(outdir, genus, threads):
     with multiprocessing.Pool(threads) as pool:
-        all_aln = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.16sAln'))]
+        all_aln = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.16s'))]
         pool.starmap(summary_16S_run, zip(all_aln, repeat(outdir), repeat(genus)))
     return
 
