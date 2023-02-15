@@ -17,9 +17,10 @@ def call_proc_muscle(infile):
     #command2 = f"fasttree -quiet -nopr -gtr -nt {outfile}.16sTree"
     # Passing the command to shell piping the stdout and stderr
     subprocess.run(shlex.split(command1), stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-    with open(f"{outfile}.16sTree", "w") as f_std:
-        subprocess.run(shlex.split(command2), stdout = f_std, stderr = subprocess.PIPE)
-    
+# =============================================================================
+#     with open(f"{outfile}.16sTree", "w") as f_std:
+#         subprocess.run(shlex.split(command2), stdout = f_std, stderr = subprocess.PIPE)
+# =============================================================================
     return
 
 
