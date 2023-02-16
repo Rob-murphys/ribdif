@@ -91,9 +91,9 @@ def arg_handling(args, workingDir):
     print("#= Parsing arguments =#\n\n")
     
     if not args.whole and args.primers != "False":
-        print("You are using custom primers on only the 16S genes as you didn't enable whole-genome mode. This is not a problem (if they are 16S primers), but we are just letting you know")
+        print("You are using custom primers on only the 16S genes as you didn't enable whole-genome mode. This is not a problem (if they are 16S primers), but we are just letting you know\n")
     elif args.whole and args.primers == "False":
-        print("You are running in whole-genome mode but using the default primers. This is not a problem but will 'skip' barrnap and other potentially useful mectrics scrapped from the whole 16S genes" )
+        print("You are running in whole-genome mode but using the default primers. This is not a problem but will 'skip' barrnap and other potentially useful mectrics scrapped from the whole 16S genes\n" )
     
     
     #Checking if user is running on a species
