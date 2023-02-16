@@ -160,12 +160,12 @@ def make_sumamry(in_fna, outdir, genus, whole_mode, ani_mode, threads, summary_t
                 species = splitname[5]
                 # If the GCF already exists in the dict then just plus one to count
                 if GCF in summary_dict:
-                    summary_dict[GCF][2] += 1
+                    summary_dict[GCF][2] = str(int(summary_dict[GCF][2]) + 1)
                 # If it does not exist create it with space for all needed info
                 else:
                     count = 1
                     summary_dict[GCF] = [genera, species, count, "-", "-", "-", "-", "-"]
-    summary_dict[GCF][2] = str(summary_dict[GCF][2]) # turn count into a string so we can write it later
+
     # Multipocess the writing shannon and ani stuff out (probably dont need to do this)
     with multiprocessing.Pool(threads) as pool:
         pool.starmap(dict_parser, zip(summary_dict, repeat(summary_dict), repeat(outdir), repeat(genus), repeat(whole_mode), repeat(ani_mode), repeat(summary_type)))
