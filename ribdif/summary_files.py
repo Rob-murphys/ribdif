@@ -2,7 +2,7 @@
 
 from pathlib import Path
 import multiprocessing
-#from glob import glob
+from glob import glob
 from itertools import repeat
 
 import numpy as np
@@ -128,7 +128,7 @@ def dict_parser(key, summary_dict, outdir, genus, whole_mode, ani_mode):
     # Looping through the generate dictionary
     value = summary_dict[key]
     if not whole_mode: # is using barrnap (i.e. running ONLY on 16S genes)
-        alignment_path = Path(f"{outdir}/refseq/bacteria/{key}").glob("*.16sAln") # generate path to alignment file
+        alignment_path = glob(f"{outdir}/refseq/bacteria/{key}/*.16sAln")[0] # generate path to alignment file
         summary_dict[key][7] = str(shannon_calc(alignment_path))# Calculate total shanon diversity
     if ani_mode: # if using ani
         value = ani_stats(key, value, outdir, genus) # get ani stats
@@ -166,7 +166,7 @@ def make_sumamry(in_fna, outdir, genus, whole_mode, ani_mode, threads, summary_t
                     summary_dict[GCF] = [genera, species, count, "-", "-", "-", "-", "-"]
     # Multipocess the writing shannon and ani stuff out (probably dont need to do this)
     with multiprocessing.Pool(threads) as pool:
-        pool.starmap(dict_parser, summary_dict, repeat(summary_dict), repeat(outdir), repeat(genus), repeat(whole_mode), repeat(ani_mode))
+        pool.starmap(dict_parser, zip(summary_dict, repeat(summary_dict), repeat(outdir), repeat(genus), repeat(whole_mode), repeat(ani_mode)))
     return
 
 
