@@ -136,10 +136,10 @@ def arg_handling(args, workingDir):
         rerun = False
     
     # Resolving clobber argument
-    if args.clobber == True:
-        print(f"Removing old run of {genus}" )
+    if args.clobber:
         try:
             shutil.rmtree(Path(f"{outdir}")) # Remove genus and all subdirectories
+            print(f"Removing old run of {genus}")
         except FileNotFoundError: # catch if directory not found
             print(f"{genus} folder does not exist, ignoring clobber request")
             pass
@@ -269,7 +269,7 @@ def main():
         #all_amp = [str(i) for i in list(Path(f"{outdir}/amplicon/{genus}-{name}").glob('*/*.16s'))]
         #with open(f"{outdir}/{genus}_amp_summary.tsv", "w") as f_out:
         #    f_out.write("GCF\tGenus\tSpecies\t#amp/16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
-        summary_type = "amp"
+        summary_type = f"-{name}-amp"
         in_fna = f"{outdir}/amplicons/{genus}-{name}.amplicons"
         summary_files.make_sumamry(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type)
         
