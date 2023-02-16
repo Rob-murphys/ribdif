@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
+#from pathlib import Path
 import multiprocessing
 from glob import glob
 from itertools import repeat
@@ -19,7 +19,6 @@ from collections import Counter
 
 def writer(outdir, genus, stats, summary_type):
     with open(f"{outdir}/{genus}_{summary_type}_summary.tsv", "a") as f_sum:
-        print(stats)
         f_sum.write("\t".join(stats) + "\n")
 
 # =============================================================================
