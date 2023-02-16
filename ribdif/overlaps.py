@@ -109,7 +109,7 @@ def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir):
         has_overlap = []
         
     count_overlap = len(has_overlap)
-    with open(f"{outdir}/{genus}_{name}_summary.txt", "w+") as f_out:
+    with open(f"{outdir}/{genus}_{name}_overlap_report.txt", "w+") as f_out:
         f_out.write(f"""Summary of {genus} differentiation by {name} amplicons:\n
                     Genomes downloaded: {genome_count}
                     \tWith species name: {named_genomes}
