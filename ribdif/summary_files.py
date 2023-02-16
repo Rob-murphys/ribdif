@@ -118,73 +118,78 @@ def shannon_calc(alignment_path):
 # =============================================================================
         
             
-def multiproc_sumamry(outdir, genus, threads):
+def summary_multiproc(outdir, genus, threads, file_list):
     with multiprocessing.Pool(threads) as pool:
-        all_aln = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.16s'))]
-        print(all_aln)
-        pool.starmap(make_sumamry, zip(all_aln, repeat(outdir), repeat(genus)))
+        pool.starmap(make_sumamry, zip(file_list, repeat(outdir), repeat(genus)))
     return
 
-        
-def make_sumamry(in_fna, outdir, genus, whole_mode):
 
+def dict_parser(key, summary_dict, outdir, genus, whole_mode, ani_mode):
+    # Looping through the generate dictionary
+    value = summary_dict[key]
+    if not whole_mode: # is using barrnap (i.e. running ONLY on 16S genes)
+        alignment_path = Path(f"{outdir}/refseq/bacteria/{key}").glob("*.16sAln") # generate path to alignment file
+        summary_dict[key][7] = str(shannon_calc(alignment_path))# Calculate total shanon diversity
+    if ani_mode: # if using ani
+        value = ani_stats(key, value, outdir, genus) # get ani stats
+    # Write it all to file
+    value.insert(0, key) # append GCF to value list
+    writer(outdir, genus, value) # Write
+    return
+        
+def make_sumamry(in_fna, outdir, genus, whole_mode, ani_mode, threads, summary_type):
+    
+    # Initiate the summary file with headers
+    with open(f"{outdir}/{genus}_{summary_type}_summary.tsv", "w") as f_out:
+        f_out.write("GCF\tGenus\tSpecies\t#16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
     # Paths for all needed files
     #tree_path = in_aln.replace(".16sAln", ".16sTree")
     #pdf_out = in_aln.replace(".16sAln", "_16S_div.pdf")
     
-    # Getting sequences name details from first record of the alignment fasta
+    
+    summary_dict = {}
+    # Loop through each fasta file looking for headers
     with open(in_fna, "r") as f_in:
-        count_gene = 0
-        for value, line in enumerate(f_in):
-            if value == 0:
+        for line in f_in:
+            if ">" in line:
                 splitname = line.strip().split("_")
-                count_gene += 1
-            elif line.startswith(">"):
-                count_gene += 1
-        
-        
-    
-    # Taking fasta header and getting important bits out
-    GCF = "_".join(splitname[:2]).strip(">")
-    #NZ = splitname[2] # Currently unused?
-    genera = splitname[4]
-    species = splitname[5]
-    
-    if not whole_mode:
-        alignment_path=f"{in_fna}Aln"
-        # Calculate total shanon diversity
-        total_div = str(shannon_calc(alignment_path))
-        ani_stats(in_fna, GCF, genera, species, count_gene, total_div, outdir, genus)
-    else:
-        mean_mis, sd_mis, max_mis, min_mis = ("-", "-", "-", "-")
-        stats = [GCF, genera, species, str(count_gene), mean_mis, sd_mis, max_mis, min_mis, total_div]
-        writer(outdir, genus, stats)
+                # Taking fasta header and getting important bits out
+                GCF = "_".join(splitname[:2]).strip(">")
+                genera = splitname[4]
+                species = splitname[5]
+                # If the GCF already exists in the dict then just plus one to count
+                if GCF in summary_dict:
+                    summary_dict[GCF][2] += 1
+                # If it does not exist create it with space for all needed info
+                else:
+                    count = 1
+                    summary_dict[GCF] = [genera, species, count, "-", "-", "-", "-", "-"]
+    # Multipocess the writing shannon and ani stuff out (probably dont need to do this)
+    with multiprocessing.Pool(threads) as pool:
+        pool.starmap(dict_parser, summary_dict, repeat(summary_dict), repeat(outdir), repeat(genus), repeat(whole_mode), repeat(ani_mode))
     return
 
 
-def ani_stats(in_fna, GCF, genera, species, count_gene, total_div, outdir, genus):
-    indir = Path(in_fna).parent
-    mismatch_path   = f"{indir}/ani/ANIm_similarity_errors.tab"
+def ani_stats(key, value, total_div, outdir, genus):
+    mismatch_path   = f"{outdir}/refseq/bacteria/{key}/ani/ANIm_similarity_errors.tab"
     
-    # If ANI was run then do following
-    if Path(mismatch_path).is_file():
         
-        # Read in ANI simmilatiry errors (the number of unaligned or non-identical bases)
-        mismatch = pd.read_table(mismatch_path, sep="\t", index_col = 0)
+    # Read in ANI simmilatiry errors (the number of unaligned or non-identical bases)
+    mismatch = pd.read_table(mismatch_path, sep="\t", index_col = 0)
+    
+    if len(mismatch) > 1:
+        # Get upper triange of this dataframe
+        indices  = np.triu_indices(mismatch.shape[0], k=1) # gets indices of upper triangle k=1 ofsets by 1 to avoid the diagonal center 
+        upper_mismatch = mismatch.values[indices] # gets the values of these indicies as a n array
         
-        if len(mismatch) > 1:
-            # Get upper triange of this dataframe
-            indices  = np.triu_indices(mismatch.shape[0], k=1) # gets indices of upper triangle k=1 ofsets by 1 to avoid the diagonal center 
-            upper_mismatch = mismatch.values[indices] # gets the values of these indicies as a n array
-            
-            # Calculate stats on this array
-            mean_mis = str(round(np.mean(upper_mismatch), 2))
-            sd_mis = str(round(np.std(upper_mismatch, ddof = 1), 2))
-            max_mis = str(max(upper_mismatch))
-            min_mis = str(min(upper_mismatch))
-            
-            # roll_means_30 = np.convolve(divs, np.ones(30), "valid")/30   
-            
+        # Calculate stats on this array
+        mean_mis = str(round(np.mean(upper_mismatch), 2))
+        sd_mis = str(round(np.std(upper_mismatch, ddof = 1), 2))
+        max_mis = str(max(upper_mismatch))
+        min_mis = str(min(upper_mismatch))
+        
+        # roll_means_30 = np.convolve(divs, np.ones(30), "valid")/30   
+        
 # =============================================================================
 #             if fast_mode:
 #                 pass
@@ -192,14 +197,12 @@ def ani_stats(in_fna, GCF, genera, species, count_gene, total_div, outdir, genus
 #                 tree = Phylo.read(tree_path, "newick")
 #                 plot_tree(tree, pdf_out)
 # =============================================================================
-            
-            stats = [GCF, genera, species, str(count_gene),  mean_mis, sd_mis, max_mis, min_mis, total_div]
-            writer(outdir, genus, stats)
+        
+        value[3:7] = mean_mis, sd_mis, max_mis, min_mis
+        return value
 
-        else:
-            mean_mis, sd_mis, max_mis, min_mis = (str(0), str(0), str(0), str(0))
-            stats = [GCF, genera, species, str(count_gene), mean_mis, sd_mis, max_mis, min_mis, total_div]
-            writer(outdir, genus, stats)
-    return
+    else:
+        value[3:7] = (str(0), str(0), str(0), str(0))
+        return value
 
 

@@ -16,14 +16,14 @@ import multiprocessing
 
 
 
-from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_16S, vsearch_run, overlaps, figures
+from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_files, vsearch_run, overlaps, figures
 # =============================================================================
 # import barrnap_run
 # import pcr_run
 # import pyani_run
 # import utils
 # import msa_run
-# import summary_16S
+# import summary_files
 # import vsearch_run
 # import overlaps
 # import figures
@@ -218,9 +218,12 @@ def main():
         msa_run.muscle_call_multi(outdir, args.threads)
         
         # Genome statistic summary
-        with open(f"{outdir}/{genus}_16S_summary.tsv", "w") as f_out:
-            f_out.write("GCF\tGenus\tSpecies\t#16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
-        summary_16S.multiproc_sumamry(outdir, genus, args.threads)
+        #all_aln = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.16s'))]
+        #with open(f"{outdir}/{genus}_{summary_type}_summary.tsv", "w") as f_out:
+            #f_out.write("GCF\tGenus\tSpecies\t#16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
+        summary_type = "16S"
+        in_fna = f"{outdir}/full/{genus}.16S"
+        summary_files.make_sumamry(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type)
         
         # Running msa on concatinated 16S sequences
         if args.msa == True:
@@ -257,11 +260,18 @@ def main():
             total_sum_dict = pcr_run.multi_cleaner(outdir, name)
             pcr_run.amplicon_cat(outdir, genus, name)
             pcr_run.sum_dict_write(outdir, genus, name, total_sum_dict)
-    
+            
+        
     for name in names:
         # Rename amplicon fasta headers to origin contig
         utils.amp_replace(outdir, genus, name)
         
+        #all_amp = [str(i) for i in list(Path(f"{outdir}/amplicon/{genus}-{name}").glob('*/*.16s'))]
+        #with open(f"{outdir}/{genus}_amp_summary.tsv", "w") as f_out:
+        #    f_out.write("GCF\tGenus\tSpecies\t#amp/16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
+        summary_type = "amp"
+        in_fna = f"{outdir}/amplicons/{genus}-{name}.amplicons"
+        summary_files.make_sumamry(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type)
         
     # msa on all amplicons
     if args.msa == True:
