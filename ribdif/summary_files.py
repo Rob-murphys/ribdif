@@ -17,8 +17,8 @@ from collections import Counter
 # import matplotlib.pyplot as plt
 # =============================================================================
 
-def writer(outdir, genus, stats):
-    with open(f"{outdir}/{genus}_16S_summary.tsv", "a") as f_app:
+def writer(outdir, genus, stats, summary_type):
+    with open(f"{outdir}/{genus}_{summary_type}_summary.tsv", "a") as f_app:
         f_app.write("\t".join(stats) + "\n")
 
 # =============================================================================
@@ -124,7 +124,7 @@ def summary_multiproc(outdir, genus, threads, file_list):
     return
 
 
-def dict_parser(key, summary_dict, outdir, genus, whole_mode, ani_mode):
+def dict_parser(key, summary_dict, outdir, genus, whole_mode, ani_mode, summary_type):
     # Looping through the generate dictionary
     value = summary_dict[key]
     if not whole_mode: # is using barrnap (i.e. running ONLY on 16S genes)
@@ -164,13 +164,14 @@ def make_sumamry(in_fna, outdir, genus, whole_mode, ani_mode, threads, summary_t
                 else:
                     count = 1
                     summary_dict[GCF] = [genera, species, count, "-", "-", "-", "-", "-"]
+    summary_dict[GCF][2] = str(summary_dict[GCF][2]) # turn count into a string so we can write it later
     # Multipocess the writing shannon and ani stuff out (probably dont need to do this)
     with multiprocessing.Pool(threads) as pool:
         pool.starmap(dict_parser, zip(summary_dict, repeat(summary_dict), repeat(outdir), repeat(genus), repeat(whole_mode), repeat(ani_mode)))
     return
 
 
-def ani_stats(key, value, total_div, outdir, genus):
+def ani_stats(key, value, outdir, genus):
     mismatch_path   = f"{outdir}/refseq/bacteria/{key}/ani/ANIm_similarity_errors.tab"
     
         
