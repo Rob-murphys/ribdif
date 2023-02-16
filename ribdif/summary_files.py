@@ -18,8 +18,9 @@ from collections import Counter
 # =============================================================================
 
 def writer(outdir, genus, stats, summary_type):
-    with open(f"{outdir}/{genus}_{summary_type}_summary.tsv", "a") as f_app:
-        f_app.write("\t".join(stats) + "\n")
+    with open(f"{outdir}/{genus}_{summary_type}_summary.tsv", "a") as f_sum:
+        print(stats)
+        f_sum.write("\t".join(stats) + "\n")
 
 # =============================================================================
 # def plot_tree(tree, pdf_out):
