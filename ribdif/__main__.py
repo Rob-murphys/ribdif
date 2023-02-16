@@ -35,7 +35,9 @@ from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run
 def parse_args():
     parser = argparse.ArgumentParser(
         description="RibDif2 evaluates the differences in user defined amplicons  within a genus or species to indicate if that amplicon can differentiate between the taxanomic groups")
-
+    
+    group1 = parser.add_mutually_exclusive_group()# Mutually exclusive group of rerun and clobber
+    group2 = parser.add_mutually_exclusive_group()# Mutually exclusive group of ANI and whole genome mode (for now)
     parser.add_argument("-g", "--genus", dest = "genus", 
                         help="The genus you want to search within. E.g. 'Staphylococcus' OR 'Staphylococcus aurea' if wanting to use a species", 
                         required = True)
@@ -48,22 +50,20 @@ def parse_args():
                         help = "Output direcotry path. Default is current directory",
                         default = "False")
     
-    # Mutually exclusive group of rerun and clobber
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument("-r", "--rerun", dest = "rerun",
-                        help = "Rerun on same or different primers. Avoids having to redownload the same genomes",
+    group1.add_argument("-r", "--rerun", dest = "rerun",
+                        help = "Rerun on same or different primers. Avoids having to redownload the same genomes. Mutually exclusive with --clobber",
                         action = "store_true") # Action store true will default to false when argument is not present
     
-    group.add_argument("-c", "--clobber", dest = "clobber",
-                        help="Delete previous run if present in output directory", 
+    group1.add_argument("-c", "--clobber", dest = "clobber",
+                        help="Delete previous run if present in output directory. Mutually exclusive with --rerun", 
                         action = "store_true") 
     
     parser.add_argument("-p", "--primers", dest = "primers", 
                         help = "Path to custom primer-file, must be a tab seperated file with name, forward and reverse primers. See default.primers",
                         default = "False")
     
-    parser.add_argument("-a", "--ani", dest = "ANI", 
-                        help = "ANI is off by default, turn on if you care about individual genomes. The $genus-summary.csv-file will only contain a list of genomes when off",
+    group2.add_argument("-a", "--ani", dest = "ANI", 
+                        help = "ANI is off by default, turn on if you care about individual genomes. The $genus-summary.csv-file will only contain a list of genomes when off. Mutually exclusive with --whole-genome",
                         action = "store_true")
     
     parser.add_argument("-f", "--frag", dest = "frag", 
@@ -82,8 +82,8 @@ def parse_args():
                         help = "Number of threads to use. Default is all avaliable",
                         default = os.cpu_count())
     
-    parser.add_argument("-w", "--whole-genome", dest = "whole", 
-                        help = "Indicate the primers given are to be run on the whole genome so no barrnap, msa, ani (Required if your primers are non 16S)",
+    group2.add_argument("-w", "--whole-genome", dest = "whole", 
+                        help = "Indicate the primers given are to be run on the whole genome so no barrnap, msa, ani (Required if your primers are non 16S). Mutually exclusive with --ani",
                         action = "store_true")
     return parser.parse_args()
 
@@ -260,18 +260,15 @@ def main():
             total_sum_dict = pcr_run.multi_cleaner(outdir, name)
             pcr_run.amplicon_cat(outdir, genus, name)
             pcr_run.sum_dict_write(outdir, genus, name, total_sum_dict)
+            summary_type = f"-{name}-amp"
+            in_fna = f"{outdir}/amplicons/{genus}-{name}.amplicons"
+            summary_files.make_sumamry(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type)
             
         
     for name in names:
         # Rename amplicon fasta headers to origin contig
         utils.amp_replace(outdir, genus, name)
-        
-        #all_amp = [str(i) for i in list(Path(f"{outdir}/amplicon/{genus}-{name}").glob('*/*.16s'))]
-        #with open(f"{outdir}/{genus}_amp_summary.tsv", "w") as f_out:
-        #    f_out.write("GCF\tGenus\tSpecies\t#amp/16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
-        summary_type = f"-{name}-amp"
-        in_fna = f"{outdir}/amplicons/{genus}-{name}.amplicons"
-        summary_files.make_sumamry(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type)
+
         
     # msa on all amplicons
     if args.msa == True:
