@@ -265,12 +265,13 @@ def main():
     for name in names:
         # Rename amplicon fasta headers to origin contig
         utils.amp_replace(outdir, genus, name)
+        # Make summary file for whole genome mode (has to be after utils.amp_replace so cant have in main args.whole section)
+        if args.whole:
+            summary_type = f"{name}-amp"
+            in_fna = f"{outdir}/amplicons/{genus}-{name}.amplicons"
+            summary_files.make_sumamry(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type)
     
-    # Make summary file for whole genome mode (has to be after utils.amp_replace so cant have in main args.whole section)
-    if args.whole:
-        summary_type = f"-{name}-amp"
-        in_fna = f"{outdir}/amplicons/{genus}-{name}.amplicons"
-        summary_files.make_sumamry(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type)
+    
         
     # msa on all amplicons
     if args.msa == True:
