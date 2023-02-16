@@ -36,8 +36,8 @@ def genome_download(genus, outdir, threads, frag, sp_ignore):
             raise FileNotFoundError(repr(f"{genus} is a real genus but some (or no) genomes were not downloaded"))
         if sp_ignore:
             sp_count = sp_remove(outdir)
-            print(f"\n\n{count} genomes of {genus} were downloaded and {sp_count} were removed due to being unnamed species")
-        print(f"\n\n{count} genomes of {genus} were downloaded")
+            print(f"\n\n{count} genomes of {genus} were downloaded and {sp_count} were removed due to being unnamed species\n\n")
+        print(f"\n\n{count} genomes of {genus} were downloaded\n\n")
         return count
     
     else:
@@ -51,7 +51,7 @@ def sp_remove(outdir):
         with gzip.open(download, "r") as f_in:
             line = f_in.readline()
             splitline = line.strip().split("_")
-            if splitline[4] == "sp.":
+            if splitline[5] == "sp.":
                 Path.remdir(Path(download).parent)
                 sp_count += 1
     
