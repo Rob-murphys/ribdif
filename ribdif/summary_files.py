@@ -134,7 +134,7 @@ def dict_parser(key, summary_dict, outdir, genus, whole_mode, ani_mode, summary_
         value = ani_stats(key, value, outdir, genus) # get ani stats
     # Write it all to file
     value.insert(0, key) # append GCF to value list
-    writer(outdir, genus, value) # Write
+    writer(outdir, genus, value, summary_type) # Write
     return
         
 def make_sumamry(in_fna, outdir, genus, whole_mode, ani_mode, threads, summary_type):
