@@ -5,6 +5,7 @@ import gzip
 import shutil
 from pathlib import Path
 import fileinput
+import os
 
 
 # =============================================================================
@@ -71,6 +72,9 @@ def amp_replace(outdir, genus, name):
                line = line.replace(amp, dict_sum[amp] + f"_{amp.strip('amp_')}")
            f_out.write(line)
     Path.unlink(f"{outdir}/amplicons/{genus}-{name}.temp.amplicons")
+    if os.stat(f"{outdir}/amplicons/{genus}-{name}.amplicons").st_size == 0:
+        Path.unlink(f"{outdir}/amplicons/{genus}-{name}.amplicons")
+        print(f"{name} primer resulted in no amplification and will be excluded from further analysis. Are you sure the primer is correct?\n\n")
     return
 
 def pairwise_to_csv(pairwise_match, gcf_species, outdir, genus, name):

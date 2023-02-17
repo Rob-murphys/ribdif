@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import shutil
 import multiprocessing
+import sys
 
 
 
@@ -42,7 +43,7 @@ def parse_args():
                         help="The genus you want to search within. E.g. 'Staphylococcus' OR 'Staphylococcus aurea' if wanting to use a species", 
                         required = True)
     
-    parser.add_argument("--ignore_sp", dest = "sp_ignore",
+    parser.add_argument("--ignore-sp", dest = "sp-ignore",
                         help = "Ignore genomes with unspecified species (i.e. their species is 'sp.')",
                         action = "store_true")
     
@@ -147,7 +148,7 @@ def arg_handling(args, workingDir):
         raise FileExistsError(f"{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory")
 
        
-    print("\n\n#= All arguments resolved =#\n\n")
+    print("#= All arguments resolved =#\n\n")
     
     return genus, primer_file, outdir, rerun
 
@@ -176,15 +177,18 @@ def main():
         with multiprocessing.Pool(args.threads) as pool: # Create a multiprocessing pool with #threads workers
             all_gz = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('**/*.gz'))]# Recursively search the directory for .gz files and convert path to string sotring in a list
             pool.map(utils.decompress, all_gz)
-        
+        # Catching if all amplification failed (empty lists evaluate to false)
+        if list(Path(f"{outdir}/amplicons/").glob(f"{genus}-*.amplicons")):
+            sys.exit("No amplification for any of the given primers was successfull. Try again with different primers")
+            
         # Remove unwanted characters from anywhere is file (should only be in fasta headers)
-        print("\n\nModifying fasta headers.\n\n")
+        print("Modifying fasta headers.\n\n")
         with multiprocessing.Pool(args.threads) as pool:
             all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.fna'))]
             pool.map(utils.modify2, all_fna)
     else:
         genome_count = len(list(Path(f"{outdir}/refseq/bacteria").glob("*")))
-        print(f"\n\n{genome_count} previously downloaded genomes of {genus} were found")
+        print(f"{genome_count} previously downloaded genomes of {genus} were found\n\n")
             
     # If not using whole-genome mode assume the primers being used are 16S (which they are if default)
     if not args.whole:
