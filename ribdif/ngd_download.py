@@ -47,7 +47,7 @@ def genome_download(genus, outdir, threads, frag, sp_ignore):
 
 def sp_remove(outdir):
     sp_count = 0
-    downloads = list(Path(f"{outdir}/genbank/bacteria").rglob("*.fna.gz"))
+    downloads = list(Path(f"{outdir}/refseq/bacteria").rglob("*.fna.gz"))
     for download in downloads:
         with gzip.open(download, "r") as f_in:
             line = f_in.readline()
