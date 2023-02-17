@@ -5,7 +5,7 @@ import gzip
 import shutil
 # Using Kai's NCBI genome downloader to get all genones of the specified genus
 # Avaliable at: https://github.com/kblin/ncbi-genome-download
-def genome_download(genus, outdir, threads, frag, sp_ignore):
+def genome_download(genus, outdir, threads, frag, sp_ignore, domain):
     genera = genus.replace("_", " ")
     if frag: # if the user wants fragmented genomes
         print(f"Downloading all genome recoreds of {genus} fron NCBI\n")
@@ -14,7 +14,7 @@ def genome_download(genus, outdir, threads, frag, sp_ignore):
                genera = genera,  
                output = outdir, 
                parallel = threads*2,
-               groups = 'bacteria')
+               groups = domain)
         
         
     else: # if the user (correctly) only want complete genomes
