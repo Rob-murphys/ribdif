@@ -177,9 +177,7 @@ def main():
         with multiprocessing.Pool(args.threads) as pool: # Create a multiprocessing pool with #threads workers
             all_gz = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('**/*.gz'))]# Recursively search the directory for .gz files and convert path to string sotring in a list
             pool.map(utils.decompress, all_gz)
-        # Catching if all amplification failed (empty lists evaluate to false)
-        if list(Path(f"{outdir}/amplicons/").glob(f"{genus}-*.amplicons")):
-            sys.exit("No amplification for any of the given primers was successfull. Try again with different primers")
+        
             
         # Remove unwanted characters from anywhere is file (should only be in fasta headers)
         print("Modifying fasta headers.\n\n")
@@ -269,6 +267,9 @@ def main():
     for name in names:
         # Rename amplicon fasta headers to origin contig
         utils.amp_replace(outdir, genus, name)
+        # Catching if all amplification failed (empty lists evaluate to false)
+        if list(Path(f"{outdir}/amplicons/").glob(f"{genus}-*.amplicons")):
+            sys.exit("No amplification for any of the given primers was successfull. Try again with different primers")
         # Make summary file for whole genome mode (has to be after utils.amp_replace so cant have in main args.whole section)
         if args.whole:
             summary_type = f"{name}-amp"
