@@ -128,10 +128,10 @@ def arg_handling(args, workingDir):
     #Resolving rerun argument
     if args.rerun == True:
         if Path(f"{outdir}").is_dir() == False:
-            print(f"No records of {genus} exists. Ignoring rerun request and downloading genomes")
+            print(f"No records of {genus} exists. Ignoring rerun request and downloading genomes\n")
             rerun = False
         else:
-            print(f"Reusing previously downloaded {genus} genomes")
+            print(f"Reusing previously downloaded {genus} genomes\n")
             rerun = True
     else:
         rerun = False
@@ -142,7 +142,7 @@ def arg_handling(args, workingDir):
             shutil.rmtree(Path(f"{outdir}")) # Remove genus and all subdirectories
             print(f"Removing old run of {genus}")
         except FileNotFoundError: # catch if directory not found
-            print(f"{genus} folder does not exist, ignoring clobber request")
+            print(f"{genus} folder does not exist, ignoring clobber request\n")
             pass
     elif Path(f"{outdir}").is_dir() and args.rerun == False: # catch if genus output already exists and rerun was not specified and clobber was not used
         raise FileExistsError(f"{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory")
@@ -171,7 +171,7 @@ def main():
     # If rerun is false, download and handle genomes from NCBI
     if rerun == False:
         # Download genomes from NCBI
-        genome_count = ngd_download.genome_download(genus = genus, outdir = outdir, threads = args.threads, frag = args.frag, sp_ignore = args.sp_ignore)
+        genome_count = ngd_download.genome_download(genus = genus, outdir = outdir, threads = args.threads, frag = args.frag, sp-ignore = args.sp-ignore)
     
         # Un gziping fasta files
         with multiprocessing.Pool(args.threads) as pool: # Create a multiprocessing pool with #threads workers
