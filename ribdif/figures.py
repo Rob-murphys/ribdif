@@ -173,11 +173,12 @@ def draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, ge
     for i, graph in enumerate(graph_subs):
         #pos = nx.spring_layout(graph)
         #edge_labels = {(n1, n2): graph[n1][n2]['weight'] for n1, n2 in graph.edges()}
+        weights = nx.get_edge_attributes(graph, "weight")
         node_cols = [row_palette[s] for s in graph.nodes] # get colours for current nodes
         try: 
-            nx.draw(graph, ax=axs[i], node_color = node_cols) # draw specific graph
+            nx.draw(graph, ax=axs[i], node_color = node_cols, width = list(weights.values())) # draw specific graph
         except TypeError:
-            nx.draw(graph, ax=axs, node_color = node_cols)
+            nx.draw(graph, ax=axs, node_color = node_cols, width = list(weights.values()))
         #nx.draw_networkx_edge_labels(graph, pos, edge_labels = edge_labels)
         
     # Make any unused subplots blank
