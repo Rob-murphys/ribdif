@@ -55,3 +55,4 @@ def sp_remove(outdir):
         if splitline[2] == "sp.":
             shutil.rmtree(Path(download).parent)
             sp_count += 1
+    return sp_count
