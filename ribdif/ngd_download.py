@@ -2,7 +2,7 @@
 import ncbi_genome_download as ngd
 from pathlib import Path
 import gzip
-
+import shutil
 # Using Kai's NCBI genome downloader to get all genones of the specified genus
 # Avaliable at: https://github.com/kblin/ncbi-genome-download
 def genome_download(genus, outdir, threads, frag, sp_ignore):
@@ -52,6 +52,6 @@ def sp_remove(outdir):
         with gzip.open(download, "r") as f_in:
             line = f_in.readline()
             splitline = str(line).strip().split(" ")
-            if splitline[2] == "sp.":
-                Path.remdir(Path(download).parent)
-                sp_count += 1
+        if splitline[2] == "sp.":
+            shutil.rmtree(Path(download).parent)
+            sp_count += 1
