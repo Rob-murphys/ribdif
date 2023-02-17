@@ -35,7 +35,7 @@ def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads):
     amplicon_dir = Path(f"{outdir}/amplicons")
     amplicon_dir.mkdir(parents = True, exist_ok = True)
     multi = True
-    print("\n\nGenerating amplicon sequences")
+    print("Generating amplicon sequences\n\n")
     with open(primer_file, "r") as f_primer:
         names = []
         for primer in f_primer:
