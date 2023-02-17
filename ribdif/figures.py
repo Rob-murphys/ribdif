@@ -22,11 +22,12 @@ def heatmap_meta(gcf_species):
 def cluster_heatmap(cluster_dict, row_palette, species_series):
     # Turn cluster dictionary into a dataframe and transpose
     cluster_df = pd.DataFrame.from_dict(cluster_dict).transpose()
-    
+    #row_count = len(cluster_df.index)
     # Generate clustering on binary data
     row_clus = scipy.cluster.hierarchy.linkage(np.where(cluster_df > 0, 1, 0), method = "ward")
     col_clus = scipy.cluster.hierarchy.linkage(np.where(cluster_df.transpose() > 0, 1, 0), method = "ward")
     
+    #plot_size = (16, 16) if row_count < 50 else ((row_count*0.2), (row_count*0.2))
     # Clustering heatmap
     plot_clus = sns.clustermap(cluster_df, standard_scale = None, 
                    row_linkage = row_clus, 
@@ -34,8 +35,9 @@ def cluster_heatmap(cluster_dict, row_palette, species_series):
                    yticklabels = species_series,
                    xticklabels = 1,
                    row_colors = row_palette,
-                   linecolor = "grey",
-                   linewidths = 0.1)
+                   linecolor = "#bcc2cc",
+                   linewidths = 0.1,
+                   cmap = sns.cm.rocket_r)
     
 #sns.heatmap(cluster_df)
 # =============================================================================
@@ -66,9 +68,10 @@ def pairwise_heatmap(pairwise_match, row_palette, species_series):
                    yticklabels = species_series,
                    xticklabels = 1,
                    method = "ward",
-                   linecolor = "grey",
+                   linecolor = "#bcc2cc",
                    linewidths = 0.1,
-                   cbar_pos = None)
+                   cbar_pos = None,
+                   cmap = sns.cm.rocket_r)
     
 # =============================================================================
 #     # Change tick params
