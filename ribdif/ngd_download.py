@@ -51,8 +51,7 @@ def sp_remove(outdir):
     for download in downloads:
         with gzip.open(download, "r") as f_in:
             line = f_in.readline()
-            splitline = line.strip().split(" ")
+            splitline = str(line).strip().split(" ")
             if splitline[2] == "sp.":
                 Path.remdir(Path(download).parent)
                 sp_count += 1
-    
