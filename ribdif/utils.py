@@ -63,18 +63,22 @@ def decompress(file_path):
 
 # Rename amplicon fasta headers to origin contig
 def amp_replace(outdir, genus, name):
+    # Read in the summary dataframe
     df_sum = pd.read_csv(f"{outdir}/amplicons/{genus}-{name}.summary", sep = "\t", header = None, names = ["AmpId", "SequenceId", "PositionInSequence", "Length", "Misc"])
-    dict_sum = dict(zip(df_sum.AmpId, df_sum.SequenceId))
+    dict_sum = dict(zip(df_sum.AmpId, df_sum.SequenceId)) # Make a dictionary of it
+    # Open the temp amplicon file and the final amplicon file
     with open (f"{outdir}/amplicons/{genus}-{name}.temp.amplicons", "r") as f_in, open(f"{outdir}/amplicons/{genus}-{name}.amplicons", "w") as f_out:
-       for line in f_in:
-           if ">amp" in line:
+       for line in f_in: # loop over lines in the file
+           if ">amp" in line: # If it is a fasta header
+               # Replace with origin genome fasta header and then the amp count
                amp = line.strip().strip(">")
                line = line.replace(amp, dict_sum[amp] + f"_{amp.strip('amp_')}")
            f_out.write(line)
-    Path.unlink(f"{outdir}/amplicons/{genus}-{name}.temp.amplicons")
+    Path.unlink(f"{outdir}/amplicons/{genus}-{name}.temp.amplicons") # remove temp file
+    # Check if the primer resulted in any amplification and if not remove the file
     if os.stat(f"{outdir}/amplicons/{genus}-{name}.amplicons").st_size == 0:
         Path.unlink(f"{outdir}/amplicons/{genus}-{name}.amplicons")
-        print(f"{name} primer resulted in no amplification and will be excluded from further analysis. Are you sure the primer is correct?\n\n")
+        print(f"{name} primer resulted in no amplification and will be excluded from further analysis. Are you sure the primer is correct?\n")
     return
 
 def pairwise_to_csv(pairwise_match, gcf_species, outdir, genus, name):
