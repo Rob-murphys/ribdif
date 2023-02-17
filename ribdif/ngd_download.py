@@ -25,7 +25,7 @@ def genome_download(genus, outdir, threads, frag, sp_ignore, domain):
                output = outdir, 
                assembly_levels = "complete",
                parallel = threads*2,
-               groups = 'bacteria')
+               groups = domain)
         
     if Path(f"{outdir}/refseq/bacteria").is_dir():
 
