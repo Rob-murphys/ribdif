@@ -4,6 +4,7 @@ import subprocess
 import shlex
 from pathlib import Path
 import os
+from ribdif import custom_exceptions
 
 def vsearch_call(outdir, genus, name, ident, log_dir, threads):
     # Defining in and out files/dirs
@@ -20,5 +21,5 @@ def vsearch_call(outdir, genus, name, ident, log_dir, threads):
         subprocess.run(shlex.split(command), stdout = out, stderr = err)
     
     if os.stat(f"{log_dir}/vsearch_{name}.err").st_size != 0:
-        raise Exception(repr(f"Something went wrong with VSEARCH\nPlease check: {log_dir}/vsearch_{name}.err"))
+        raise custom_exceptions.ThirdPartyError(repr(f"Something went wrong with VSEARCH\nPlease check: {log_dir}/vsearch_{name}.err"))
     return

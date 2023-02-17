@@ -17,7 +17,8 @@ import sys
 
 
 
-from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_files, vsearch_run, overlaps, figures
+from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_files, vsearch_run, overlaps, figures, custom_exceptions
+
 # =============================================================================
 # import barrnap_run
 # import pcr_run
@@ -111,13 +112,16 @@ def arg_handling(args, workingDir):
 
     # Parsing the primers argument
     if args.primers == "False":
-        primer_file = Path(f"{workingDir}/default.primers")
+        if args.domain != "bacteria":
+            raise custom_exceptions.IncompatiablityError("You can't use the default 16S primers on non bacteria life.")
+        else:
+            primer_file = Path(f"{workingDir}/default.primers")
     else:
         primer_file = args.primers
     # Check primer file exists and is not empty
 
     if Path(f"{primer_file}").is_file() and os.stat(f"{primer_file}").st_size == 0:
-        raise Exception(f"The provided primer file is empty.\n{primer_file}\nPlease provide a populated primer file")
+        raise custom_exceptions.EmptyFileError(f"The provided primer file is empty.\n{primer_file}\nPlease provide a populated primer file")
 
     elif Path(f"{primer_file}").is_file() == False: # If it does not exist then raise this exception
         raise FileNotFoundError(f"{primer_file} does not exist")
@@ -162,7 +166,7 @@ def main():
     
     args = parse_args()
     
-    genus_line = f"#== RibDif2 is running on: {args.genus} ==#"
+    genus_line = f"#== RibDif2 is running on: {args.genus} in the {args.domain} domain ==#"
     block_line = f"#{'=' * (len(genus_line)-2)}#"
     print(f"\n{block_line}\n{genus_line}\n{block_line}\n\n")
     
