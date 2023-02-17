@@ -128,7 +128,7 @@ def figure_fix(plot):
 
 def pdf_save(plot_clus, plot_dendo, outdir, genus, name):
     plots = [plot_clus, plot_dendo]
-    with PdfPages(f"{outdir}/amplicons/{genus}-{name}_heatmaps.pdf") as pdf_pages:
+    with PdfPages(f"{outdir}/figures/{genus}-{name}_heatmaps.pdf") as pdf_pages:
         for plot in plots:
             pdf_pages.savefig(plot.fig)
     return
@@ -194,6 +194,6 @@ def draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, ge
     plt.legend(ncol = n_cols)
     #plt.savefig("test_weights.pdf", bbox_inches="tight")
     # Save the figure
-    plt.savefig(f"{outdir}/amplicons/{genus}-{name}_graphs.pdf", bbox_inches = "tight")
+    plt.savefig(f"{outdir}/figures/{genus}-{name}_graphs.pdf", bbox_inches = "tight")
     return
 

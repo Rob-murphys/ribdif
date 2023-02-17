@@ -333,6 +333,7 @@ def main():
         plot_dendo = figures.figure_fix(plot_dendo)
         
         # Save the heatmaps
+        Path.mkdir(f"{outdir}/figures")
         figures.pdf_save(plot_clus, plot_dendo, outdir, genus, name)
         
         # Generate graps from the pairwise dataframe
