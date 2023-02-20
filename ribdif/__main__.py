@@ -34,7 +34,7 @@ from ribdif.custom_exceptions import EmptyFileError, IncompatiablityError, Third
 # =============================================================================
 
  # Initialise the logging
-logging_config.cofigure_logging()
+logger = logging_config.cofigure_logging()
 
 
 # Defining user arguments
@@ -101,7 +101,7 @@ def arg_handling(args, workingDir):
     
     #Checking if user is running on a species
     if " " in args.genus: # checking is there is a space in genus/species name
-        logging.info(f"Detected species {args.genus.split(' ')[1]}.\n\n")
+        logger.info(f"Detected species {args.genus.split(' ')[1]}.\n\n")
         genus = args.genus.replace(" ", "_") # if so replacing it with an '_'
     else:
         genus = args.genus
@@ -117,16 +117,16 @@ def arg_handling(args, workingDir):
     try:
         if args.clobber:
             shutil.rmtree(Path(f"{outdir}")) # Remove genus and all subdirectories
-            logging.info(f"Removing old run of {genus}")  
+            logger.info(f"Removing old run of {genus}")  
         elif Path(f"{outdir}").is_dir() and args.rerun == False: # catch if genus output already exists and rerun was not specified and clobber was not used
             raise FileExistsError()
     except FileNotFoundError: # catch if directory not found
-        logging.info(f"{genus} folder does not exist, ignoring clobber request\n")
+        logger.info(f"{genus} folder does not exist, ignoring clobber request\n")
         pass
     except FileExistsError as err:
-        logging.error(str(err), exc_info = True)
-        logging.error(f"{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory")
-        raise StopError("An error occured. See logging file for more info")
+        logger.error(str(err), exc_info = True)
+        logger.error(f"{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory")
+        sys.exit(1)
     
     # Make the outdir
     Path.mkdir(outdir, parents = True)
@@ -146,12 +146,12 @@ def arg_handling(args, workingDir):
         rerun = False
     
    
-    logging.info("#= Parsing arguments =#\n\n")
+    logger.info("#= Parsing arguments =#\n\n")
     
     if not args.whole and args.primers != "False":
-        logging.info("You are using custom primers on only the 16S genes as you didn't enable whole-genome mode. This is not a problem (if they are 16S primers), but we are just letting you know\n")
+        logger.info("You are using custom primers on only the 16S genes as you didn't enable whole-genome mode. This is not a problem (if they are 16S primers), but we are just letting you know\n")
     elif args.whole and args.primers == "False":
-        logging.info("You are running in whole-genome mode but using the default primers. This is not a problem but will 'skip' barrnap and other potentially useful mectrics scrapped from the whole 16S genes\n" )
+        logger.info("You are running in whole-genome mode but using the default primers. This is not a problem but will 'skip' barrnap and other potentially useful mectrics scrapped from the whole 16S genes\n" )
 
     # Parsing the primers argument
     if args.primers == "False":
@@ -161,8 +161,8 @@ def arg_handling(args, workingDir):
             else:
                 primer_file = Path(f"{workingDir}/default.primers")
         except IncompatiablityError as err:
-            logging.exception(str(err)) 
-            logging.error("You can't use the default 16S primers on non bacteria life.")
+            logger.exception(str(err)) 
+            logger.error("You can't use the default 16S primers on non bacteria life.")
     else:
         primer_file = args.primers
         
@@ -173,9 +173,9 @@ def arg_handling(args, workingDir):
         elif Path(f"{primer_file}").is_file() == False: # If it does not exist then raise this exception
             raise FileNotFoundError()          
     except EmptyFileError as err:
-        logging.error("fThe provided primer file is empty.\n{primer_file}\nPlease provide a populated primer file")
+        logger.error("fThe provided primer file is empty.\n{primer_file}\nPlease provide a populated primer file")
     except FileNotFoundError as err:
-        logging.error(f"{primer_file} does not exist")
+        logger.error(f"{primer_file} does not exist")
 
        
     print("#= All arguments resolved =#\n\n")
