@@ -27,7 +27,7 @@ def cofigure_logging():
 
 def replace_log_file(outdir, logger):
     new_log_file = f"{outdir}/ribdif_log_file.log"
-    Path.unlink(new_log_file)
+    Path.unlink(new_log_file, missing_ok = True)
     file_handler = logging.FileHandler(new_log_file, "a")
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
