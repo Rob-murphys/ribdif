@@ -12,12 +12,12 @@ from pathlib import Path
 import shutil
 import multiprocessing
 import sys
+import logging
 
 
 
 
-
-from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_files, vsearch_run, overlaps, figures, custom_exceptions
+from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_files, vsearch_run, overlaps, figures, custom_exceptions, logging_config
 
 # =============================================================================
 # import barrnap_run
@@ -29,6 +29,7 @@ from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run
 # import vsearch_run
 # import overlaps
 # import figures
+# import logging_config
 # =============================================================================
 
 
@@ -94,45 +95,57 @@ def parse_args():
     return parser.parse_args()
 
 def arg_handling(args, workingDir):
-    print("#= Parsing arguments =#\n\n")
-    
-    if not args.whole and args.primers != "False":
-        print("You are using custom primers on only the 16S genes as you didn't enable whole-genome mode. This is not a problem (if they are 16S primers), but we are just letting you know\n")
-    elif args.whole and args.primers == "False":
-        print("You are running in whole-genome mode but using the default primers. This is not a problem but will 'skip' barrnap and other potentially useful mectrics scrapped from the whole 16S genes\n" )
-    
     
     #Checking if user is running on a species
     if " " in args.genus: # checking is there is a space in genus/species name
-        print(f"Detected species {args.genus.split(' ')[1]}.\n\n")
+        logging.info(f"Detected species {args.genus.split(' ')[1]}.\n\n")
         genus = args.genus.replace(" ", "_") # if so replacing it with an '_'
     else:
         genus = args.genus
 
-
-    # Parsing the primers argument
-    if args.primers == "False":
-        if args.domain != "bacteria":
-            raise custom_exceptions.IncompatiablityError("You can't use the default 16S primers on non bacteria life.")
-        else:
-            primer_file = Path(f"{workingDir}/default.primers")
-    else:
-        primer_file = args.primers
-    # Check primer file exists and is not empty
-
-    if Path(f"{primer_file}").is_file() and os.stat(f"{primer_file}").st_size == 0:
-        raise custom_exceptions.EmptyFileError(f"The provided primer file is empty.\n{primer_file}\nPlease provide a populated primer file")
-
-    elif Path(f"{primer_file}").is_file() == False: # If it does not exist then raise this exception
-        raise FileNotFoundError(f"{primer_file} does not exist")
-    
-
     # Checking if user provided own outdir and if not setting to root directory
     if args.outdir == "False":
         outdir = Path(f"{Path.cwd()}/results/{genus}")
+        
     else:
         outdir = Path(f"{args.outdir}/{genus}")
+    # Make the directory
+    Path.mkdir(outdir)
     
+    # Initialise the logging
+    logging_config.cofigure_logging(outdir)
+    
+    logging.info("#= Parsing arguments =#\n\n")
+    
+    if not args.whole and args.primers != "False":
+        logging.info("You are using custom primers on only the 16S genes as you didn't enable whole-genome mode. This is not a problem (if they are 16S primers), but we are just letting you know\n")
+    elif args.whole and args.primers == "False":
+        logging.info("You are running in whole-genome mode but using the default primers. This is not a problem but will 'skip' barrnap and other potentially useful mectrics scrapped from the whole 16S genes\n" )
+
+    # Parsing the primers argument
+    if args.primers == "False":
+        try:
+            if args.domain != "bacteria":
+                raise custom_exceptions.IncompatiablityError()
+            else:
+                primer_file = Path(f"{workingDir}/default.primers")
+        except custom_exceptions.IncompatiablityError as err:
+            logging.exception(str(err)) 
+            logging.error("You can't use the default 16S primers on non bacteria life.")
+    else:
+        primer_file = args.primers
+        
+    # Check primer file exists and is not empty
+    try:
+        if Path(f"{primer_file}").is_file() and os.stat(f"{primer_file}").st_size == 0:
+            raise custom_exceptions.EmptyFileError()
+        elif Path(f"{primer_file}").is_file() == False: # If it does not exist then raise this exception
+            raise FileNotFoundError()          
+    except custom_exceptions.EmptyFileError as err:
+        logging.error("fThe provided primer file is empty.\n{primer_file}\nPlease provide a populated primer file")
+    except FileNotFoundError as err:
+        logging.error(f"{primer_file} does not exist")
+
     #Resolving rerun argument
     if args.rerun == True:
         if Path(f"{outdir}").is_dir() == False:
