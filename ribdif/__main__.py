@@ -17,7 +17,8 @@ import logging
 
 
 
-from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_files, vsearch_run, overlaps, figures, custom_exceptions, logging_config
+from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_files, vsearch_run, overlaps, figures, logging_config
+from ribdif.custom_exceptions import EmptyFileError, IncompatiablityError, ThirdPartyError, StopError
 
 # =============================================================================
 # import barrnap_run
@@ -125,7 +126,7 @@ def arg_handling(args, workingDir):
     except FileExistsError as err:
         logging.error(str(err), exc_info = True)
         logging.error(f"{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory")
-        raise
+        raise StopError("An error occured. See logging file for more info")
     
     # Make the outdir
     Path.mkdir(outdir, parents = True)
@@ -156,10 +157,10 @@ def arg_handling(args, workingDir):
     if args.primers == "False":
         try:
             if args.domain != "bacteria":
-                raise custom_exceptions.IncompatiablityError()
+                raise IncompatiablityError()
             else:
                 primer_file = Path(f"{workingDir}/default.primers")
-        except custom_exceptions.IncompatiablityError as err:
+        except IncompatiablityError as err:
             logging.exception(str(err)) 
             logging.error("You can't use the default 16S primers on non bacteria life.")
     else:
@@ -168,10 +169,10 @@ def arg_handling(args, workingDir):
     # Check primer file exists and is not empty
     try:
         if Path(f"{primer_file}").is_file() and os.stat(f"{primer_file}").st_size == 0:
-            raise custom_exceptions.EmptyFileError()
+            raise EmptyFileError()
         elif Path(f"{primer_file}").is_file() == False: # If it does not exist then raise this exception
             raise FileNotFoundError()          
-    except custom_exceptions.EmptyFileError as err:
+    except EmptyFileError as err:
         logging.error("fThe provided primer file is empty.\n{primer_file}\nPlease provide a populated primer file")
     except FileNotFoundError as err:
         logging.error(f"{primer_file} does not exist")
