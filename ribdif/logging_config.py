@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import logging
+from pathlib import Path
 
 def cofigure_logging():
     
@@ -25,16 +26,18 @@ def cofigure_logging():
     return logger
 
 def replace_log_file(outdir, logger):
-    
-    file_handler = logging.FileHandler(f"{outdir}/ribdif_log_file.log", "w")
+    new_log_file = f"{outdir}/ribdif_log_file.log"
+    Path.unlink(new_log_file)
+    file_handler = logging.FileHandler(new_log_file, "a")
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
     logger.addHandler(file_handler)
     
+    old_log_file = logger.handlers[1].baseFilename
     with open(logger.handlers[1].baseFilename, "r") as log_in, open(logger.handlers[2].baseFilename, "a") as log_out:
         log_out.write(log_in.read())
     logger.removeHandler(logger.handlers[1])
-
+    Path.unlink(old_log_file)
     return
 
     
