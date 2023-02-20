@@ -125,6 +125,7 @@ def arg_handling(args, workingDir):
     except FileExistsError as err:
         logging.error(str(err), exc_info = True)
         logging.error(f"{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory")
+        raise
     
     # Make the outdir
     Path.mkdir(outdir, parents = True)
