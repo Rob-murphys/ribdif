@@ -376,6 +376,6 @@ def main():
         figures.draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, genus, name)
         
         overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger)
-
+    logger.info(f"You can find a saved version of the above at {outdir}/ribdif_log_file.log:")
 if __name__ == '__main__':
     main()
