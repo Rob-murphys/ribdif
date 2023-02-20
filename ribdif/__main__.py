@@ -32,6 +32,8 @@ from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run
 # import logging_config
 # =============================================================================
 
+ # Initialise the logging
+logging_config.cofigure_logging()
 
 
 # Defining user arguments
@@ -110,11 +112,34 @@ def arg_handling(args, workingDir):
     else:
         outdir = Path(f"{args.outdir}/{genus}")
     # Make the directory
-    Path.mkdir(outdir)
+    #Path.mkdir(outdir, parents = True)
+    logging_config.replace_log_file(outdir)
+    # Resolving clobber argument
+    try:
+        if args.clobber:
+            shutil.rmtree(Path(f"{outdir}")) # Remove genus and all subdirectories
+            logging.info(f"Removing old run of {genus}")  
+        elif Path(f"{outdir}").is_dir() and args.rerun == False: # catch if genus output already exists and rerun was not specified and clobber was not used
+            raise FileExistsError()
+    except FileNotFoundError as err: # catch if directory not found
+        logging.info(f"{genus} folder does not exist, ignoring clobber request\n")
+        pass
+    except FileExistsError as err:
+        logging.error(str(err), exc_info = True)
+        logging.error(f"{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory")
     
-    # Initialise the logging
-    logging_config.cofigure_logging(outdir)
+    #Resolving rerun argument
+    if args.rerun:
+        if Path(f"{outdir}").is_dir() == False:
+            print(f"No records of {genus} exists. Ignoring rerun request and downloading genomes\n")
+            rerun = False
+        else:
+            print(f"Reusing previously downloaded {genus} genomes\n")
+            rerun = True
+    else:
+        rerun = False
     
+   
     logging.info("#= Parsing arguments =#\n\n")
     
     if not args.whole and args.primers != "False":
@@ -145,28 +170,6 @@ def arg_handling(args, workingDir):
         logging.error("fThe provided primer file is empty.\n{primer_file}\nPlease provide a populated primer file")
     except FileNotFoundError as err:
         logging.error(f"{primer_file} does not exist")
-
-    #Resolving rerun argument
-    if args.rerun == True:
-        if Path(f"{outdir}").is_dir() == False:
-            print(f"No records of {genus} exists. Ignoring rerun request and downloading genomes\n")
-            rerun = False
-        else:
-            print(f"Reusing previously downloaded {genus} genomes\n")
-            rerun = True
-    else:
-        rerun = False
-    
-    # Resolving clobber argument
-    if args.clobber:
-        try:
-            shutil.rmtree(Path(f"{outdir}")) # Remove genus and all subdirectories
-            print(f"Removing old run of {genus}")
-        except FileNotFoundError: # catch if directory not found
-            print(f"{genus} folder does not exist, ignoring clobber request\n")
-            pass
-    elif Path(f"{outdir}").is_dir() and args.rerun == False: # catch if genus output already exists and rerun was not specified and clobber was not used
-        raise FileExistsError(f"{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory")
 
        
     print("#= All arguments resolved =#\n\n")
