@@ -97,8 +97,9 @@ def parse_args():
                         action = "store_true")
     return parser.parse_args()
 
-def arg_handling(args, workingDir):
+def arg_handling(args, workingDir, logger):
     
+    logger.info("#= Parsing arguments =#\n\n")
     #Checking if user is running on a species
     if " " in args.genus: # checking is there is a space in genus/species name
         logger.info(f"Detected species {args.genus.split(' ')[1]}.\n\n")
@@ -145,8 +146,6 @@ def arg_handling(args, workingDir):
     else:
         rerun = False
     
-   
-    logger.info("#= Parsing arguments =#\n\n")
     
     if not args.whole and args.primers != "False":
         logger.info("You are using custom primers on only the 16S genes as you didn't enable whole-genome mode. This is not a problem (if they are 16S primers), but we are just letting you know\n")
@@ -199,7 +198,7 @@ def main():
     
     #Argument handeling
     try:
-        genus, primer_file, outdir, rerun = arg_handling(args, workingDir)
+        genus, primer_file, outdir, rerun = arg_handling(args, workingDir, logger)
     except TypeError: # Catching the type error from "TypeError: cannot unpack non-iterable int object"
         sys.exit(1)
     
