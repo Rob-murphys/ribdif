@@ -9,3 +9,5 @@ class IncompatiablityError(Exception):
 class ThirdPartyError(Exception):
     pass
 
+class StopError(Exception):
+    pass
