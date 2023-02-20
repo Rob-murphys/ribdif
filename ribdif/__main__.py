@@ -212,7 +212,7 @@ def main():
         status = ngd_download.genome_download(genus, outdir, args.threads, args.frag, args.sp_ignore, args.domain, logger)
         # Catching is any critical errors occured from downloading genomes
         if status == 1:
-            SystemExit(status)
+            sys.exit(status)
     
         # Un gziping fasta files
         with multiprocessing.Pool(args.threads) as pool: # Create a multiprocessing pool with #threads workers
