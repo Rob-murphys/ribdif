@@ -111,8 +111,6 @@ def arg_handling(args, workingDir):
         
     else:
         outdir = Path(f"{args.outdir}/{genus}")
-    # Make the directory
-    #Path.mkdir(outdir, parents = True)
 
     # Resolving clobber argument
     try:
@@ -121,13 +119,17 @@ def arg_handling(args, workingDir):
             logging.info(f"Removing old run of {genus}")  
         elif Path(f"{outdir}").is_dir() and args.rerun == False: # catch if genus output already exists and rerun was not specified and clobber was not used
             raise FileExistsError()
-    except FileNotFoundError as err: # catch if directory not found
+    except FileNotFoundError: # catch if directory not found
         logging.info(f"{genus} folder does not exist, ignoring clobber request\n")
         pass
     except FileExistsError as err:
         logging.error(str(err), exc_info = True)
         logging.error(f"{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory")
     
+    # Make the outdir
+    Path.mkdir(outdir, parents = True)
+    
+    # Replace logging file with one in outdir
     logging_config.replace_log_file(outdir)
     
     #Resolving rerun argument
