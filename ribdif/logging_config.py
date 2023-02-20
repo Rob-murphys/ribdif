@@ -31,7 +31,7 @@ def replace_log_file(outdir, logger):
     file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
     logger.addHandler(file_handler)
     
-    with open(logger.handlers[0].baseFilename, "r") as log_in, open(logger.handlers[2].baseFilename, "a") as log_out:
+    with open(logger.handlers[1].baseFilename, "r") as log_in, open(logger.handlers[2].baseFilename, "a") as log_out:
         log_out.write(log_in.read())
     logger.removeHandler(logger.handlers[0])
 
