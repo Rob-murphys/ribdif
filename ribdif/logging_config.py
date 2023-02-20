@@ -22,15 +22,15 @@ def cofigure_logging():
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
     logger.addHandler(file_handler)
+    return logger
 
-def replace_log_file(outdir):
+def replace_log_file(outdir, logger):
     
     file_handler = logging.FileHandler(f"{outdir}/ribdif_log_file.log", "w")
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-    logging.getLogger().addHandler(file_handler)
+    logger.addHandler(file_handler)
     
-    logger = logging.getLogger()
     with open(logger.handlers[0].baseFilename, "r") as log_in, open(logger.handlers[2].baseFilename, "a") as log_out:
         log_out.write(log_in.read())
     logger.removeHandler(logger.handlers[0])
