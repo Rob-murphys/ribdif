@@ -6,6 +6,7 @@ from itertools import repeat
 import shlex
 import csv
 import fileinput
+import logging
 """
 Implement a producer and consumer setup for writing the pcr output whe multiprocessing: https://stackoverflow.com/questions/11196367/processing-single-file-from-multiple-processes
 
@@ -31,11 +32,11 @@ def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, length, workingDir, mul
     return 
 
 # Multithreading the in silico pcr calls
-def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads):
+def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads, logger):
     amplicon_dir = Path(f"{outdir}/amplicons")
     amplicon_dir.mkdir(parents = True, exist_ok = True)
     multi = True
-    print("Generating amplicon sequences\n\n")
+    logger.info("Generating amplicon sequences\n\n")
     with open(primer_file, "r") as f_primer:
         names = []
         for primer in f_primer:
@@ -47,11 +48,11 @@ def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads):
             names.append(name)
     return names
 
-def pcr_call(infile, outdir, genus, primer_file, workingDir):
+def pcr_call(infile, outdir, genus, primer_file, workingDir, logger):
     amplicon_dir = Path(f"{outdir}/amplicons")
     amplicon_dir.mkdir(parents = True, exist_ok = True)
     multi = False
-    print("#= Generating amplicon sequences =#\n\n")
+    logger.info("#= Generating amplicon sequences =#\n\n")
     with open(primer_file, "r") as f_primer:
         names = []
         for primer in f_primer:

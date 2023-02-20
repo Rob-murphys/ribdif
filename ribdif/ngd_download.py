@@ -3,12 +3,13 @@ import ncbi_genome_download as ngd
 from pathlib import Path
 import gzip
 import shutil
+import logging
 # Using Kai's NCBI genome downloader to get all genones of the specified genus
 # Avaliable at: https://github.com/kblin/ncbi-genome-download
-def genome_download(genus, outdir, threads, frag, sp_ignore, domain):
+def genome_download(genus, outdir, threads, frag, sp_ignore, domain, logger):
     genera = genus.replace("_", " ")
     if frag: # if the user wants fragmented genomes
-        print(f"Downloading all genome recoreds of {genus} fron NCBI\n")
+        logger.info(f"Downloading all genome recoreds of {genus} fron NCBI\n")
         ngd.download(section='refseq', 
                file_formats = 'fasta', 
                genera = genera,  
@@ -18,7 +19,7 @@ def genome_download(genus, outdir, threads, frag, sp_ignore, domain):
         
         
     else: # if the user (correctly) only want complete genomes
-        print(f"Downloading all complete genome records of {genus} from NCBI\n")
+        logger.info(f"Downloading all complete genome records of {genus} from NCBI\n")
         ngd.download(section='refseq', 
                file_formats = 'fasta', 
                genera = genera,  
@@ -27,23 +28,33 @@ def genome_download(genus, outdir, threads, frag, sp_ignore, domain):
                parallel = threads*2,
                groups = domain)
         
-    if Path(f"{outdir}/refseq/bacteria").is_dir():
-
-        count = len(list(Path(f"{outdir}/refseq/bacteria").glob("*/*.fna.gz")))
-        dir_count = len(list(Path(f"{outdir}/refseq/bacteria").glob("*")))
-        
-        if count != dir_count:
-            raise FileNotFoundError(repr(f"{genus} is a real genus but some (or no) genomes were not downloaded"))
-        if sp_ignore:
-            sp_count = sp_remove(outdir)
-            print(f"{count} genomes of {genus} were downloaded and {sp_count} were removed due to being unnamed species\n\n")
-        else: 
-            print(f"{count} genomes of {genus} were downloaded\n\n")
-        return count
+    try:
+        if Path(f"{outdir}/refseq/bacteria").is_dir():
     
-    else:
-        raise NotADirectoryError(repr(f"Download failed because {genus} is invalid or there are no records of the requested type in NCBI"))
-        return
+            count = len(list(Path(f"{outdir}/refseq/bacteria").glob("*/*.fna.gz")))
+            dir_count = len(list(Path(f"{outdir}/refseq/bacteria").glob("*")))
+            
+            try:
+                if count != dir_count:
+                    raise FileNotFoundError()
+            except FileNotFoundError as err:
+                logger.error(str(err), exc_info = True)
+                logger.error(f"{genus} is a real genus but some (or no) genomes were not downloaded")
+                return 1
+            if sp_ignore:
+                sp_count = sp_remove(outdir)
+                logger.info(f"{count} genomes of {genus} were downloaded and {sp_count} were removed due to being unnamed species\n\n")
+            else: 
+                logger.info(f"{count} genomes of {genus} were downloaded\n\n")
+            return count
+        
+        else:
+            raise NotADirectoryError()
+    except NotADirectoryError as err:
+        logger.error(str(err), exc_info = True)
+        logger.error(f"Download failed because {genus} is invalid or there are no records of the requested type in NCBI")
+        return 1
+    return 0
 
 def sp_remove(outdir):
     sp_count = 0

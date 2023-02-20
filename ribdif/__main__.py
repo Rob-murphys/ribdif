@@ -126,21 +126,21 @@ def arg_handling(args, workingDir):
     except FileExistsError as err:
         logger.error(str(err), exc_info = True)
         logger.error(f"{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory")
-        sys.exit(1)
+        return 1
     
     # Make the outdir
     Path.mkdir(outdir, parents = True)
     
     # Replace logging file with one in outdir
-    logging_config.replace_log_file(outdir)
+    logging_config.replace_log_file(outdir, logger)
     
     #Resolving rerun argument
     if args.rerun:
         if Path(f"{outdir}").is_dir() == False:
-            print(f"No records of {genus} exists. Ignoring rerun request and downloading genomes\n")
+            logger.info(f"No records of {genus} exists. Ignoring rerun request and downloading genomes\n")
             rerun = False
         else:
-            print(f"Reusing previously downloaded {genus} genomes\n")
+            logger.info(f"Reusing previously downloaded {genus} genomes\n")
             rerun = True
     else:
         rerun = False
@@ -163,6 +163,7 @@ def arg_handling(args, workingDir):
         except IncompatiablityError as err:
             logger.exception(str(err)) 
             logger.error("You can't use the default 16S primers on non bacteria life.")
+            return 1
     else:
         primer_file = args.primers
         
@@ -173,12 +174,16 @@ def arg_handling(args, workingDir):
         elif Path(f"{primer_file}").is_file() == False: # If it does not exist then raise this exception
             raise FileNotFoundError()          
     except EmptyFileError as err:
+        logger.error(str(err), exc_info = True)
         logger.error("fThe provided primer file is empty.\n{primer_file}\nPlease provide a populated primer file")
+        return 1
     except FileNotFoundError as err:
+        logger.error(str(err), exc_info = True)
         logger.error(f"{primer_file} does not exist")
+        return 1
 
        
-    print("#= All arguments resolved =#\n\n")
+    logger.info("#= All arguments resolved =#\n\n")
     
     return genus, primer_file, outdir, rerun
 
@@ -190,10 +195,13 @@ def main():
     
     genus_line = f"#== RibDif2 is running on: {args.genus} in the {args.domain} domain ==#"
     block_line = f"#{'=' * (len(genus_line)-2)}#"
-    print(f"\n{block_line}\n{genus_line}\n{block_line}\n\n")
+    logger.info(f"\n{block_line}\n{genus_line}\n{block_line}\n\n")
     
     #Argument handeling
-    genus, primer_file, outdir, rerun = arg_handling(args, workingDir)
+    try:
+        genus, primer_file, outdir, rerun = arg_handling(args, workingDir)
+    except TypeError: # Catching the type error from "TypeError: cannot unpack non-iterable int object"
+        sys.exit(1)
     
     log_dir = Path(outdir) / "ribdif_logs"
     Path(log_dir).mkdir(exist_ok = True, parents = True)
@@ -201,7 +209,10 @@ def main():
     # If rerun is false, download and handle genomes from NCBI
     if rerun == False:
         # Download genomes from NCBI
-        genome_count = ngd_download.genome_download(genus, outdir, args.threads, args.frag, args.sp_ignore, args.domain)
+        status = ngd_download.genome_download(genus, outdir, args.threads, args.frag, args.sp_ignore, args.domain, logger)
+        # Catching is any critical errors occured from downloading genomes
+        if status == 1:
+            SystemExit(status)
     
         # Un gziping fasta files
         with multiprocessing.Pool(args.threads) as pool: # Create a multiprocessing pool with #threads workers
@@ -210,17 +221,17 @@ def main():
         
             
         # Remove unwanted characters from anywhere is file (should only be in fasta headers)
-        print("Modifying fasta headers.\n\n")
+        logger.info("Modifying fasta headers.\n\n")
         with multiprocessing.Pool(args.threads) as pool:
             all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.fna'))]
             pool.map(utils.modify2, all_fna)
     else:
         genome_count = len(list(Path(f"{outdir}/refseq/bacteria").glob("*")))
-        print(f"{genome_count} previously downloaded genomes of {genus} were found\n\n")
+        logger.info(f"{genome_count} previously downloaded genomes of {genus} were found\n\n")
             
     # If not using whole-genome mode assume the primers being used are 16S (which they are if default)
     if not args.whole:
-        print("#= Running barrnap on downloaded sequences =#\n\n")
+        logger.info("#= Running barrnap on downloaded sequences =#\n\n")
         barrnap_run.barnap_call(outdir, threads = args.threads)
         
         # Processing barrnap output > fishing out 16S sequences
@@ -240,13 +251,13 @@ def main():
                 pool.map(barrnap_run.barrnap_split, all_16S)
                
             # Call pyani
-            print("Calculating intra-genomic mismatches and ANI for each genome.\n\n")
+            logger.info("Calculating intra-genomic mismatches and ANI for each genome.\n\n")
             pyani_run.pyani_call(outdir, args.threads)
         else:
-            print("Skipping detailed intra-genomic analysis and ANI (if needed, use -a/--ANI).\n\n")
+            logger.info("Skipping detailed intra-genomic analysis and ANI (if needed, use -a/--ANI).\n\n")
 
         # ALignment of full 16S genes recoverd from barrnap
-        print("Alligning full-length 16S genes within genomes with muscle and building trees with fastree.\n\n")
+        logger.info("Alligning full-length 16S genes within genomes with muscle and building trees with fastree.\n\n")
         msa_run.muscle_call_multi(outdir, args.threads)
         
         # Genome statistic summary
@@ -259,15 +270,15 @@ def main():
         
         # Running msa on concatinated 16S sequences
         if args.msa == True:
-            print(f"Alligning all {genus} 16S rRNA genes with muscle and building tree with fasttree.\n")
+            logger.info(f"Alligning all {genus} 16S rRNA genes with muscle and building tree with fasttree.\n")
             infile , outAln, outTree = f"{outdir}/full/{genus}.16S", f"{outdir}/full/{genus}.16sAln", f"{outdir}/full/{genus}.16sTree" # Asigning in and out files
             msa_run.muscle_call_single(infile, outAln, outTree)
         else:
-            print("Skipping alignments and tree generation for 16S rRNA genes (if needed, use -m/--msa).\n\n")
+            logger.info("Skipping alignments and tree generation for 16S rRNA genes (if needed, use -m/--msa).\n\n")
             
         # PCR for default primers
         infile = f"{outdir}/full/{genus}.16S" # path to concatinated 16S barrnap output
-        names =  pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
+        names =  pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir, logger)
         
 
         
@@ -286,7 +297,7 @@ def main():
         
         #infile = f"{outdir}/refseq/bacteria/{genus}_total.fna" # path to cocatinate genus genomes
         #names = pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
-        names = pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir, args.threads)
+        names = pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir, args.threads, logger)
         
         for name in names:
             total_sum_dict = pcr_run.multi_cleaner(outdir, name)
@@ -311,24 +322,25 @@ def main():
 
     # msa on all amplicons
     if args.msa == True:
-        print("Alligning all amplicons with Muscle and building tree with fasttree.\n")
+        logger.info("Alligning all amplicons with Muscle and building tree with fasttree.\n")
         for name in names:
             infile , outAln, outTree = f"{outdir}/amplicons/{genus}-{name}.amplicons", f"{outdir}/amplicons/{genus}-{name}.aln", f"{outdir}/amplicons/{genus}-{name}.tree" # Asigning in and out files
             msa_run.muscle_call_single(infile, outAln, outTree)
     else:
-        print("Skipping alignments and trees generation for amplicons (if needed, use -m/--msa).\n\n")
+        logger.info("Skipping alignments and trees generation for amplicons (if needed, use -m/--msa).\n\n")
     
-    print ("Making unique clusters with vsearch.\n\n")
+    logger.info ("Making unique clusters with vsearch.\n\n")
     for name in names:
         vsearch_run.vsearch_call(outdir, genus, name, args.id, log_dir, args.threads)
     
     if args.msa == True:
-        print("Making amplicon summary file for tree viewer import.\n\n")
+        logger.info("Making amplicon summary file for tree viewer import.\n\n")
         msa_run.format_trees(outdir, genus, name)
     
-    # Generating the heatmaps #
+    # Generating the figures #
+    Path.mkdir(f"{outdir}/figures")
     for name in names:
-        print(f"Making heatmaps for {name}\n\n")
+        logger.info(f"Making figures for {name}\n\n")
         # Cleaning vsearch clustering data
         all_gcfs, uc_dict_clean, gcf_species, cluster_count = overlaps.uc_cleaner(outdir, genus, name)
         
@@ -355,7 +367,6 @@ def main():
         plot_dendo = figures.figure_fix(plot_dendo)
         
         # Save the heatmaps
-        Path.mkdir(f"{outdir}/figures")
         figures.pdf_save(plot_clus, plot_dendo, outdir, genus, name)
         
         # Generate graps from the pairwise dataframe
