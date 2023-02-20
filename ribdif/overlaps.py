@@ -91,7 +91,7 @@ def gcf_overlaps(all_gcfs, uc_dict_clean, gcf_species):
     return pairwise_match
 
 
-def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir):
+def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger):
     
     genome_count = len(cluster_df.index)
     named_genomes = len([s for s in gcf_species.values() if s != "sp."]) # Recovering species names that are not equal so "sp."
@@ -122,6 +122,6 @@ def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir):
                 members = unq_combs[i].split("/")
                 f_out.write(f"Group {i}:\t" + ' / '.join(members) + "\n")
         f_out.seek(0)
-        print(f_out.read())
+        logger.info(f_out.read())
         
 #[i.replace("sp.", f"sp._{x}") for x, i in enumerate(combinations) if "sp." in i]

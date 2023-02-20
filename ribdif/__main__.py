@@ -375,7 +375,7 @@ def main():
         # Draw the generated graps into on plot
         figures.draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, genus, name)
         
-        overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir)
+        overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger)
 
 if __name__ == '__main__':
     main()
