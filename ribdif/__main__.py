@@ -17,21 +17,22 @@ import logging
 
 
 
-from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_files, vsearch_run, overlaps, figures, logging_config
-from ribdif.custom_exceptions import EmptyFileError, IncompatiablityError, ThirdPartyError, StopError
-
 # =============================================================================
-# import barrnap_run
-# import pcr_run
-# import pyani_run
-# import utils
-# import msa_run
-# import summary_files
-# import vsearch_run
-# import overlaps
-# import figures
-# import logging_config
+# from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_files, vsearch_run, overlaps, figures, logging_config
+# from ribdif.custom_exceptions import EmptyFileError, IncompatiablityError, ThirdPartyError, StopError
 # =============================================================================
+import ngd_download
+import barrnap_run
+import pcr_run
+import pyani_run
+import utils
+import msa_run
+import summary_files
+import vsearch_run
+import overlaps
+import figures
+import logging_config
+from custom_exceptions import EmptyFileError, IncompatiablityError, ThirdPartyError, StopError
 
  # Initialise the logging
 logger = logging_config.cofigure_logging()
@@ -81,7 +82,7 @@ def parse_args():
                         action = "store_true")
     
     parser.add_argument("-m", "--msa", dest = "msa",
-                        help = "make multiple sequence alignment and trees",
+                        help = "Make multiple sequence alignment and trees",
                         action = "store_true")
     
     parser.add_argument("-i", "--id", dest = "id",
@@ -337,7 +338,7 @@ def main():
         msa_run.format_trees(outdir, genus, name)
     
     # Generating the figures #
-    Path.mkdir(f"{outdir}/figures")
+    Path.mkdir(Path(f"{outdir}/figures"))
     for name in names:
         logger.info(f"Making figures for {name}\n\n")
         # Cleaning vsearch clustering data

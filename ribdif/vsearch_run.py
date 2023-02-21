@@ -4,7 +4,8 @@ import subprocess
 import shlex
 from pathlib import Path
 import os
-from ribdif import custom_exceptions
+#from ribdif import custom_exceptions
+import custom_exceptions
 
 def vsearch_call(outdir, genus, name, ident, log_dir, threads):
     # Defining in and out files/dirs

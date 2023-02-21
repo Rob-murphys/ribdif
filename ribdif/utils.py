@@ -74,10 +74,10 @@ def amp_replace(outdir, genus, name):
                amp = line.strip().strip(">")
                line = line.replace(amp, dict_sum[amp] + f"_{amp.strip('amp_')}")
            f_out.write(line)
-    Path.unlink(f"{outdir}/amplicons/{genus}-{name}.temp.amplicons") # remove temp file
+    Path.unlink(Path(f"{outdir}/amplicons/{genus}-{name}.temp.amplicons")) # remove temp file
     # Check if the primer resulted in any amplification and if not remove the file
     if os.stat(f"{outdir}/amplicons/{genus}-{name}.amplicons").st_size == 0:
-        Path.unlink(f"{outdir}/amplicons/{genus}-{name}.amplicons")
+        Path.unlink(Path(f"{outdir}/amplicons/{genus}-{name}.amplicons"))
         print(f"{name} primer resulted in no amplification and will be excluded from further analysis. Are you sure the primer is correct?\n")
     return
 
