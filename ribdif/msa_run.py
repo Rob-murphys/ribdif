@@ -14,7 +14,7 @@ def call_proc_muscle(infile):
     outfile = str(Path(infile).parent / Path(infile).stem)
     # Building the command
     #command1 = f"muscle -super5 {infile} -output {outfile}.16sAln -threads {threads} -nt" # Do I need to strip the alignement file of white space and commas?
-    command1 = f"mafft {infile} > {outfile}.16sAln"
+    command1 = f"mafft --quiet {infile}"
     #command2 = f"fasttree -quiet -nopr -gtr -nt {outfile}.16sTree"
     # Passing the command to shell piping the stdout and stderr
     with open(f"{outfile}.16sAln", "w") as aln_out:
@@ -39,7 +39,8 @@ def muscle_call_multi(outdir, threads):
 def muscle_call_single(infile, outAln, outTree):
     # Building the command
     #command1 = f"muscle -super5 {infile} -output {outAln} -threads {threads} -nt" # Do I need to strip the alignement file of white space and commas?
-    command1 = f"mafft {infile} > {outAln}"
+    command1 = f"mafft --quiet {infile}"
+    print(command1)
     command2 = f"fasttree -quiet -nopr -gtr -nt {outAln}"
     with open(f"{outAln}", "w") as aln_out:
         subprocess.run(shlex.split(command1), stdout = subprocess.PIPE, stderr = aln_out)
