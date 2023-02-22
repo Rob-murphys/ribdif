@@ -335,15 +335,19 @@ def main():
     for name in names:
         logger.info(f"Making summaries and figures for {name}\n\n")
         
-        # msa on all amplicons
-        logger.info("Aligning all amplicons for diversity calculation.\n")
-        infile , outAln, outTree = f"{outdir}/amplicons/{genus}-{name}.amplicons", f"{outdir}/amplicons/{genus}-{name}.aln", f"{outdir}/amplicons/{genus}-{name}.tree" # Asigning in and out files
-        msa_run.muscle_call_single(infile, outAln, outTree)
-        logger.info(f"Gather tree tip information see: {outdir}/amplicons/{genus}-{name}-meta.tsv.\n\n")
-        msa_run.format_trees(outdir, genus, name)
+        if args.msa:
+            # msa on all amplicons
+            logger.info("Aligning all amplicons for diversity calculation.\n")
+            infile , outAln, outTree = f"{outdir}/amplicons/{genus}-{name}.amplicons", f"{outdir}/amplicons/{genus}-{name}.aln", f"{outdir}/amplicons/{genus}-{name}.tree" # Asigning in and out files
+            msa_run.muscle_call_single(infile, outAln, outTree)
+            logger.info(f"Gather tree tip information see: {outdir}/amplicons/{genus}-{name}-meta.tsv.\n\n")
+            msa_run.format_trees(outdir, genus, name)
+            # Calculate shannon diversity across the primers
+            shannon_div = summary_files.shannon_calc(outAln)
+        else:
+            logger.info("Skipping total amplicon alignment and diversity calculation")
+            outAln = "Was skipped"
         
-        # Calculate shannon diversity across the primers
-        shannon_div = summary_files.shannon_calc(outAln)
 
         # Cleaning vsearch clustering data
         all_gcfs, uc_dict_clean, gcf_species, cluster_count = overlaps.uc_cleaner(outdir, genus, name)
