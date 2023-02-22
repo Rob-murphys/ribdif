@@ -131,7 +131,7 @@ def arg_handling(args, workingDir, logger):
     
     if not args.rerun:
         # Make the outdir
-        Path.mkdir(outdir, parents = True)
+        Path.mkdir(Path(outdir), parents = True)
     
     # Replace logging file with one in outdir
     logging_config.replace_log_file(outdir, logger)
@@ -329,7 +329,7 @@ def main():
     
     
     # Generating the figures #
-    Path.mkdir(f"{outdir}/figures")
+    Path.mkdir(Path(f"{outdir}/figures"), exist_ok = True)
     for name in names:
         logger.info(f"Making summaries and figures for {name}\n\n")
         
