@@ -61,17 +61,17 @@ def format_trees(outdir, genus, name):
     
     # Getting individual name parts with list comprehension
     GCF = ["_".join(i.split("_")[:2]) for i in tips_clean]
-    NZ = [i.split("_")[2] for i in tips_clean]
-    species = [i.split("_")[4] for i in tips_clean]
-    strain = ["_".join(i.split("_")[5:])for i in tips_clean]
+    genus = [i.split("_")[4] for i in tips_clean]
+    species = [i.split("_")[5] for i in tips_clean]
+    strain = ["_".join(i.split("_")[6:])for i in tips_clean]
     n_gene = [i.split("_")[-1] for i in tips]
     
     # Getting cluster number for each item of tips in the order of tips # Why not just reorder tips to that of the dataframe?
-    uc_df = uc_df.sort_values(by = tips)
+    uc_df = uc_df.sort_values(by = 8, axis = 0)
     match_index =[uc_df_clean.index[uc_df_clean[8] == i] for i in tips]
     clusters = [uc_df.loc[m][1].values[0] for m in match_index]
     
-    meta_df = pd.DataFrame({"name": tips, "GCF":GCF, "NZ":NZ, "Species":species, "Strain":strain, "nGene":n_gene, "Cluster":clusters})
+    meta_df = pd.DataFrame({"name": tips, "GCF":GCF, "Genus":genus, "Species":species, "Strain":strain, "nGene":n_gene, "Cluster":clusters})
     meta_df.to_csv(out_path, sep = "\t", index = False)
     
   

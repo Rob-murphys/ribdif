@@ -257,7 +257,7 @@ def main():
             logger.info("Skipping detailed intra-genomic analysis and ANI (if needed, use -a/--ANI).\n\n")
 
         # ALignment of full 16S genes recoverd from barrnap
-        logger.info("Alligning full-length 16S genes within genomes with muscle and building trees with fastree.\n\n")
+        logger.info("Alligning full-length 16S genes within genomes with muscle.\n\n")
         msa_run.muscle_call_multi(outdir, args.threads)
         
         # Genome statistic summary
@@ -313,34 +313,36 @@ def main():
     if not list(Path(f"{outdir}/amplicons/").glob(f"{genus}-*.amplicons")):
         sys.exit("No amplification for any of the given primers was successfull. Try again with different primers")
     
-    for name in names:
-        # Make summary file for whole genome mode (has to be after utils.amp_replace so cant have in main args.whole section)
-        if args.whole:
+    # Make summary file for whole genome mode (has to be after utils.amp_replace so cant have in main args.whole section)
+    if args.whole:
+        for name in names:
             summary_type = f"{name}-amp"
             in_fna = f"{outdir}/amplicons/{genus}-{name}.amplicons"
             summary_files.make_sumamry(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type)
 
-    # msa on all amplicons
-    if args.msa == True:
-        logger.info("Alligning all amplicons with Muscle and building tree with fasttree.\n")
-        for name in names:
-            infile , outAln, outTree = f"{outdir}/amplicons/{genus}-{name}.amplicons", f"{outdir}/amplicons/{genus}-{name}.aln", f"{outdir}/amplicons/{genus}-{name}.tree" # Asigning in and out files
-            msa_run.muscle_call_single(infile, outAln, outTree)
-    else:
-        logger.info("Skipping alignments and trees generation for amplicons (if needed, use -m/--msa).\n\n")
+
     
     logger.info ("Making unique clusters with vsearch.\n\n")
     for name in names:
         vsearch_run.vsearch_call(outdir, genus, name, args.id, log_dir, args.threads)
     
-    if args.msa == True:
-        logger.info("Making amplicon summary file for tree viewer import.\n\n")
-        msa_run.format_trees(outdir, genus, name)
+    
     
     # Generating the figures #
     Path.mkdir(Path(f"{outdir}/figures"))
     for name in names:
-        logger.info(f"Making figures for {name}\n\n")
+        logger.info(f"Making summaries and figures for {name}\n\n")
+        
+        # msa on all amplicons
+        logger.info("Aligning all amplicons for diversity calculation.\n")
+        infile , outAln, outTree = f"{outdir}/amplicons/{genus}-{name}.amplicons", f"{outdir}/amplicons/{genus}-{name}.aln", f"{outdir}/amplicons/{genus}-{name}.tree" # Asigning in and out files
+        msa_run.muscle_call_single(infile, outAln, outTree)
+        logger.info(f"Gather tree tip information see: {outdir}/amplicons/{genus}-{name}-meta.tsv.\n\n")
+        msa_run.format_trees(outdir, genus, name)
+        
+        # Calculate shannon diversity across the primers
+        shannon_div = summary_files.shannon_calc(outAln)
+
         # Cleaning vsearch clustering data
         all_gcfs, uc_dict_clean, gcf_species, cluster_count = overlaps.uc_cleaner(outdir, genus, name)
         
@@ -376,7 +378,7 @@ def main():
         # Draw the generated graps into on plot
         figures.draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, genus, name)
         
-        overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger)
+        overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div)
     logger.info(f"You can find a saved version of the above at {outdir}/ribdif_log_file.log:")
 if __name__ == '__main__':
     main()
