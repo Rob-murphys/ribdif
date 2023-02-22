@@ -57,7 +57,7 @@ def pcr_call(infile, outdir, genus, primer_file, workingDir, logger):
         names = []
         for primer in f_primer:
             name, fwd, rvs, length = primer.strip().split("\t")
-            call_proc_pcr(infile, outdir, genus, name, fwd, rvs, int((length+(length*0.2))), workingDir, multi)
+            call_proc_pcr(infile, outdir, genus, name, fwd, rvs, int((float(length)+(float(length)*0.2))), workingDir, multi)
             names.append(name)
     return names
 
