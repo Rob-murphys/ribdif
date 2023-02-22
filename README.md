@@ -46,6 +46,14 @@ You can also run with a species aswell:
 
 `ribdif -g <some genus name> -p /path/to/my_primer_file.txt`
 
+### Primer file format
+
+```
+v3v4	CCTACGGGNGGCNGCAG	GACTACNNGGGTATCTAATCC	550
+v1v9	AGRGTTYGATYMTGGCTCAG 	RGYTACCTTGTTACGACTT	1800
+```
+Where the columns are: primer name | forward sequence | reverse sequence | expected amplicon size
+
 
 
 
