@@ -81,7 +81,7 @@ def parse_args():
                         action = "store_true")
     
     parser.add_argument("-m", "--msa", dest = "msa",
-                        help = "make multiple sequence alignment and trees",
+                        help = "Make multiple sequence alignment and trees of amplicons (also whole 16S genes if not using --whole-genome)",
                         action = "store_true")
     
     parser.add_argument("-i", "--id", dest = "id",
@@ -93,7 +93,7 @@ def parse_args():
                         default = os.cpu_count())
     
     group2.add_argument("-w", "--whole-genome", dest = "whole", 
-                        help = "Indicate the primers given are to be run on the whole genome so no barrnap, msa, ani (Required if your primers are non 16S). Mutually exclusive with --ani",
+                        help = "Indicate the primers given are to be run on the whole genome so no barrnap or ani (Required if your primers are non 16S). Mutually exclusive with --ani",
                         action = "store_true")
     return parser.parse_args()
 
@@ -332,15 +332,19 @@ def main():
     for name in names:
         logger.info(f"Making summaries and figures for {name}\n\n")
         
-        # msa on all amplicons
-        logger.info("Aligning all amplicons for diversity calculation.\n")
-        infile , outAln, outTree = f"{outdir}/amplicons/{genus}-{name}.amplicons", f"{outdir}/amplicons/{genus}-{name}.aln", f"{outdir}/amplicons/{genus}-{name}.tree" # Asigning in and out files
-        msa_run.muscle_call_single(infile, outAln, outTree)
-        logger.info(f"Gather tree tip information see: {outdir}/amplicons/{genus}-{name}-meta.tsv.\n\n")
-        msa_run.format_trees(outdir, genus, name)
+        if args.msa:
+            # msa on all amplicons
+            logger.info("Aligning all amplicons for diversity calculation.\n")
+            infile , outAln, outTree = f"{outdir}/amplicons/{genus}-{name}.amplicons", f"{outdir}/amplicons/{genus}-{name}.aln", f"{outdir}/amplicons/{genus}-{name}.tree" # Asigning in and out files
+            msa_run.muscle_call_single(infile, outAln, outTree)
+            logger.info(f"Gather tree tip information see: {outdir}/amplicons/{genus}-{name}-meta.tsv.\n\n")
+            msa_run.format_trees(outdir, genus, name)
+            # Calculate shannon diversity across the primers
+            shannon_div = summary_files.shannon_calc(outAln)
+        else:
+            logger.info("Skipping total amplicon alignment and diversity calculation")
+            outAln = "Was skipped"
         
-        # Calculate shannon diversity across the primers
-        shannon_div = summary_files.shannon_calc(outAln)
 
         # Cleaning vsearch clustering data
         all_gcfs, uc_dict_clean, gcf_species, cluster_count = overlaps.uc_cleaner(outdir, genus, name)
