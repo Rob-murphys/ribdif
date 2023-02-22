@@ -21,6 +21,10 @@ arguments:
         description: "Ignore genomes with unspecified species (i.e. their species is 'sp.')"
         type: toggle # required
         required: False # optional, default is true
+        default_value: "Off"
+        options:
+            'On': "On"
+            'Off': "Off"
         
     -   key: --primers # required
         description: "Path to custom primer-file, must be a tab seperated file with name, forward and reverse primers. See default.primers"
@@ -31,16 +35,28 @@ arguments:
         description: "ANI is off by default, turn on if you care about individual genomes. The $genus-summary.csv-file will only contain a list of genomes when off. Mutually exclusive with --whole-genome"
         type: toggle # required
         required: False # optional, default is true
+        default_value: "Off"
+        options:
+            'On': "On"
+            'Off': "Off"
         
     -   key: --frag # required
         description: "Allow use of fragmented genomes. Full genomes are recomended/requierd for detecting all 16S-genes, use with caution. Off by default"
         type: toggle # required
         required: False # optional, default is true
+        default_value: "Off"
+        options:
+            'On': "On"
+            'Off': "Off"
 
     -   key: --msa # required
         description: "Make multiple sequence alignment and trees"
         type: toggle # required
         required: False # optional, default is true
+        default_value: "Off"
+        options:
+            'On': "On"
+            'Off': "Off"
 
     -   key: --id # required
         description: "Identity to cluster amplicons at if not using the deafult 100%%. e.g. .99. Does not cluster at the genome level, so beware"
@@ -51,6 +67,10 @@ arguments:
         description: "Indicate the primers given are to be run on the whole genome so no barrnap, msa, ani (Required if your primers are non 16S). Mutually exclusive with --ani"
         type: toggle # required
         required: False # optional, default is true
+        default_value: "Off"
+        options:
+            'On': "On"
+            'Off': "Off"
         
 description_file: README.md
 
