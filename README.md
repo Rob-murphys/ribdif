@@ -20,7 +20,7 @@ Ribdif is most easily installed with pip inside a virtual environment. Make sure
 
 Next we need to install some dependencies:
 
-`conda install -c bioconda vsearch fasttree muscle barrnap pyani -y`
+`conda install -c bioconda vsearch fasttree mafft barrnap pyani -y`
 
 Check your install:
 
