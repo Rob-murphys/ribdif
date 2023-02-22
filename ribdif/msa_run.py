@@ -13,7 +13,8 @@ import re
 def call_proc_muscle(infile):
     outfile = str(Path(infile).parent / Path(infile).stem)
     # Building the command
-    command1 = f"muscle -align {infile} -output {outfile}.16sAln" # Do I need to strip the alignement file of white space and commas?
+    #command1 = f"muscle -super5 {infile} -output {outfile}.16sAln -threads {threads} -nt" # Do I need to strip the alignement file of white space and commas?
+    command1 = f"mafft {infile} > {outfile}"
     #command2 = f"fasttree -quiet -nopr -gtr -nt {outfile}.16sTree"
     # Passing the command to shell piping the stdout and stderr
     subprocess.run(shlex.split(command1), stdout = subprocess.PIPE, stderr = subprocess.PIPE)
@@ -36,7 +37,8 @@ def muscle_call_multi(outdir, threads):
 # Calling Muscle for MSA of all 16S sequences
 def muscle_call_single(infile, outAln, outTree):
     # Building the command
-    command1 = f"muscle -align {infile} -output {outAln} -maxiters 1 -diags" # Do I need to strip the alignement file of white space and commas?
+    #command1 = f"muscle -super5 {infile} -output {outAln} -threads {threads} -nt" # Do I need to strip the alignement file of white space and commas?
+    command1 = f"mafft {infile} > {outAln}"
     command2 = f"fasttree -quiet -nopr -gtr -nt {outAln}"
     subprocess.run(shlex.split(command1), stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     with open(outTree, "w") as f_std:
