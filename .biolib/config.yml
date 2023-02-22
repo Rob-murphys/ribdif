@@ -3,8 +3,7 @@ biolib_version: 2
 modules:
     main:
         image: 'dockerhub://robmurs/ribdif:latest'
-        command: ribdif
-        working_directory: /home/biolib/
+        working_directory: /ribdif/
         input_files:
             - COPY / /docs/
         output_files:
@@ -27,21 +26,23 @@ arguments:
             'off': "off"
         
     -   key: --primers # required
-        description: "Path to custom primer-file, must be a tab seperated file with name, forward and reverse primers. See default.primers"
+        description: "Path to custom primer-file (if using), must be a tab seperated file with name, forward and reverse primers. Default primers are 16S v3v4 and v1v9"
         type: file # required
         required: False # optional, default is true
         
-    -   key: --ani # required
-        description: "ANI is off by default, turn on if you care about individual genomes. The $genus-summary.csv-file will only contain a list of genomes when off. Mutually exclusive with --whole-genome"
-        type: toggle # required
-        required: False # optional, default is true
-        default_value: "off"
-        options:
-            'on': "on"
-            'off': "off"
+# =============================================================================
+#     -   key: --ani # required
+#         description: "ANI is off by default, turn on if you care about individual genomes. The $genus-summary.csv-file will only contain a list of genomes when off. Mutually exclusive with --whole-genome"
+#         type: toggle # required
+#         required: False # optional, default is true
+#         default_value: "off"
+#         options:
+#             'on': "on"
+#             'off': "off"
+# =============================================================================
         
     -   key: --frag # required
-        description: "Allow use of fragmented genomes. Full genomes are recomended/requierd for detecting all 16S-genes, use with caution. off by default"
+        description: "Allow use of fragmented genomes. Full genomes are recomended/requierd for detecting all 16S-genes, use with caution."
         type: toggle # required
         required: False # optional, default is true
         default_value: "off"
@@ -59,12 +60,12 @@ arguments:
             'off': "off"
 
     -   key: --id # required
-        description: "Identity to cluster amplicons at if not using the deafult 100%%. e.g. .99. Does not cluster at the genome level, so beware"
+        description: "Identity to cluster amplicons at if not using the deafult 1.00 (e.g. .99)."
         type: number # required
         required: False # optional, default is true
 
     -   key: --whole-genome # required
-        description: "Indicate the primers given are to be run on the whole genome so no barrnap, msa, ani (Required if your primers are non 16S). Mutually exclusive with --ani"
+        description: "Indicate the custom primers given are to be run on the whole genome so no barrnap, msa, ani (Required if your primers are non 16S)."
         type: toggle # required
         required: False # optional, default is true
         default_value: "off"
