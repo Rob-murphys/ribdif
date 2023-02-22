@@ -12,7 +12,9 @@ v1v9	AGRGTTYGATYMTGGCTCAG 	RGYTACCTTGTTACGACTT	1800
 
 Where the columns are: primer name | forward sequence | reverse sequence | expected amplicon size
 
+## Enabling NCBI ftp servers
 
+Before using RibDif you must add `ftp.ncbi.nih.gov` to your list of __Allowed third-party__ hosts in your accounts [Compute Options](https://biolib.com/settings/compute/)
 
 
 

@@ -72,7 +72,10 @@ arguments:
         options:
             'on': "on"
             'off': "off"
-        
+
+remote_hosts: 
+    -   ftp.ncbi.nih.gov
+
 description_file: README.md
 
 license_file: LICENSE
