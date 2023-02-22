@@ -314,11 +314,11 @@ def main():
         sys.exit("No amplification for any of the given primers was successfull. Try again with different primers")
     
     # Make summary file for whole genome mode (has to be after utils.amp_replace so cant have in main args.whole section)
-    if args.whole:
-        for name in names:
-            summary_type = f"{name}-amp"
-            in_fna = f"{outdir}/amplicons/{genus}-{name}.amplicons"
-            summary_files.make_sumamry(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type)
+    #if args.whole:
+    for name in names:
+        summary_type = f"{name}-amp"
+        in_fna = f"{outdir}/amplicons/{genus}-{name}.amplicons"
+        summary_files.make_sumamry(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type)
 
 
     
