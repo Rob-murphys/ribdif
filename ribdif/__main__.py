@@ -330,18 +330,18 @@ def main():
     # Generating the figures #
     Path.mkdir(f"{outdir}/figures")
     for name in names:
+        logger.info(f"Making summaries and figures for {name}\n\n")
         
         # msa on all amplicons
         logger.info("Aligning all amplicons for diversity calculation.\n")
         infile , outAln, outTree = f"{outdir}/amplicons/{genus}-{name}.amplicons", f"{outdir}/amplicons/{genus}-{name}.aln", f"{outdir}/amplicons/{genus}-{name}.tree" # Asigning in and out files
         msa_run.muscle_call_single(infile, outAln, outTree)
-        logger.info("Formatting trees.\n\n")
+        logger.info(f"Gather tree tip information see: {outdir}/amplicons/{genus}-{name}-meta.tsv.\n\n")
         msa_run.format_trees(outdir, genus, name)
         
         # Calculate shannon diversity across the primers
         shannon_div = summary_files.shannon_calc(outAln)
 
-        logger.info(f"Making figures for {name}\n\n")
         # Cleaning vsearch clustering data
         all_gcfs, uc_dict_clean, gcf_species, cluster_count = overlaps.uc_cleaner(outdir, genus, name)
         
