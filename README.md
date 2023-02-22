@@ -2,49 +2,15 @@
 
 RibDif evaluates the usefulness of a given amplicon at differentiating within a genus or species
 
-# Installation
+You can run RibDif throygh BioLib or get the tool yourself at our [github](https://github.com/Rob-murphys/ribdif))
 
-## Setup conda
-
-For this to work, you need [miniconda](https://docs.conda.io/en/latest/miniconda.html) to be installed on your system (in ubuntu if you are using WSL)
-
+## Primer file format
 ```
-conda create --name ribdif2 python=3.11 -y
-conda activate ribdif2
+v3v4	CCTACGGGNGGCNGCAG	GACTACNNGGGTATCTAATCC	550
+v1v9	AGRGTTYGATYMTGGCTCAG 	RGYTACCTTGTTACGACTT	1800
 ```
 
-Ribdif is most easily installed with pip inside a virtual environment. Make sure your pip version is up to date!
-
-
-`pip install git+https://github.com/Rob-murphys/ribdif.git`
-
-Next we need to install some dependencies:
-
-`conda install -c bioconda vsearch fasttree muscle barrnap pyani -y`
-
-Check your install:
-
-`ribdif -h`
-
-# Usage
-
-## Running with default primers
-
-`ribdif -g <some genus name>`
-
-Use `-h` for full options list.
-
-An example run with Ruegeria as the genus:
-
-`ribdif -g Ruegeria`
-
-You can also run with a species aswell:
-
-`ribdig -g "Mycoplasma bovis"`
-
-## Running with custom primers
-
-`ribdif -g <some genus name> -p /path/to/my_primer_file.txt`
+Where the columns are: primer name | forward sequence | reverse sequence | expected amplicon size
 
 
 
