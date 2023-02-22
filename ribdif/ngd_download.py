@@ -8,7 +8,7 @@ import logging
 # Avaliable at: https://github.com/kblin/ncbi-genome-download
 def genome_download(genus, outdir, threads, frag, sp_ignore, domain, logger):
     genera = genus.replace("_", " ")
-    if frag: # if the user wants fragmented genomes
+    if frag == "On": # if the user wants fragmented genomes
         logger.info(f"Downloading all genome recoreds of {genus} fron NCBI\n")
         ngd.download(section='refseq', 
                file_formats = 'fasta', 
@@ -41,7 +41,7 @@ def genome_download(genus, outdir, threads, frag, sp_ignore, domain, logger):
                 logger.error(str(err), exc_info = True)
                 logger.error(f"{genus} is a real genus but some (or no) genomes were not downloaded")
                 return 1
-            if sp_ignore:
+            if sp_ignore == "On":
                 sp_count = sp_remove(outdir)
                 logger.info(f"{count} genomes of {genus} were downloaded and {sp_count} were removed due to being unnamed species\n\n")
             else: 

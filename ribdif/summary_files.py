@@ -127,10 +127,10 @@ def summary_multiproc(outdir, genus, threads, file_list):
 def dict_parser(key, summary_dict, outdir, genus, whole_mode, ani_mode, summary_type):
     # Looping through the generate dictionary
     value = summary_dict[key]
-    if not whole_mode: # is using barrnap (i.e. running ONLY on 16S genes)
+    if whole_mode == "Off": # is using barrnap (i.e. running ONLY on 16S genes)
         alignment_path = glob(f"{outdir}/refseq/bacteria/{key}/*.16sAln")[0] # generate path to alignment file
         summary_dict[key][7] = str(shannon_calc(alignment_path))# Calculate total shanon diversity
-    if ani_mode: # if using ani
+    if ani_mode == "On": # if using ani
         value = ani_stats(key, value, outdir, genus) # get ani stats
     # Write it all to file
     value.insert(0, key) # append GCF to value list

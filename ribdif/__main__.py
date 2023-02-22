@@ -55,7 +55,7 @@ def parse_args():
     
     parser.add_argument("--ignore-sp", dest = "sp_ignore",
                         help = "Ignore genomes with unspecified species (i.e. their species is 'sp.')",
-                        action = "store_true")
+                        choices = ["On", "Off"])
     
     parser.add_argument("-o", "--outdir", dest = "outdir",
                         help = "Output direcotry path. Default is current directory",
@@ -75,15 +75,15 @@ def parse_args():
     
     group2.add_argument("-a", "--ani", dest = "ANI", 
                         help = "ANI is off by default, turn on if you care about individual genomes. The $genus-summary.csv-file will only contain a list of genomes when off. Mutually exclusive with --whole-genome",
-                        action = "store_true")
+                        choices = ["On", "Off"])
     
     parser.add_argument("-f", "--frag", dest = "frag", 
                         help = "Allow use of fragmented genomes. Full genomes are recomended/requierd for detecting all 16S-genes, use with caution. Off by default",
-                        action = "store_true")
+                        choices = ["On", "Off"])
     
     parser.add_argument("-m", "--msa", dest = "msa",
                         help = "Make multiple sequence alignment and trees",
-                        action = "store_true")
+                        choices = ["On", "Off"])
     
     parser.add_argument("-i", "--id", dest = "id",
                         help = "Identity to cluster amplicons at if not using the deafult 100%%. e.g. .99. Does not cluster at the genome level, so beware",
@@ -95,7 +95,7 @@ def parse_args():
     
     group2.add_argument("-w", "--whole-genome", dest = "whole", 
                         help = "Indicate the primers given are to be run on the whole genome so no barrnap, msa, ani (Required if your primers are non 16S). Mutually exclusive with --ani",
-                        action = "store_true")
+                        choices = ["On", "Off"])
     return parser.parse_args()
 
 def arg_handling(args, workingDir, logger):
@@ -148,9 +148,9 @@ def arg_handling(args, workingDir, logger):
         rerun = False
     
     
-    if not args.whole and args.primers != "False":
+    if args.whole == "Off" and args.primers != "False":
         logger.info("You are using custom primers on only the 16S genes as you didn't enable whole-genome mode. This is not a problem (if they are 16S primers), but we are just letting you know\n")
-    elif args.whole and args.primers == "False":
+    elif args.whole == "On" and args.primers == "False":
         logger.info("You are running in whole-genome mode but using the default primers. This is not a problem but will 'skip' barrnap and other potentially useful mectrics scrapped from the whole 16S genes\n" )
 
     # Parsing the primers argument
@@ -230,7 +230,7 @@ def main():
         logger.info(f"{genome_count} previously downloaded genomes of {genus} were found\n\n")
             
     # If not using whole-genome mode assume the primers being used are 16S (which they are if default)
-    if not args.whole:
+    if args.whole == "Off":
         logger.info("#= Running barrnap on downloaded sequences =#\n\n")
         barrnap_run.barnap_call(outdir, threads = args.threads)
         
@@ -244,7 +244,7 @@ def main():
         barrnap_run.barrnap_conc(genus, outdir)
         
         #If ANI is true calculate
-        if args.ANI:
+        if args.ANI == "On":
             # First need to split whole 16S sequences into seperate files
             with multiprocessing.Pool(args.threads) as pool:
                 all_16S = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.16S'))]
@@ -269,7 +269,7 @@ def main():
         summary_files.make_sumamry(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type)
         
         # Running msa on concatinated 16S sequences
-        if args.msa == True:
+        if args.msa == "On":
             logger.info(f"Alligning all {genus} 16S rRNA genes with muscle and building tree with fasttree.\n")
             infile , outAln, outTree = f"{outdir}/full/{genus}.16S", f"{outdir}/full/{genus}.16sAln", f"{outdir}/full/{genus}.16sTree" # Asigning in and out files
             msa_run.muscle_call_single(infile, outAln, outTree)
@@ -284,7 +284,7 @@ def main():
         
 
     # PCR for custom primers   
-    elif args.whole:
+    elif args.whole == "On":
         # Concatinate all downloaded genomes
 # =============================================================================
 #         all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.fna'))]
@@ -314,7 +314,7 @@ def main():
         sys.exit("No amplification for any of the given primers was successfull. Try again with different primers")
     
     # Make summary file for whole genome mode (has to be after utils.amp_replace so cant have in main args.whole section)
-    if args.whole:
+    if args.whole == "On":
         for name in names:
             summary_type = f"{name}-amp"
             in_fna = f"{outdir}/amplicons/{genus}-{name}.amplicons"
