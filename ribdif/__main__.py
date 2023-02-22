@@ -129,8 +129,9 @@ def arg_handling(args, workingDir, logger):
         logger.error(f"{outdir} folder already exists. Run again with -c/--clobber, -r/--rerun or set another output directory")
         return 1
     
-    # Make the outdir
-    Path.mkdir(outdir, parents = True)
+    if not args.rerun:
+        # Make the outdir
+        Path.mkdir(outdir, parents = True)
     
     # Replace logging file with one in outdir
     logging_config.replace_log_file(outdir, logger)
