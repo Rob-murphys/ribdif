@@ -36,7 +36,6 @@ from custom_exceptions import EmptyFileError, IncompatiablityError, ThirdPartyEr
 
  # Initialise the logging
 logger = logging_config.cofigure_logging()
-timer = logging_config.timer_logging()
 
 # Defining user arguments
 def parse_args():
