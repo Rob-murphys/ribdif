@@ -75,6 +75,7 @@ arguments:
 
 remote_hosts: 
     -   ftp.ncbi.nih.gov
+    -   ftp.ncbi.nlm.nih.gov
 
 description_file: README.md
 
