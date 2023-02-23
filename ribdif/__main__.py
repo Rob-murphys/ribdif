@@ -343,7 +343,7 @@ def main():
             shannon_div = summary_files.shannon_calc(outAln)
         else:
             logger.info("Skipping total amplicon alignment and diversity calculation")
-            outAln = "Was skipped"
+            shannon_div = "Was skipped"
         
 
         # Cleaning vsearch clustering data
