@@ -199,7 +199,7 @@ def main():
     genus_line = f"#== RibDif2 is running on: {args.genus} in the {args.domain} domain ==#"
     block_line = f"#{'=' * (len(genus_line)-2)}#"
     logger.info(f"\n{block_line}\n{genus_line}\n{block_line}\n\n")
-    
+
     #Argument handeling
     try:
         genus, primer_file, outdir, rerun = arg_handling(args, workingDir, logger)
@@ -386,6 +386,10 @@ def main():
         figures.draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, genus, name)
         
         overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div)
+    
+    # Removing the downloaded genomes for BioLib version so downloading results is faster
+    utils.cleaner(outdir)
+    
     logger.info(f"You can find a saved version of the above at {outdir}/ribdif_log_file.log:")
 if __name__ == '__main__':
     main()
