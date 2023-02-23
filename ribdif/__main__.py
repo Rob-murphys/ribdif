@@ -14,7 +14,8 @@ import multiprocessing
 import sys
 import logging
 from timeit import default_timer
-
+import cProfile
+import pstats
 
 
 
@@ -412,4 +413,9 @@ def main():
     end = default_timer()
     timer.info(f"It took {end - start} seconds to run")
 if __name__ == '__main__':
-    main()
+    profiler = cProfile.Profile()
+    profiler.run('main()')
+    
+    stats = pstats.Stats(profiler)
+    stats.sort_stats(pstats.SortKey.TIME)
+    stats.print_stats()
