@@ -35,7 +35,7 @@ from ribdif.custom_exceptions import EmptyFileError, IncompatiablityError, Third
 
  # Initialise the logging
 logger = logging_config.cofigure_logging()
-
+timer = logging_config.timer_logging()
 
 # Defining user arguments
 def parse_args():
@@ -305,9 +305,9 @@ def main():
             pcr_run.sum_dict_write(outdir, genus, name, total_sum_dict)
 
         
-    for name in names:
-        # Rename amplicon fasta headers to origin contig
-        utils.amp_replace(outdir, genus, name)
+    
+    # Rename amplicon fasta headers to origin contig and removing any primers that did not amplify
+    names = utils.amp_replace(outdir, genus, name, logger)
         
     # Catching if all amplification failed (empty lists evaluate to false)
     if not list(Path(f"{outdir}/amplicons/").glob(f"{genus}-*.amplicons")):
