@@ -306,7 +306,7 @@ def main():
         
     
     # Rename amplicon fasta headers to origin contig and removing any primers that did not amplify
-    names = utils.amp_replace(outdir, genus, name, logger)
+    names = utils.amp_replace(outdir, genus, names, logger)
         
     # Catching if all amplification failed (empty lists evaluate to false)
     if not list(Path(f"{outdir}/amplicons/").glob(f"{genus}-*.amplicons")):
