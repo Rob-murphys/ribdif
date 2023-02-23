@@ -64,7 +64,7 @@ def decompress(file_path):
 
 # Rename amplicon fasta headers to origin contig
 def amp_replace(outdir, genus, names, logger):
-    for name in names:
+    for name in names[:]:
         # Read in the summary dataframe
         df_sum = pd.read_csv(f"{outdir}/amplicons/{genus}-{name}.summary", sep = "\t", header = None, names = ["AmpId", "SequenceId", "PositionInSequence", "Length", "Misc"])
         dict_sum = dict(zip(df_sum.AmpId, df_sum.SequenceId)) # Make a dictionary of it
