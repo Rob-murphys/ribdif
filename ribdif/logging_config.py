@@ -40,6 +40,13 @@ def replace_log_file(outdir, logger):
     Path.unlink(old_log_file)
     return
 
+def timer_logging():
+    timer = logging.getLogger("timer")
+    timer.setLevel(logging.DEBUG)
+    # create file handler without filter
+    file_handler = logging.FileHandler("timer.log", "w")
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    timer.addHandler(file_handler)
     
-        
-    
+    return timer
