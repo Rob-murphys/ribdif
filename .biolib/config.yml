@@ -6,7 +6,7 @@ modules:
         working_directory: /ribdif/
         input_files: []
         output_files:
-            - COPY /results/ /
+            - COPY /ribdif/results/ /
         source_files: []
 
 arguments:
@@ -63,6 +63,7 @@ arguments:
         description: "Identity to cluster amplicons at if not using the deafult 1.00 (e.g. .99)."
         type: number # required
         required: False # optional, default is true
+        default_value: "1"
 
     -   key: --whole-genome # required
         description: "Indicate the custom primers given are to be run on the whole genome so no barrnap, msa, ani (Required if your primers are non 16S)."
