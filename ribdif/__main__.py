@@ -35,7 +35,6 @@ from ribdif.custom_exceptions import EmptyFileError, IncompatiablityError, Third
 
  # Initialise the logging
 logger = logging_config.cofigure_logging()
-timer = logging_config.timer_logging()
 
 # Defining user arguments
 def parse_args():
