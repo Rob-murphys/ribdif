@@ -40,7 +40,7 @@ def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads, logger):
     with open(primer_file, "r") as f_primer:
         names = []
         for primer in f_primer:
-            name, fwd, rvs, length = primer.split("\t")
+            name, fwd, rvs, length = primer.strip.split("\t")
             with multiprocessing.Pool(threads) as pool: # spawn the pool
                 all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").rglob('*.fna'))] # generate list of files ending in .fna
                 #counter = range(len(all_fna))
