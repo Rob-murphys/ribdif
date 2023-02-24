@@ -4,7 +4,8 @@ modules:
     main:
         image: 'dockerhub://robmurs/ribdif:latest'
         working_directory: /ribdif/
-        input_files: []
+        input_files:
+            - COPY /ribdif
         output_files:
             - COPY /ribdif/results/ /
         source_files: []
@@ -25,7 +26,7 @@ arguments:
             'off': "off"
         
     -   key: --primers # required
-        description: "Path to custom primer-file (if using), must be a tab seperated file with name, forward and reverse primers. Default primers are 16S v3v4 and v1v9"
+        description: "Upload custom primers here, must be a tab seperated file with name, forward and reverse primers. Default primers are 16S v3v4 and v1v9"
         type: file # required
         default_value: "default.primers"
         required: False # optional, default is true
