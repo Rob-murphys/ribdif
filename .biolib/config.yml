@@ -5,7 +5,7 @@ modules:
         image: 'dockerhub://robmurs/ribdif:latest'
         working_directory: /ribdif/
         input_files:
-            - COPY /ribdif
+            - COPY / /ribdif/
         output_files:
             - COPY /ribdif/results/ /
         source_files: []
