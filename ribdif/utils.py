@@ -7,6 +7,7 @@ from pathlib import Path
 import fileinput
 import os
 import logging
+import chardet
 
 
 # =============================================================================
@@ -88,4 +89,7 @@ def pairwise_to_csv(pairwise_match, gcf_species, outdir, genus, name):
     pairwise_save_df = pd.DataFrame(pairwise_match, index = gcf_species.values())
     pairwise_save_df.to_csv(f"{outdir}/amplicons/{genus}-{name}_confusion.csv", sep = ",", index = True)
     return
-    
+
+def detect_encode(file):
+    with open(file, "rb") as f_in:
+        return chardet.detect(f_in.readline())["encoding"]
