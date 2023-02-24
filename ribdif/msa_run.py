@@ -40,7 +40,6 @@ def muscle_call_single(infile, outAln, outTree):
     # Building the command
     #command1 = f"muscle -super5 {infile} -output {outAln} -threads {threads} -nt" # Do I need to strip the alignement file of white space and commas?
     command1 = f"mafft --quiet {infile}"
-    print(command1)
     command2 = f"fasttree -quiet -nopr -gtr -nt {outAln}"
     with open(f"{outAln}", "w") as aln_out:
         subprocess.run(shlex.split(command1), stdout = aln_out, stderr = subprocess.PIPE)
