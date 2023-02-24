@@ -7,6 +7,7 @@ from pathlib import Path
 import fileinput
 import os
 import logging
+import chardet
 
 
 # =============================================================================
@@ -94,3 +95,6 @@ def cleaner(outdir):
    return
     
     
+def detect_encode(file):
+    with open(file, "rb") as f_in:
+        return chardet.detect(f_in.readline())["encoding"]

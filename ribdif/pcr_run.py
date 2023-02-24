@@ -7,6 +7,7 @@ import shlex
 import csv
 import fileinput
 import logging
+from ribdif.utils import detect_encode
 """
 Implement a producer and consumer setup for writing the pcr output whe multiprocessing: https://stackoverflow.com/questions/11196367/processing-single-file-from-multiple-processes
 
@@ -37,7 +38,8 @@ def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads, logger):
     amplicon_dir.mkdir(parents = True, exist_ok = True)
     multi = True
     logger.info("Generating amplicon sequences\n\n")
-    with open(primer_file, "r") as f_primer:
+    encoding = detect_encode(primer_file)
+    with open(primer_file, "r", encoding = encoding) as f_primer:
         names = []
         for primer in f_primer:
             name, fwd, rvs, length = primer.strip().split("\t")
@@ -53,7 +55,8 @@ def pcr_call(infile, outdir, genus, primer_file, workingDir, logger):
     amplicon_dir.mkdir(parents = True, exist_ok = True)
     multi = False
     logger.info("#= Generating amplicon sequences =#\n\n")
-    with open(primer_file, "r") as f_primer:
+    encoding = detect_encode(primer_file)
+    with open(primer_file, "r", encoding = encoding) as f_primer:
         names = []
         for primer in f_primer:
             name, fwd, rvs, length = primer.strip().split("\t")
@@ -104,4 +107,3 @@ def sum_dict_write(outdir, genus, name, total_sum_dict):
             writer.writerow(total_sum_dict[key]) # write each value to file
     return
             
-    
