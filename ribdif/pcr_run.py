@@ -33,7 +33,7 @@ def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, length, workingDir, mul
     return 
 
 # Multithreading the in silico pcr calls
-def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads, logger):
+def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads, logger, domain):
     amplicon_dir = Path(f"{outdir}/amplicons")
     amplicon_dir.mkdir(parents = True, exist_ok = True)
     multi = True
@@ -44,7 +44,7 @@ def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads, logger):
         for primer in f_primer:
             name, fwd, rvs, length = primer.strip().split("\t")
             with multiprocessing.Pool(threads) as pool: # spawn the pool
-                all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").rglob('*.fna'))] # generate list of files ending in .fna
+                all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/{domain}/").rglob('*.fna'))] # generate list of files ending in .fna
                 #counter = range(len(all_fna))
                 pool.starmap(call_proc_pcr, zip(all_fna, repeat(outdir), repeat(genus), repeat(name), repeat(fwd), repeat(rvs), repeat(length), repeat(workingDir), repeat(multi))) # removed counter
             names.append(name)

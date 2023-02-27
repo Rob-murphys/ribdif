@@ -124,20 +124,20 @@ def summary_multiproc(outdir, genus, threads, file_list):
     return
 
 
-def dict_parser(key, summary_dict, outdir, genus, whole_mode, ani_mode, summary_type):
+def dict_parser(key, summary_dict, outdir, genus, whole_mode, ani_mode, summary_type, domain):
     # Looping through the generate dictionary
     value = summary_dict[key]
     if whole_mode == "Off": # is using barrnap (i.e. running ONLY on 16S genes)
         alignment_path = glob(f"{outdir}/refseq/bacteria/{key}/*.16sAln")[0] # generate path to alignment file
         summary_dict[key][7] = str(shannon_calc(alignment_path))# Calculate total shanon diversity
     if ani_mode == "On": # if using ani
-        value = ani_stats(key, value, outdir, genus) # get ani stats
+        value = ani_stats(key, value, outdir, genus, domain) # get ani stats
     # Write it all to file
     value.insert(0, key) # append GCF to value list
     writer(outdir, genus, value, summary_type) # Write
     return
         
-def make_sumamry(in_fna, outdir, genus, whole_mode, ani_mode, threads, summary_type):
+def make_sumamry(in_fna, outdir, genus, whole_mode, ani_mode, threads, summary_type, domain):
     
     # Initiate the summary file with headers
     with open(f"{outdir}/{genus}_{summary_type}_summary.tsv", "w") as f_out:
@@ -171,8 +171,8 @@ def make_sumamry(in_fna, outdir, genus, whole_mode, ani_mode, threads, summary_t
     return
 
 
-def ani_stats(key, value, outdir, genus):
-    mismatch_path   = f"{outdir}/refseq/bacteria/{key}/ani/ANIm_similarity_errors.tab"
+def ani_stats(key, value, outdir, genus, domain):
+    mismatch_path   = f"{outdir}/refseq/{domain}/{key}/ani/ANIm_similarity_errors.tab"
     
         
     # Read in ANI simmilatiry errors (the number of unaligned or non-identical bases)

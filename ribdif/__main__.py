@@ -218,17 +218,17 @@ def main():
     
         # Un gziping fasta files
         with multiprocessing.Pool(args.threads) as pool: # Create a multiprocessing pool with #threads workers
-            all_gz = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('**/*.gz'))]# Recursively search the directory for .gz files and convert path to string sotring in a list
+            all_gz = [str(i) for i in list(Path(f"{outdir}/refseq/{args.domain}/").glob('**/*.gz'))]# Recursively search the directory for .gz files and convert path to string sotring in a list
             pool.map(utils.decompress, all_gz)
         
             
         # Remove unwanted characters from anywhere is file (should only be in fasta headers)
         logger.info("Modifying fasta headers.\n\n")
         with multiprocessing.Pool(args.threads) as pool:
-            all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.fna'))]
+            all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/{args.domain}/").glob('*/*.fna'))]
             pool.map(utils.modify2, all_fna)
     else:
-        genome_count = len(list(Path(f"{outdir}/refseq/bacteria").glob("*")))
+        genome_count = len(list(Path(f"{outdir}/refseq/{args.domain}").glob("*")))
         logger.info(f"{genome_count} previously downloaded genomes of {genus} were found\n\n")
             
     # If not using whole-genome mode assume the primers being used are 16S (which they are if default)
@@ -238,7 +238,7 @@ def main():
         
         # Processing barrnap output > fishing out 16S sequences
         with multiprocessing.Pool(args.threads) as pool:
-            all_RNA = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.rRNA'))]
+            all_RNA = [str(i) for i in list(Path(f"{outdir}/refseq/{args.domain}/").glob('*/*.rRNA'))]
             #gene_num = [*range(len(all_RNA))] # adding gene num count here (in congruence with v1. Could also just use in silico pcr amp count)
             pool.map(barrnap_run.barrnap_process, all_RNA) # removed zip(gene_num) and was originally starmap
         
@@ -249,18 +249,18 @@ def main():
         if args.ANI == "on":
             # First need to split whole 16S sequences into seperate files
             with multiprocessing.Pool(args.threads) as pool:
-                all_16S = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.16S'))]
+                all_16S = [str(i) for i in list(Path(f"{outdir}/refseq/{args.domain}/").glob('*/*.16S'))]
                 pool.map(barrnap_run.barrnap_split, all_16S)
                
             # Call pyani
             logger.info("Calculating intra-genomic mismatches and ANI for each genome.\n\n")
-            pyani_run.pyani_call(outdir, args.threads)
+            pyani_run.pyani_call(outdir, args.threads, args.domain)
         else:
             logger.info("Skipping detailed intra-genomic analysis and ANI (if needed, use -a/--ANI).\n\n")
 
         # ALignment of full 16S genes recoverd from barrnap
         logger.info("Alligning full-length 16S genes within genomes with muscle.\n\n")
-        msa_run.muscle_call_multi(outdir, args.threads)
+        msa_run.muscle_call_multi(outdir, args.threads, args.domain)
         
         # Genome statistic summary
         #all_aln = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.16s'))]
@@ -268,7 +268,7 @@ def main():
             #f_out.write("GCF\tGenus\tSpecies\t#16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
         summary_type = "16S"
         in_fna = f"{outdir}/full/{genus}.16S"
-        summary_files.make_sumamry(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type)
+        summary_files.make_sumamry(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type, args.domain)
         
         # Running msa on concatinated 16S sequences
         if args.msa == "on":
@@ -299,7 +299,7 @@ def main():
         
         #infile = f"{outdir}/refseq/bacteria/{genus}_total.fna" # path to cocatinate genus genomes
         #names = pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
-        names = pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir, args.threads, logger)
+        names = pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir, args.threads, logger, args.domain)
         
         for name in names:
             total_sum_dict = pcr_run.multi_cleaner(outdir, name)
@@ -320,7 +320,7 @@ def main():
     for name in names:
         summary_type = f"{name}-amp"
         in_fna = f"{outdir}/amplicons/{genus}-{name}.amplicons"
-        summary_files.make_sumamry(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type)
+        summary_files.make_sumamry(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type, args.domain)
 
 
     
