@@ -120,7 +120,7 @@ def shannon_calc(alignment_path):
             
 def summary_multiproc(outdir, genus, threads, file_list):
     with multiprocessing.Pool(threads) as pool:
-        pool.starmap(make_sumamry, zip(file_list, repeat(outdir), repeat(genus)))
+        pool.starmap(make_summary, zip(file_list, repeat(outdir), repeat(genus)))
     return
 
 
@@ -137,7 +137,7 @@ def dict_parser(key, summary_dict, outdir, genus, whole_mode, ani_mode, summary_
     writer(outdir, genus, value, summary_type) # Write
     return
         
-def make_sumamry(in_fna, outdir, genus, whole_mode, ani_mode, threads, summary_type, domain):
+def make_summary(in_fna, outdir, genus, whole_mode, ani_mode, threads, summary_type, domain):
     
     # Initiate the summary file with headers
     with open(f"{outdir}/{genus}_{summary_type}_summary.tsv", "w") as f_out:
