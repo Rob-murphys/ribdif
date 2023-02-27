@@ -46,7 +46,7 @@ def parse_args():
                         choices = ["bacteria", "fungi", "viral", "plant", "protozoa", "vertebrate_mammalian", "vertebrate_other", "invertebrate", "vertebrate_other"],
                         default = "bacteria")
     parser.add_argument("-g", "--genus", dest = "genus", 
-                        help="The genus you want to search within. E.g. 'Staphylococcus' OR 'Staphylococcus aurea' if wanting to use a species", 
+                        help="The genus you want to search within. E.g. 'Staphylococcus' OR 'Staphylococcus aureas' if wanting to use a species", 
                         required = True)
     
     parser.add_argument("--ignore-sp", dest = "sp_ignore",
@@ -54,11 +54,11 @@ def parse_args():
                         action = "store_true")
     
     parser.add_argument("-o", "--outdir", dest = "outdir",
-                        help = "Output direcotry path. Default is current directory",
+                        help = "Output directory path. Default is current directory",
                         default = "False")
     
     group1.add_argument("-r", "--rerun", dest = "rerun",
-                        help = "Rerun on same or different primers. Avoids having to redownload the same genomes. Mutually exclusive with --clobber",
+                        help = "Re-run on same or different primers. Avoids having to redownload the same genomes. Mutually exclusive with --clobber",
                         action = "store_true") # Action store true will default to false when argument is not present
     
     group1.add_argument("-c", "--clobber", dest = "clobber",
@@ -66,7 +66,7 @@ def parse_args():
                         action = "store_true") 
     
     parser.add_argument("-p", "--primers", dest = "primers", 
-                        help = "Path to custom primer-file, must be a tab seperated file with name, forward and reverse primers. See default.primers",
+                        help = "Path to custom primer-file, must be a tab separated file with name, forward and reverse primers. See default.primers",
                         default = "False")
     
     group2.add_argument("-a", "--ani", dest = "ANI", 
@@ -74,7 +74,7 @@ def parse_args():
                         action = "store_true")
     
     parser.add_argument("-f", "--frag", dest = "frag", 
-                        help = "Allow use of fragmented genomes. Full genomes are recomended/requierd for detecting all 16S-genes, use with caution. Off by default",
+                        help = "Allow use of fragmented genomes. Full genomes are recommended/required for detecting all 16S-genes, use with caution. Off by default",
                         action = "store_true")
     
     parser.add_argument("-m", "--msa", dest = "msa",
@@ -82,11 +82,11 @@ def parse_args():
                         action = "store_true")
     
     parser.add_argument("-i", "--id", dest = "id",
-                        help = "Identity to cluster amplicons at if not using the deafult 100%%. e.g. .99. Does not cluster at the genome level, so beware",
+                        help = "Identity to cluster amplicons at if not using the default 1.0. e.g. .99. Does not cluster at the genome level, so beware.",
                         default = 1)
     
     parser.add_argument("-t", "--threads", dest = "threads",
-                        help = "Number of threads to use. Default is all avaliable",
+                        help = "Number of threads to use. Default is all available",
                         default = os.cpu_count())
     
     group2.add_argument("-w", "--whole-genome", dest = "whole", 
