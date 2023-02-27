@@ -4,7 +4,8 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-import scipy
+#import scipy
+import fastcluster
 from matplotlib.backends.backend_pdf import PdfPages
 import networkx as nx
 from itertools import combinations
@@ -24,9 +25,10 @@ def cluster_heatmap(cluster_dict, row_palette, species_series):
     cluster_df = pd.DataFrame.from_dict(cluster_dict).transpose()
     #row_count = len(cluster_df.index)
     # Generate clustering on binary data
-    row_clus = scipy.cluster.hierarchy.linkage(np.where(cluster_df > 0, 1, 0), method = "ward")
-    col_clus = scipy.cluster.hierarchy.linkage(np.where(cluster_df.transpose() > 0, 1, 0), method = "ward")
-    
+    #row_clus = scipy.cluster.hierarchy.linkage(np.where(cluster_df > 0, 1, 0), method = "ward")
+    #col_clus = scipy.cluster.hierarchy.linkage(np.where(cluster_df.transpose() > 0, 1, 0), method = "ward")
+    row_clus = fastcluster.ward(np.where(cluster_df > 0, 1, 0))
+    col_clus = fastcluster.ward(np.where(cluster_df.transpose() > 0, 1, 0))
     #plot_size = (16, 16) if row_count < 50 else ((row_count*0.2), (row_count*0.2))
     # Clustering heatmap
     plot_clus = sns.clustermap(cluster_df, standard_scale = None, 
