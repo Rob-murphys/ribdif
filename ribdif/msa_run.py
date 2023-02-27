@@ -27,9 +27,9 @@ def call_proc_muscle(infile):
 
 
 # Multithreading the msa calls
-def muscle_call_multi(outdir, threads):
+def muscle_call_multi(outdir, threads, domain):
     with multiprocessing.Pool(threads) as pool: # spawn the pool
-        all_16S = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.16S'))]
+        all_16S = [str(i) for i in list(Path(f"{outdir}/refseq/{domain}/").glob('*/*.16S'))]
         pool.map(call_proc_muscle, all_16S)
     return
 
