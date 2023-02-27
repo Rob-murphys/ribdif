@@ -42,10 +42,12 @@ def parse_args():
     
     group1 = parser.add_mutually_exclusive_group()# Mutually exclusive group of rerun and clobber
     group2 = parser.add_mutually_exclusive_group()# Mutually exclusive group of ANI and whole genome mode (for now)
+    doms = ["bacteria", "fungi", "viral", "plant", "protozoa", "vertebrate_mammalian", "vertebrate_other", "invertebrate", "vertebrate_other"]
     parser.add_argument("-d", "--domain", dest = "domain",
-                        help = "What domain of life does the genus belong to?",
-                        choices = ["bacteria", "fungi", "viral", "plant", "protozoa", "vertebrate_mammalian", "vertebrate_other", "invertebrate", "vertebrate_other"],
-                        default = "bacteria")
+                        help = f"What domain of life does the genus belong to? Choices are:{','.join(doms)}",
+                        choices = doms,
+                        default = "bacteria",
+                        metavar = '')
     parser.add_argument("-g", "--genus", dest = "genus", 
                         help="The genus you want to search within. E.g. 'Staphylococcus' OR 'Staphylococcus aureas' if wanting to use a species", 
                         required = True)
