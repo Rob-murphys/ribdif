@@ -167,7 +167,7 @@ def make_summary(in_fna, outdir, genus, whole_mode, ani_mode, threads, summary_t
 
     # Multipocess the writing shannon and ani stuff out (probably dont need to do this)
     with multiprocessing.Pool(threads) as pool:
-        pool.starmap(dict_parser, zip(summary_dict, repeat(summary_dict), repeat(outdir), repeat(genus), repeat(whole_mode), repeat(ani_mode), repeat(summary_type)))
+        pool.starmap(dict_parser, zip(summary_dict, repeat(summary_dict), repeat(outdir), repeat(genus), repeat(whole_mode), repeat(ani_mode), repeat(summary_type), repeat(domain)))
     return
 
 
