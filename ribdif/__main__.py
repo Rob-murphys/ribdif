@@ -33,8 +33,6 @@ from ribdif.custom_exceptions import EmptyFileError, IncompatiablityError, Third
 # import logging_config
 # =============================================================================
 
- # Initialise the logging
-logger = logging_config.cofigure_logging()
 
 # Defining user arguments
 def parse_args():
@@ -191,7 +189,8 @@ def main():
     workingDir = Path(os.path.realpath(os.path.dirname(__file__))) # getting the path the script is running from
     
     args = parse_args()
-    
+    # Initialise the logging
+    logger = logging_config.cofigure_logging()
     genus_line = f"#== RibDif2 is running on: {args.genus} in the {args.domain} domain ==#"
     block_line = f"#{'=' * (len(genus_line)-2)}#"
     logger.info(f"\n{block_line}\n{genus_line}\n{block_line}\n\n")
