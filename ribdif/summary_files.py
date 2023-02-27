@@ -162,7 +162,7 @@ def make_sumamry(in_fna, outdir, genus, whole_mode, ani_mode, threads, summary_t
                     summary_dict[GCF][2] = str(int(summary_dict[GCF][2]) + 1)
                 # If it does not exist create it with space for all needed info
                 else:
-                    count = str(1)
+                    count = "1"
                     summary_dict[GCF] = [genera, species, count, "-", "-", "-", "-", "-"]
 
     # Multipocess the writing shannon and ani stuff out (probably dont need to do this)
