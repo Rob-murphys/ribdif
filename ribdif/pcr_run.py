@@ -34,16 +34,16 @@ def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, length, workingDir, mul
 
 # Multithreading the in silico pcr calls
 def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads, logger, domain):
-    amplicon_dir = Path(f"{outdir}/amplicons")
-    amplicon_dir.mkdir(parents = True, exist_ok = True)
+    amplicon_dir = Path(f"{outdir}/amplicons") # path to amplicon directory
+    amplicon_dir.mkdir(parents = True, exist_ok = True) # making the directory
     multi = True
     logger.info("Generating amplicon sequences\n\n")
-    encoding = detect_encode(primer_file)
-    with open(primer_file, "r", encoding = encoding) as f_primer:
+    encoding = detect_encode(primer_file) # detecting the encoding of the primer file
+    with open(primer_file, "r", encoding = encoding) as f_primer: # opening the primer file
         names = []
-        for primer in f_primer:
-            name, fwd, rvs, length = primer.strip().split("\t")
-            with multiprocessing.Pool(threads) as pool: # spawn the pool
+        for primer in f_primer: # looping through the lines (and thus primers)
+            name, fwd, rvs, length = primer.strip().split("\t") # getting infor about each primer
+            with multiprocessing.Pool(threads) as pool: # spawn the pool # opening the pool
                 all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/{domain}/").rglob('*.fna'))] # generate list of files ending in .fna
                 #counter = range(len(all_fna))
                 pool.starmap(call_proc_pcr, zip(all_fna, repeat(outdir), repeat(genus), repeat(name), repeat(fwd), repeat(rvs), repeat(length), repeat(workingDir), repeat(multi))) # removed counter
