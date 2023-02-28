@@ -2,7 +2,9 @@
 
 RibDif evaluates the usefulness of a given amplicon at differentiating within a genus or species
 
-You can run RibDif throygh BioLib or get the tool yourself at our [github](https://github.com/Rob-murphys/ribdif)
+You can run RibDif through BioLib or get the tool yourself at our [github](https://github.com/Rob-murphys/ribdif)
+
+Please report any issue [here](https://github.com/Rob-murphys/ribdif/issues) on our github.
 
 ## Primer file format
 ```
