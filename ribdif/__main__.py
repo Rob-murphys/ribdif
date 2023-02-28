@@ -193,6 +193,8 @@ def main():
     args = parse_args()
     # Initialise the logging
     logger = logging_config.cofigure_logging()
+    
+    logger.info(sys.argv)
     genus_line = f"#== RibDif2 is running on: {args.genus} in the {args.domain} domain ==#"
     block_line = f"#{'=' * (len(genus_line)-2)}#"
     logger.info(f"\n{block_line}\n{genus_line}\n{block_line}\n\n")
@@ -299,6 +301,7 @@ def main():
         #names = pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
         names = pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir, args.threads, logger, args.domain)
         
+        # book keeping for parallel PCR
         for name in names:
             total_sum_dict = pcr_run.multi_cleaner(outdir, name)
             pcr_run.amplicon_cat(outdir, genus, name)
