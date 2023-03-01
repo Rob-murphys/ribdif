@@ -46,7 +46,7 @@ def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads, logger, d
             with multiprocessing.Pool(threads) as pool: # spawn the pool # opening the pool
                 all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/{domain}/").rglob('*.fna'))] # generate list of files ending in .fna
                 #counter = range(len(all_fna))
-                longer_length = int((float(length)+(float(length)*0.2)))
+                longer_length = int((float(length)+(float(length)*0.5)))
                 pool.starmap(call_proc_pcr, zip(all_fna, repeat(outdir), repeat(genus), repeat(name), repeat(fwd), repeat(rvs), repeat(longer_length), repeat(workingDir), repeat(multi))) # removed counter
             names.append(name)
     return names
@@ -61,7 +61,7 @@ def pcr_call(infile, outdir, genus, primer_file, workingDir, logger):
         names = []
         for primer in f_primer:
             name, fwd, rvs, length = primer.strip().split("\t")
-            call_proc_pcr(infile, outdir, genus, name, fwd, rvs, int((float(length)+(float(length)*0.2))), workingDir, multi)
+            call_proc_pcr(infile, outdir, genus, name, fwd, rvs, int((float(length)+(float(length)*0.5))), workingDir, multi)
             names.append(name)
     return names
 
