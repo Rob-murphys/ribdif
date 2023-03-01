@@ -230,16 +230,19 @@ def main():
         with multiprocessing.Pool(args.threads) as pool:
             all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/{args.domain}/").glob('*/*.fna'))]
             all_species = pool.map(utils.modify2, all_fna)
-            print(all_species)
+            genome_count = len(all_species)
             
     else:
         all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/{args.domain}/").glob('*/*.fna'))]
         with multiprocessing.Pool(args.threads) as pool:
             all_species = pool.map(utils.sp_check, all_fna)
-        print(all_species)
-        #genome_count = len(list(Path(f"{outdir}/refseq/{args.domain}").glob("*")))
+        genome_count = len(all_species)
         logger.info(f"{genome_count} previously downloaded genomes of {genus} were found\n\n")
-        
+    
+    # getting unique species for later use in the overlap reports
+    print(all_species)
+    unique_species = set(all_species)
+    print(unique_species)
             
     # If not using whole-genome mode assume the primers being used are 16S (which they are if default)
     if args.whole == "off":
