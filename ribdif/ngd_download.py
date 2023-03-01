@@ -27,8 +27,7 @@ def genome_download(genus, outdir, threads, frag, sp_ignore, domain, logger):
                assembly_levels = "complete",
                parallel = threads*2,
                groups = domain)
-    
-    count = ""    
+      
     try:
         if Path(f"{outdir}/refseq/{domain}").is_dir():
     
@@ -47,15 +46,15 @@ def genome_download(genus, outdir, threads, frag, sp_ignore, domain, logger):
                 logger.info(f"{count} genomes of {genus} were downloaded and {sp_count} were removed due to being unnamed species\n\n")
             else: 
                 logger.info(f"{count} genomes of {genus} were downloaded\n\n")
-            return 0, count
+            return 0
         
         else:
             raise NotADirectoryError()
     except NotADirectoryError as err:
         logger.error(str(err), exc_info = True)
         logger.error(f"Download failed because {genus} is invalid or there are no records of the requested type in NCBI")
-        return 1, count
-    return 0, count
+        return 1
+    return 0
 
 def sp_remove(outdir, domain):
     sp_count = 0
