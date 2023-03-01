@@ -239,10 +239,10 @@ def main():
         genome_count = len(all_species)
         logger.info(f"{genome_count} previously downloaded genomes of {genus} were found\n\n")
     
-    # getting unique species for later use in the overlap reports
-    print(all_species)
+    # getting unique species for later use in the overlap reports and removing "sp."
     unique_species = set(all_species)
-    print(unique_species)
+    unique_species.discard("sp.")
+
             
     # If not using whole-genome mode assume the primers being used are 16S (which they are if default)
     if args.whole == "off":
@@ -401,11 +401,11 @@ def main():
         else:
             logger.info(f"Skipping graph making for {name} as no edges were found (even within a single species)")
         
-        overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div)
+        overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div, unique_species, all_species, genome_count)
     
     # Removing the downloaded genomes for BioLib version so downloading results is faster
     utils.cleaner(outdir)
-       
+
     logger.info(f"You can find a saved version of the above at {outdir}/ribdif_log_file.log:")
     
 if __name__ == '__main__':
