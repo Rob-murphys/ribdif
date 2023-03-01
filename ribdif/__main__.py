@@ -211,7 +211,7 @@ def main():
     # If rerun is false, download and handle genomes from NCBI
     if rerun == False:
         # Download genomes from NCBI
-        status = ngd_download.genome_download(genus, outdir, args.threads, args.frag, args.sp_ignore, args.domain, logger)
+        status, genome_count = ngd_download.genome_download(genus, outdir, args.threads, args.frag, args.sp_ignore, args.domain, logger)
         # Catching is any critical errors occured from downloading genomes
         if status == 1:
             sys.exit(status)
@@ -226,10 +226,17 @@ def main():
         logger.info("Modifying fasta headers.\n\n")
         with multiprocessing.Pool(args.threads) as pool:
             all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/{args.domain}/").glob('*/*.fna'))]
-            pool.map(utils.modify2, all_fna)
+            all_species = pool.map(utils.modify2, all_fna)
+            print(all_species)
+            
     else:
-        genome_count = len(list(Path(f"{outdir}/refseq/{args.domain}").glob("*")))
+        all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/{args.domain}/").glob('*/*.fna'))]
+        with multiprocessing.Pool(args.threads) as pool:
+            all_species = pool.map(utils.sp_check, all_fna)
+        print(all_species)
+        #genome_count = len(list(Path(f"{outdir}/refseq/{args.domain}").glob("*")))
         logger.info(f"{genome_count} previously downloaded genomes of {genus} were found\n\n")
+        
             
     # If not using whole-genome mode assume the primers being used are 16S (which they are if default)
     if not args.whole:
@@ -382,10 +389,15 @@ def main():
         adjacency_df = figures.create_adjacency(pairwise_df, cluster_df)
         graph_subs, n_subplots = figures.create_graph(adjacency_df)
         
-        # Draw the generated graps into on plot
-        figures.draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, genus, name)
+        if n_subplots != 0:
+            # Draw the generated graps into on plot
+            figures.draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, genus, name)
+        else:
+            logger.info(f"Skipping graph making for {name} as no edges were found (even within a single species)")
         
         overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div)
+        
     logger.info(f"You can find a saved version of the above at {outdir}/ribdif_log_file.log:")
+    
 if __name__ == '__main__':
     main()
