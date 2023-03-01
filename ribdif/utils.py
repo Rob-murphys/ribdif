@@ -37,10 +37,10 @@ def modify2(file_path):
                 line = re.sub(r"[: ]", "_", line)
                 line = f"{line[0]}{GCF}_{line[1:]}" 
                 print(line, end = '')
+                current_sp = line.split("_")[5]
             else:
                 print(line, end = '')
-    return
-
+    return current_sp
 # =============================================================================
 # def modify3(file_path):
 #     # Open and read the contents of the file
@@ -55,6 +55,13 @@ def modify2(file_path):
 #     with open(file_path, "w") as f_out:
 #         f_out.write(contentsS)
 # =============================================================================
+
+# open and check species of the genome
+def sp_check(file):
+    with open(file, "r") as f_in:
+        line = f_in.readline()
+        current_sp = line.split("_")[5]
+    return current_sp
 
 # Un gzip the downloaded NCBI genomes
 def decompress(file_path):
