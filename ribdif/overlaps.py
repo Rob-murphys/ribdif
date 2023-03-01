@@ -91,12 +91,16 @@ def gcf_overlaps(all_gcfs, uc_dict_clean, gcf_species):
     return pairwise_match
 
 
-def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div):
+def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div, unique_species, all_species, genome_count):
     
-    genome_count = len(cluster_df.index)
-    named_genomes = len([s for s in gcf_species.values() if s != "sp."]) # Recovering species names that are not equal so "sp."
-    unamed_genomes = len(gcf_species) - named_genomes # Subtracting names species from total specpes
-    unq_species = len([i for i in set(gcf_species.values()) if i != "sp."]) # unique names speices
+    total_named_genomes = len([s for s in all_species if s != "sp."])
+    total_unamed_genomes = genome_count - total_named_genomes
+    total_unique_species = len(unique_species)
+    
+    amplify_count = len(cluster_df.index)
+    amplify_named_genomes = len([s for s in gcf_species.values() if s != "sp."]) # Recovering species names that are not equal so "sp."
+    amplify_unamed_genomes = len(gcf_species) - amplify_named_genomes # Subtracting names species from total specpes
+    amplify_unique_species = len([i for i in set(gcf_species.values()) if i != "sp."]) # unique names speices
     # turning the cluster_df binary with np.where and summing rows then counting the times rowsum is greater that 1
     multi_allele = sum(np.where(cluster_df > 0, 1, 0).sum(axis = 1) > 1)
     if combinations: # are the unique entries into combinations greater than 0. Not sure we need the set.
@@ -112,11 +116,15 @@ def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, l
     with open(f"{outdir}/{genus}_{name}_overlap_report.txt", "w+") as f_out:
         f_out.write(f"""Summary of {genus} differentiation by {name} amplicons:\n
                     Genomes downloaded: {genome_count}
-                    \tWith species name: {named_genomes}
-                    \tWithout species name: {unamed_genomes}
-                    \tUnique species names: {unq_species}\n
+                    \tWith species name: {total_named_genomes}
+                    \tWithout species name: {total_unamed_genomes}
+                    \tUnique species names: {total_unique_species}\n
+                    Genomes amplified by {name}: {amplify_count}
+                    \tWith species name: {amplify_named_genomes}
+                    \tWithout species name: {amplify_unamed_genomes}
+                    \tUnique species names: {amplify_unique_species}\n
                     {multi_allele} of {genome_count} ({round(100*multi_allele/genome_count, 2)}%) genomes have multiple alleles.
-                    {count_overlap} of {unq_species} ({round(100*count_overlap/unq_species, 2)}%) species have at least one overlap.\n
+                    {count_overlap} of {total_unique_species} ({round(100*count_overlap/total_unique_species, 2)}%) species have at least one overlap.\n
                     Total shannon diversity for {name} is: {shannon_div}\n\n""")
         if unq_combs:
             for i in range(len(unq_combs)):
