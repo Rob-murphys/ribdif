@@ -214,7 +214,7 @@ def main():
     # If rerun is false, download and handle genomes from NCBI
     if rerun == False:
         # Download genomes from NCBI
-        status, genome_count = ngd_download.genome_download(genus, outdir, args.threads, args.frag, args.sp_ignore, args.domain, logger)
+        status = ngd_download.genome_download(genus, outdir, args.threads, args.frag, args.sp_ignore, args.domain, logger)
         # Catching is any critical errors occured from downloading genomes
         if status == 1:
             sys.exit(status)
