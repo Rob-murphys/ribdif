@@ -180,6 +180,7 @@ def arg_handling(args, workingDir, logger):
         return 1
     except IncorrectFormatError as err:
         logger.error(str(err), exc_info = True)
+        return 1
     
     # Warning about primer usage
     if not args.whole and args.primers != "False":
