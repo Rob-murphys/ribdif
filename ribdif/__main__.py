@@ -364,7 +364,7 @@ def main():
             # Calculate shannon diversity across the primers
             shannon_div = summary_files.shannon_calc(outAln)
         else:
-            logger.info("Skipping total amplicon alignment and diversity calculation")
+            logger.info("Skipping total amplicon alignment and diversity calculation\n")
             shannon_div = "Was skipped"
         
 
@@ -404,7 +404,7 @@ def main():
             # Draw the generated graps into on plot
             figures.draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, genus, name)
         else:
-            logger.info(f"Skipping graph making for {name} as no edges were found (even within a single species)")
+            logger.info(f"Skipping graph making for {name} as no edges were found (even within a single species)\n")
         
         overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div, unique_species, all_species, genome_count)
         
