@@ -100,3 +100,16 @@ def pairwise_to_csv(pairwise_match, gcf_species, outdir, genus, name):
 def detect_encode(file):
     with open(file, "rb") as f_in:
         return chardet.detect(f_in.readline())["encoding"]
+    
+def primer_check(primer_file, logger):
+    encoding = detect_encode(primer_file)
+    with open(primer_file, "r", encoding = encoding) as f_in:
+        for line in f_in:
+            if len(line.strip().split("\t")) != 4:
+                logger.info(f"""Your primer file in in the incorrect format at the following line:
+                            \t{line}
+                            Please follow the 'name | forward | reverse | expected amplicon length' tab seperated format
+                            Check the default.primers file or the README for more guidance""")
+                return True
+    return False
+    
