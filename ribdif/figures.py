@@ -30,6 +30,7 @@ def cluster_heatmap(cluster_dict, row_palette, species_series):
     row_clus = fastcluster.ward(np.where(cluster_df > 0, 1, 0))
     col_clus = fastcluster.ward(np.where(cluster_df.transpose() > 0, 1, 0))
     #plot_size = (16, 16) if row_count < 50 else ((row_count*0.2), (row_count*0.2))
+  
     # Clustering heatmap
     plot_clus = sns.clustermap(cluster_df, standard_scale = None, 
                    row_linkage = row_clus, 
@@ -39,25 +40,8 @@ def cluster_heatmap(cluster_dict, row_palette, species_series):
                    row_colors = row_palette,
                    linecolor = "#bcc2cc",
                    linewidths = 0.1,
-                   cmap = sns.cm.rocket_r)
-    
-#sns.heatmap(cluster_df)
-# =============================================================================
-#     plot_clus.ax_heatmap.tick_params(axis='x', labelsize=8,)
-#     plot_clus.ax_row_colors.tick_params(bottom = False) # remove tickmark under row colours
-#     # Change plot configeration #
-#     box_heatmap = plot_clus.ax_heatmap.get_position() # Get heatmaps position
-#     # Move row colours to left side
-#     ax_row_colors = plot_clus.ax_row_colors # get the axis
-#     box_cols = ax_row_colors.get_position() # recover its position
-#     ax_row_colors.set_position([box_heatmap.max[0], box_cols.y0, box_cols.width*2, box_cols.height]) # plot new position
-#     
-#     # Move dendogram to the left a bit
-#     ax_row_dendogram = plot_clus.ax_row_dendrogram
-#     box_dendo = ax_row_dendogram.get_position()
-#     ax_row_dendogram.set_position([box_dendo.x0+0.026, box_dendo.y0, box_dendo.width, box_dendo.height])
-# =============================================================================
-    
+                   cmap = sns.cm.rocket_r)   
+
     return plot_clus, cluster_df
 
 def pairwise_heatmap(pairwise_match, row_palette, species_series):
@@ -74,32 +58,7 @@ def pairwise_heatmap(pairwise_match, row_palette, species_series):
                    linewidths = 0.1,
                    cbar_pos = None,
                    cmap = sns.cm.rocket_r)
-    
-# =============================================================================
-#     # Change tick params
-#     plot_dendo.ax_heatmap.tick_params(axis='x', labelsize=8)
-#     plot_dendo.ax_row_colors.tick_params(bottom = False) # remove tickmark under row colours
-#     
-#     # Get info to change row_cols width
-#     yticklabels = plot_dendo.ax_heatmap.get_yticklabels() # getting the yticks
-#     max_width = max([label.get_window_extent().width for label in yticklabels]) # getting the max width of them
-#     fig_width = plot_dendo.fig.get_figwidth() * plot_dendo.fig.dpi # Getting figure width
-#     fraction_of_fig_width = (max_width / fig_width) + 0.01 # get fraction of figure of max ytick plus some margin
-#     
-#     # Change plot configeration #
-#     box_heatmap = plot_dendo.ax_heatmap.get_position() # Get heatmaps position
-#     
-#     # Move row colours to left side
-#     ax_row_colors = plot_dendo.ax_row_colors # get the axis
-#     box_cols = ax_row_colors.get_position() # recover its position
-#     ax_row_colors.set_position([box_heatmap.max[0], box_cols.y0, fraction_of_fig_width, box_cols.height]) # plot new position
-#     
-#     # Move dendogram to the left a bit
-#     ax_row_dendogram = plot_dendo.ax_row_dendrogram
-#     box_dendo = ax_row_dendogram.get_position()
-#     ax_row_dendogram.set_position([box_dendo.x0+0.026, box_dendo.y0, box_dendo.width, box_dendo.height])
-# =============================================================================
-    
+
     return plot_dendo, pairwise_df
 
 def figure_fix(plot):
