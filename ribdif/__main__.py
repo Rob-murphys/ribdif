@@ -147,11 +147,6 @@ def arg_handling(args, workingDir, logger):
         rerun = False
     
     
-    if not args.whole and args.primers != "False":
-        logger.info("You are using custom primers on only the 16S genes as you didn't enable whole-genome mode. This is not a problem (if they are 16S primers), but we are just letting you know\n")
-    elif args.whole and args.primers == "False":
-        logger.info("You are running in whole-genome mode but using the default primers. This is not a problem but will 'skip' barrnap and other potentially useful mectrics scrapped from the whole 16S genes\n" )
-
     # Parsing the primers argument
     if args.primers == "False":
         try:
@@ -168,13 +163,13 @@ def arg_handling(args, workingDir, logger):
         
     # Check primer file exists and is not empty and is in correct format
     try:
-        if Path(f"{primer_file}").is_file() and os.stat(f"{primer_file}").st_size == 0:
-            raise EmptyFileError()
-        elif Path(f"{primer_file}").is_file() == False: # If it does not exist then raise this exception
+        if Path(f"{primer_file}").is_file() == False: # Check if it exists
             raise FileNotFoundError() 
-        elif utils.primer_check(primer_file):
+        elif os.stat(f"{primer_file}").st_size == 0: # Check if it is empty
+            raise EmptyFileError()
+        elif utils.primer_check(primer_file, logger): # Check it is in correct format
             raise IncorrectFormatError()
-            
+    # Catch the exceptions
     except EmptyFileError as err:
         logger.error(str(err), exc_info = True)
         logger.error(f"The provided primer file is empty.\n{primer_file}\nPlease provide a populated primer file")
@@ -185,6 +180,12 @@ def arg_handling(args, workingDir, logger):
         return 1
     except IncorrectFormatError as err:
         logger.error(str(err), exc_info = True)
+    
+    # Warning about primer usage
+    if not args.whole and args.primers != "False":
+        logger.info("You are using custom primers on only the 16S genes as you didn't enable whole-genome mode. This is not a problem (if they are 16S primers), but we are just letting you know\n")
+    elif args.whole and args.primers == "False":
+        logger.info("You are running in whole-genome mode but using the default primers. This is not a problem but will 'skip' barrnap and other potentially useful mectrics scrapped from the whole 16S genes\n" )
 
        
     logger.info("#= All arguments resolved =#\n\n")
@@ -196,6 +197,7 @@ def main():
     workingDir = Path(os.path.realpath(os.path.dirname(__file__))) # getting the path the script is running from
     
     args = parse_args()
+    
     # Initialise the logging
     logger = logging_config.cofigure_logging()
     
