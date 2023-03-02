@@ -11,3 +11,6 @@ class ThirdPartyError(Exception):
 
 class StopError(Exception):
     pass
+
+class IncorrectFormatError(Exception):
+    pass
