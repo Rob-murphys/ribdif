@@ -9,6 +9,7 @@ import fastcluster
 from matplotlib.backends.backend_pdf import PdfPages
 import networkx as nx
 from itertools import combinations
+import sys
 
 def heatmap_meta(gcf_species):
     # Turn gcf species cross dictionary into series
@@ -30,17 +31,32 @@ def cluster_heatmap(cluster_dict, row_palette, species_series):
     row_clus = fastcluster.ward(np.where(cluster_df > 0, 1, 0))
     col_clus = fastcluster.ward(np.where(cluster_df.transpose() > 0, 1, 0))
     #plot_size = (16, 16) if row_count < 50 else ((row_count*0.2), (row_count*0.2))
-  
-    # Clustering heatmap
-    plot_clus = sns.clustermap(cluster_df, standard_scale = None, 
-                   row_linkage = row_clus, 
-                   col_linkage = col_clus,
-                   yticklabels = species_series,
-                   xticklabels = 1,
-                   row_colors = row_palette,
-                   linecolor = "#bcc2cc",
-                   linewidths = 0.1,
-                   cmap = sns.cm.rocket_r)   
+    
+    try:
+        # Clustering heatmap
+        plot_clus = sns.clustermap(cluster_df, standard_scale = None, 
+                       row_linkage = row_clus, 
+                       col_linkage = col_clus,
+                       yticklabels = species_series,
+                       xticklabels = 1,
+                       row_colors = row_palette,
+                       linecolor = "#bcc2cc",
+                       linewidths = 0.1,
+                       cmap = sns.cm.rocket_r)
+    except RecursionError: # If we get a recursion limit, up the limit to build the plot then return it back to the previous limit
+        limit = sys.getrecursionlimit()
+        sys.setrecursionlimit(3000)
+        # Clustering heatmap
+        plot_clus = sns.clustermap(cluster_df, standard_scale = None, 
+                       row_linkage = row_clus, 
+                       col_linkage = col_clus,
+                       yticklabels = species_series,
+                       xticklabels = 1,
+                       row_colors = row_palette,
+                       linecolor = "#bcc2cc",
+                       linewidths = 0.1,
+                       cmap = sns.cm.rocket_r)
+        sys.setrecursionlimit(limit)
 
     return plot_clus, cluster_df
 
@@ -48,16 +64,31 @@ def pairwise_heatmap(pairwise_match, row_palette, species_series):
     # Turn pairwise dictionary into dataframe
     pairwise_df = pd.DataFrame(pairwise_match, index = pairwise_match.keys())
     
-    # Clustering heatmap
-    plot_dendo = sns.clustermap(pairwise_df, standard_scale = None,
-                   row_colors = row_palette,
-                   yticklabels = species_series,
-                   xticklabels = 1,
-                   method = "ward",
-                   linecolor = "#bcc2cc",
-                   linewidths = 0.1,
-                   cbar_pos = None,
-                   cmap = sns.cm.rocket_r)
+    try:
+        # Clustering heatmap
+        plot_dendo = sns.clustermap(pairwise_df, standard_scale = None,
+                       row_colors = row_palette,
+                       yticklabels = species_series,
+                       xticklabels = 1,
+                       method = "ward",
+                       linecolor = "#bcc2cc",
+                       linewidths = 0.1,
+                       cbar_pos = None,
+                       cmap = sns.cm.rocket_r)
+    except RecursionError: # If we get a recursion limit, up the limit to build the plot then return it back to the previous limit
+        limit = sys.getrecursionlimit()
+        sys.setrecursionlimit(3000)
+        # Clustering heatmap
+        plot_dendo = sns.clustermap(pairwise_df, standard_scale = None,
+                       row_colors = row_palette,
+                       yticklabels = species_series,
+                       xticklabels = 1,
+                       method = "ward",
+                       linecolor = "#bcc2cc",
+                       linewidths = 0.1,
+                       cbar_pos = None,
+                       cmap = sns.cm.rocket_r)
+        sys.setrecursionlimit(limit)
 
     return plot_dendo, pairwise_df
 
