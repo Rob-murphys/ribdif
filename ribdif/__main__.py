@@ -18,7 +18,7 @@ import logging
 
 
 from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_files, vsearch_run, overlaps, figures, logging_config
-from ribdif.custom_exceptions import EmptyFileError, IncompatiablityError, ThirdPartyError, StopError
+from ribdif.custom_exceptions import EmptyFileError, IncompatiablityError, ThirdPartyError, StopError, IncorrectFormatError
 
 # =============================================================================
 # import barrnap_run
@@ -166,20 +166,25 @@ def arg_handling(args, workingDir, logger):
     else:
         primer_file = args.primers
         
-    # Check primer file exists and is not empty
+    # Check primer file exists and is not empty and is in correct format
     try:
         if Path(f"{primer_file}").is_file() and os.stat(f"{primer_file}").st_size == 0:
             raise EmptyFileError()
         elif Path(f"{primer_file}").is_file() == False: # If it does not exist then raise this exception
-            raise FileNotFoundError()          
+            raise FileNotFoundError() 
+        elif utils.primer_check(primer_file):
+            raise IncorrectFormatError()
+            
     except EmptyFileError as err:
         logger.error(str(err), exc_info = True)
-        logger.error("fThe provided primer file is empty.\n{primer_file}\nPlease provide a populated primer file")
+        logger.error(f"The provided primer file is empty.\n{primer_file}\nPlease provide a populated primer file")
         return 1
     except FileNotFoundError as err:
         logger.error(str(err), exc_info = True)
         logger.error(f"{primer_file} does not exist")
         return 1
+    except IncorrectFormatError as err:
+        logger.error(str(err), exc_info = True)
 
        
     logger.info("#= All arguments resolved =#\n\n")
