@@ -33,7 +33,7 @@ def genome_download(genus, outdir, threads, frag, sp_ignore, domain, logger):
                assembly_levels = assembly_level,
                parallel = threads*2,
                groups = domain)
-        
+        status, count = download_checker(outdir, domain, logger, genus, sp_ignore)
     # Remove genomes of unknown species if genomes were downloaded (status ==0)
     if sp_ignore and status == 0:
         sp_count = sp_remove(outdir, domain) # Remove genomes of unknown species
