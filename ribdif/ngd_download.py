@@ -7,7 +7,7 @@ import logging
 # Using Kai's NCBI genome downloader to get all genones of the specified genus
 # Avaliable at: https://github.com/kblin/ncbi-genome-download
 
-def genome_download(genus, outdir, threads, frag, sp_ignore, domain, logger, assembly_level):
+def genome_download(genus, outdir, threads, frag, sp_ignore, domain, logger):
     genera = genus.replace("_", " ") # replace "_" with " "
     assembly_level = "all" if frag else "complete" # assign assembly level based on user input
     
