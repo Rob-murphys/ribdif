@@ -99,6 +99,11 @@ def parse_args():
 def arg_handling(args, workingDir, logger):
     
     logger.info("#= Parsing arguments =#\n\n")
+    
+    if not args.whole and args.domain != "bacteria":
+        logger.error("If searching non bacteria life you must enable --whole-genome (-w) mode")
+        return 1
+    
     #Checking if user is running on a species
     if " " in args.genus: # checking is there is a space in genus/species name
         logger.info(f"Detected species {args.genus.split(' ')[1]}.\n\n")
@@ -187,9 +192,7 @@ def arg_handling(args, workingDir, logger):
         logger.info("You are using custom primers on only the 16S genes as you didn't enable whole-genome mode. This is not a problem (if they are 16S primers), but we are just letting you know\n")
     elif args.whole and args.primers == "False":
         logger.info("You are running in whole-genome mode but using the default primers. This is not a problem but will 'skip' barrnap and other potentially useful mectrics scrapped from the whole 16S genes\n" )
-    elif not args.whole and args.domain != "bacteria":
-        logger.error("If searching non bacteria life you must enable --whole-genome (-w) mode")
-        return 1
+
        
     logger.info("#= All arguments resolved =#\n\n")
     
