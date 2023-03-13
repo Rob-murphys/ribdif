@@ -24,7 +24,7 @@ def genome_download(genus, outdir, threads, frag, sp_ignore, domain, logger):
     
     # if non bacteria domain and no complete genomes were downloaded, try again at chromosome level as it is very rare to have "complete" non bacteria genomes
     if domain != "bacteria" and status == 1 and assembly_level == "complete":
-        logger.info(f"No complete genomes for {genus} were found so we will try again using 'chromosome' assembly level as this is what non bacteria genomes are usually added as")
+        logger.info(f"\nNo complete genomes for {genus} were found so we will try again using 'chromosome' assembly level as this is what non bacteria genomes are usually added as")
         assembly_level = "chromosome"
         ngd.download(section='refseq', 
                file_formats = 'fasta', 
@@ -34,6 +34,7 @@ def genome_download(genus, outdir, threads, frag, sp_ignore, domain, logger):
                parallel = threads*2,
                groups = domain)
         status, count = download_checker(outdir, domain, logger, genus, sp_ignore)
+        
     # Remove genomes of unknown species if genomes were downloaded (status ==0)
     if sp_ignore and status == 0:
         sp_count = sp_remove(outdir, domain) # Remove genomes of unknown species
