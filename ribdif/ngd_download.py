@@ -59,7 +59,7 @@ def download_checker(outdir, domain, logger, genus, sp_ignore):
             except FileNotFoundError as err:
                 logger.error(str(err), exc_info = True)
                 logger.error(f"{genus} is a real genus but some genomes were not downloaded, please repeat and hopefully this wont happen again ")
-                return 1, count
+                return 1, False
             return 0, count
         
         else:
@@ -67,7 +67,7 @@ def download_checker(outdir, domain, logger, genus, sp_ignore):
     except NotADirectoryError as err:
         logger.error(str(err), exc_info = True)
         logger.error(f"Download failed because {genus} is invalid or there are no records of the requested type in NCBI")
-        return 1, count
+        return 1, False
     return 0, count
 
 def sp_remove(outdir, domain):
