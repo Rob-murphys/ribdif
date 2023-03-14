@@ -85,9 +85,10 @@ def gcf_overlaps(all_gcfs, uc_dict_clean, gcf_species):
         # Getting a list of other GCFs that are members of the clusters the current GCF belongs to
         clusMatchGCF = set([v[10] for v in uc_dict_clean.values() if v[1] in clusters])
         
-        for m in clusMatchGCF:
-            gcf_index = np.where(all_gcfs==m)[0][0]
-            pairwise_match[gcf][gcf_index] = 1
+        pairwise_match[gcf] = [1 if m in clusMatchGCF else 0 for m in all_gcfs]
+        #for m in clusMatchGCF:
+        #    gcf_index = np.where(all_gcfs==m)[0][0]
+        #    pairwise_match[gcf][gcf_index] = 1
     return pairwise_match
 
 
