@@ -15,8 +15,6 @@ import sys
 import logging
 
 
-
-
 from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_files, vsearch_run, overlaps, figures, logging_config
 from ribdif.custom_exceptions import EmptyFileError, IncompatiablityError, ThirdPartyError, StopError, IncorrectFormatError
 
@@ -32,8 +30,8 @@ from ribdif.custom_exceptions import EmptyFileError, IncompatiablityError, Third
 # import figures
 # import logging_config
 # =============================================================================
-
-
+from timeit import default_timer
+timer = logging_config.timer_logging()
 # Defining user arguments
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -200,6 +198,7 @@ def arg_handling(args, workingDir, logger):
 
 
 def main():
+    start = default_timer()
     workingDir = Path(os.path.realpath(os.path.dirname(__file__))) # getting the path the script is running from
     
     args = parse_args()
@@ -221,6 +220,7 @@ def main():
     log_dir = Path(outdir) / "ribdif_logs"
     Path(log_dir).mkdir(exist_ok = True, parents = True)
     
+    start_download = default_timer()
     # If rerun is false, download and handle genomes from NCBI
     if rerun == False:
         # Download genomes from NCBI
@@ -248,7 +248,8 @@ def main():
             all_species = pool.map(utils.sp_check, all_fna)
         genome_count = len(all_species)
         logger.info(f"{genome_count} previously downloaded genomes of {genus} were found\n\n")
-    
+    end_download = default_timer()
+    timer.info(f"It took {end_download - start_download} to download genomes")  
     # getting unique species for later use in the overlap reports and removing "sp."
     unique_species = set(all_species)
     unique_species.discard("sp.")
@@ -256,9 +257,14 @@ def main():
             
     # If not using whole-genome mode assume the primers being used are 16S (which they are if default)
     if not args.whole:
+        start_barrnap = default_timer()
         logger.info("#= Running barrnap on downloaded sequences =#\n\n")
         barrnap_run.barnap_call(outdir, threads = args.threads)
         
+        end_barrnap = default_timer()
+        timer.info(f"It took {end_barrnap - start_barrnap} to run barrnap")
+        
+        start_barrnap_post = default_timer()
         # Processing barrnap output > fishing out 16S sequences
         with multiprocessing.Pool(args.threads) as pool:
             all_RNA = [str(i) for i in list(Path(f"{outdir}/refseq/{args.domain}/").glob('*/*.rRNA'))]
@@ -267,7 +273,10 @@ def main():
         
         # Concatinate all 16S to one file
         barrnap_run.barrnap_conc(genus, outdir)
+        end_barrnap_post = default_timer()
+        timer.info(f"It took {end_barrnap_post-start_barrnap_post} to post process barrnap")
         
+        start_ani = default_timer()
         #If ANI is true calculate
         if args.ANI:
             # First need to split whole 16S sequences into seperate files
@@ -280,7 +289,10 @@ def main():
             pyani_run.pyani_call(outdir, args.threads, args.domain)
         else:
             logger.info("Skipping detailed intra-genomic analysis and ANI (if needed, use -a/--ANI).\n\n")
-
+        end_ani = default_timer()
+        timer.info(f"It took {end_ani - start_ani} to calculate ani")
+        
+        start_16S_summary = default_timer()
         # ALignment of full 16S genes recoverd from barrnap
         logger.info("Alligning full-length 16S genes within genomes with muscle.\n\n")
         msa_run.muscle_call_multi(outdir, args.threads, args.domain)
@@ -293,18 +305,26 @@ def main():
         in_fna = f"{outdir}/full/{genus}.16S"
         summary_files.make_summary(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type, args.domain)
         
+        end_16S_summary = default_timer()
+        timer.info(f"It took {end_16S_summary-start_16S_summary} to generate 16S summary files")
+        
         # Running msa on concatinated 16S sequences
         if args.msa == True:
+            start_16S_aln = default_timer()
             logger.info(f"Alligning all {genus} 16S rRNA genes with muscle and building tree with fasttree.\n")
             infile , outAln, outTree = f"{outdir}/full/{genus}.16S", f"{outdir}/full/{genus}.16sAln", f"{outdir}/full/{genus}.16sTree" # Asigning in and out files
             msa_run.muscle_call_single(infile, outAln, outTree)
+            end_16S_aln = default_timer()
+            timer.info(f"It took {end_16S_aln-start_16S_aln} to align conc 16S")
         else:
             logger.info("Skipping alignments and tree generation for 16S rRNA genes (if needed, use -m/--msa).\n\n")
-            
+        
+        start_16S_pcr = default_timer()
         # PCR for default primers
         infile = f"{outdir}/full/{genus}.16S" # path to concatinated 16S barrnap output
         names =  pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir, logger)
-        
+        end_16S_pcr = default_timer()
+        timer.info(f"It took {end_16S_pcr-start_16S_pcr} to run 16S PCR")
 
         
 
@@ -319,7 +339,7 @@ def main():
 #                     f_out.write(f_in.read())
 # =============================================================================
                     
-        
+        start_whole_pcr = default_timer()
         #infile = f"{outdir}/refseq/bacteria/{genus}_total.fna" # path to cocatinate genus genomes
         #names = pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
         names = pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir, args.threads, logger, args.domain)
@@ -329,9 +349,10 @@ def main():
             total_sum_dict = pcr_run.multi_cleaner(outdir, name)
             pcr_run.amplicon_cat(outdir, genus, name)
             pcr_run.sum_dict_write(outdir, genus, name, total_sum_dict)
-
+        end_whole_pcr = default_timer()
+        timer.info(f"It took {end_whole_pcr-start_whole_pcr} to run whole PCR")
         
-    
+    start_amp_rep = default_timer()
     # Rename amplicon fasta headers to origin contig and removing any primers that did not amplify
     names = utils.amp_replace(outdir, genus, names, logger)
         
@@ -339,19 +360,25 @@ def main():
     if not list(Path(f"{outdir}/amplicons/").glob(f"{genus}-*.amplicons")):
         sys.exit("No amplification for any of the given primers was successfull. Try again with different primers")
     
+    end_amp_rep = default_timer()
+    timer.info(f"It took {end_amp_rep-start_amp_rep} to replace amps")
+    
+    start_pcr_sum = default_timer()
     # Make summary file for whole genome mode (has to be after utils.amp_replace so cant have in main args.whole section)
     #if args.whole:
     for name in names:
         summary_type = f"{name}-amp"
         in_fna = f"{outdir}/amplicons/{genus}-{name}.amplicons"
         summary_files.make_summary(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type, args.domain)
-
-
+    end_pcr_sum = default_timer()
+    timer.info(f"It took {end_pcr_sum-start_pcr_sum} to make pcr summaries")
     
+    start_vsearch = default_timer()
     logger.info ("Making unique clusters with vsearch.\n\n")
     for name in names:
         vsearch_run.vsearch_call(outdir, genus, name, args.id, log_dir, args.threads)
-    
+    end_vsearch = default_timer()
+    timer.info(f"It took {end_vsearch-start_vsearch} to run vsearch")
     
     
     # Generating the figures #
@@ -360,6 +387,7 @@ def main():
         logger.info(f"Making summaries and figures for {name}\n\n")
         
         if args.msa:
+            start_msa = default_timer()
             # msa on all amplicons
             logger.info("Aligning all amplicons for diversity calculation.\n")
             infile , outAln, outTree = f"{outdir}/amplicons/{genus}-{name}.amplicons", f"{outdir}/amplicons/{genus}-{name}.aln", f"{outdir}/amplicons/{genus}-{name}.tree" # Asigning in and out files
@@ -368,54 +396,80 @@ def main():
             msa_run.format_trees(outdir, genus, name)
             # Calculate shannon diversity across the primers
             shannon_div = summary_files.shannon_calc(outAln)
+            end_msa = default_timer()
+            timer.info(f"It took {end_msa-start_msa} to align all amplicons and calculate shannon diversity for {name}")
         else:
             logger.info("Skipping total amplicon alignment and diversity calculation\n")
             shannon_div = "Was skipped"
         
-
+        start_figures = default_timer()
         # Cleaning vsearch clustering data
         all_gcfs, uc_dict_clean, gcf_species, cluster_count = overlaps.uc_cleaner(outdir, genus, name)
-        
+        cleaning_done = default_timer()
+        timer.info(f"It took {cleaning_done-start_figures} to make the clean vsearch output")
         # Generate a dictionary (that will become a matrix) of GCF cluster membership  
         cluster_dict = overlaps.cluster_matrix(all_gcfs, uc_dict_clean, cluster_count)
-        
+        cluster_done = default_timer
+        timer.info(f"It took {cluster_done-cleaning_done} to make GCF cluster membership dict")
         # Find all species overlap in the cluster_dict
         combinations = overlaps.species_overlap(cluster_dict, cluster_count, gcf_species)
+        combos_done = default_timer()
+        timer.info(f"It took {combos_done-cluster_done} to generate combos")
         
         if len(cluster_dict) != 1:
             # Find all GCF overlaps in the cluster dictionary
             pairwise_match = overlaps.gcf_overlaps(all_gcfs, uc_dict_clean, gcf_species)
+            pairwise_done = default_timer()
+            timer.info(f"It took {pairwise_done-combos_done} to make the pairwise dict")
             utils.pairwise_to_csv(pairwise_match, gcf_species, outdir, genus, name)
-            
+            to_csv_done = default_timer()
+            timer.info(f"It took {to_csv_done-pairwise_done} to make the pairwise dict into csv")
             # Generate metadata for heatmaps
             row_palette, species_series, species_palette = figures.heatmap_meta(gcf_species)
-            
+            meta_done = default_timer()
+            timer.info(f"It took {meta_done-to_csv_done} to make the plot metadata")
             # Plot the cluster matrix
             plot_clus, cluster_df = figures.cluster_heatmap(cluster_dict, row_palette, species_series)
-            
+            clus_done = default_timer()
+            timer.info(f"It took {clus_done-meta_done} to make cluster membership clustermap")
             # Plot the GCF overlap matrix
             plot_dendo, pairwise_df = figures.pairwise_heatmap(pairwise_match, row_palette, species_series)
+            pair_done = default_timer()
+            timer.info(f"It took {pair_done-clus_done} to make pairwise overlap clustermap")
             
             plot_clus = figures.figure_fix(plot_clus)
             plot_dendo = figures.figure_fix(plot_dendo)
+            fix_done = default_timer()
+            timer.info(f"It took {fix_done-pair_done} to make fix the figures")
             
             # Save the heatmaps
             figures.pdf_save(plot_clus, plot_dendo, outdir, genus, name)
-        
+            save_done = default_timer()
+            timer.info(f"It took {save_done-fix_done} to save the figures")
+            
             # Generate graps from the pairwise dataframe
             adjacency_df = figures.create_adjacency(pairwise_df, cluster_df)
+            adjacency_done = default_timer()
+            timer.info(f"It took {adjacency_done-save_done} to make the adjecency matrix")
+            
             graph_subs, n_subplots = figures.create_graph(adjacency_df)
+            create_graph_done = default_timer()
+            timer.info(f"It took {create_graph_done-adjacency_done} to make the graphs")
             
             if n_subplots != 0:
                 # Draw the generated graps into on plot
                 figures.draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, genus, name)
             else:
                 logger.info(f"Skipping graph making for {name} as no edges were found (even within a single species)\n")
+            draw_graph_done = default_timer()
+            timer.info(f"It took {draw_graph_done-create_graph_done} to draw the graphs")
         else:
             logger.info(f"Only one genome amplified for this {name} ({list(cluster_dict)[0]} so we will skip making figures as they would be useless\n")
         overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div, unique_species, all_species, genome_count)
-        
+        end_figures = default_timer()
+        timer.info(f"It took {end_figures-start_figures} to generate figures for {name}")
     logger.info(f"You can find a saved version of the above at {outdir}/ribdif_log_file.log:")
-    
+    end = default_timer()
+    timer.info(f"It took {end - start} seconds to run")
 if __name__ == '__main__':
     main()
