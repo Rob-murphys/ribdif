@@ -10,6 +10,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 import networkx as nx
 from itertools import combinations
 import sys
+from scipy.sparse import dok_matrix
 
 def heatmap_meta(gcf_species):
     # Turn gcf species cross dictionary into series
@@ -125,18 +126,41 @@ def pdf_save(plot_clus, plot_dendo, outdir, genus, name):
             pdf_pages.savefig(plot.fig)
     return
 
+# =============================================================================
+# def create_adjacency(pairwise_df, cluster_df):
+#     # Create new dataframe filled with the zame index and column as pairwise_df but filled with 0s
+#     adjacency_df = pd.DataFrame(np.zeros((len(pairwise_df), len(pairwise_df.columns))), index=pairwise_df.index, columns=pairwise_df.columns)
+#     # Get all possible pairs of indexs
+#     pairs = list(combinations(cluster_df.index,2))
+#     # For each pair mask where they both belong to the same cluster
+#     for i,j in pairs:
+#         mask = (cluster_df.loc[i] > 0) & (cluster_df.loc[j] > 0)
+#         adjacency_df[j][i] = mask.sum()
+#         adjacency_df[i][j] = mask.sum()
+#     return adjacency_df
+# =============================================================================
+
 def create_adjacency(pairwise_df, cluster_df):
-    # Create new dataframe filled with the zame index and column as pairwise_df but filled with 0s
-    adjacency_df = pd.DataFrame(np.zeros((len(pairwise_df), len(pairwise_df.columns))), index=pairwise_df.index, columns=pairwise_df.columns)
-    # Get all possible pairs of indexs
-    pairs = list(combinations(cluster_df.index,2))
-    # For each pair mask where they both belong to the same cluster
-    for i,j in pairs:
-        mask = (cluster_df.loc[i] > 0) & (cluster_df.loc[j] > 0)
-        adjacency_df[j][i] = mask.sum()
-        adjacency_df[i][j] = mask.sum()
+    # Create a dictionary that maps the string index to an integer index
+    index_map = {index: i for i, index in enumerate(pairwise_df.index)}
+    # Convert the cluster dataframe to a numpy array
+    cluster_arr = cluster_df.to_numpy()
+    # Create a sparse matrix with the same shape as the pairwise_df dataframe
+    adjacency_mat = dok_matrix(pairwise_df.shape, dtype=np.int32)
+    # For each pair of indices that belong to the same cluster, set the corresponding entry in the adjacency matrix to the sum of alelles they share
+    pairs = list(combinations(cluster_df.index, 2))
+    for i, j in pairs:
+        # Create a mask of values greater than 0
+        mask = (cluster_arr[index_map[i]] > 0) & (cluster_arr[index_map[j]] > 0)
         
+        adjacency_mat[index_map[i], index_map[j]] = mask.sum()
+    
+    # Copy the values from the upper triangle to the lower triangle
+    adjacency_mat += np.triu(adjacency_mat.toarray(), k=1).T
+    
+    adjacency_df = pd.DataFrame(adjacency_mat, index=pairwise_df.index, columns=pairwise_df.columns)
     return adjacency_df
+
 
 def create_graph(adjacency_df):
     # Create the graph
