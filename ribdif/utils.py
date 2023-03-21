@@ -144,7 +144,7 @@ def own_genomes_rename(new_dir_path, logger):
             for line in f_in: # Loop through lines
                 if line.startswith(">"): # if it is a fasta header
                     # Generate new fasta header    
-                    genus = file.stem
+                    genus = file.stem.replace("_", "-")
                     line = f">GCF_{genus}.1_NZ_CP{NZ_count}.1_{genus}_sp._placeholder\n" # generate random GCF
                     print(line, end = '')
                     NZ_count += 1
