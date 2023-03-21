@@ -117,7 +117,7 @@ def primer_check(primer_file, logger):
 def own_genomes_copy(dir_path, outdir, domain, logger):
     target_dir = f"{outdir}/refseq/{domain}" # Target directory
     Path.mkdir(Path(target_dir), exist_ok = True, parents = True) # Creating directory
-    logger.info("Copying your genomes to {target_dir}\n\n")
+    logger.info(f"Copying your genomes to {target_dir}\n\n")
     file_count = 0 # Initiate genome count
     # Looping over whole directory
     for file in Path(dir_path).iterdir():
