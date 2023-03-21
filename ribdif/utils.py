@@ -136,7 +136,6 @@ def own_genomes_gzip(new_dir_path):
     
 # Rename the fasta headers of the file inplace
 def own_genomes_rename(new_dir_path, logger):
-    GCF_count = 1 # abritrary GCF
     NZ_count = 1 # abritrary GCF
     logger.info("Changing the copied genomes headers to conform with NCBI format\n\n")
     # Loop throuh all user fna files in new directory
@@ -146,9 +145,8 @@ def own_genomes_rename(new_dir_path, logger):
                 if line.startswith(">"): # if it is a fasta header
                     # Generate new fasta header    
                     genus = file.stem
-                    line = f">GCF_{GCF_count}.1_NZ_CP{NZ_count}.1_{genus}_sp._placeholder" # generate random GCF
+                    line = f">GCF_{genus}.1_NZ_CP{NZ_count}.1_{genus}_sp._placeholder\n" # generate random GCF
                     print(line, end = '')
-                    GCF_count += 1 # incriment for next file
                     NZ_count += 1
                 else:
                     print(line, end = '') # else print the line (which would be actual sequence data)
