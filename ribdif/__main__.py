@@ -283,6 +283,7 @@ def main():
         unique_species.discard("sp.")
     else:
         unique_species = set()
+        all_species = ["sp."] * genome_count
 
             
     # If not using whole-genome mode assume the primers being used are 16S (which they are if default)
