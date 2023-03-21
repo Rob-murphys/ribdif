@@ -322,7 +322,7 @@ def main():
             #f_out.write("GCF\tGenus\tSpecies\t#16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
         summary_type = "16S"
         in_fna = f"{outdir}/full/{genus}.16S"
-        summary_files.make_summary(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type, args.domain)
+        summary_files.make_summary(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type, args.domain, args.user)
         
         # Running msa on concatinated 16S sequences
         if args.msa == True:
@@ -375,7 +375,7 @@ def main():
     for name in names:
         summary_type = f"{name}-amp"
         in_fna = f"{outdir}/amplicons/{genus}-{name}.amplicons"
-        summary_files.make_summary(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type, args.domain)
+        summary_files.make_summary(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type, args.domain, args.user)
 
 
     

@@ -65,7 +65,7 @@ def dict_parser(key, summary_dict, outdir, genus, whole_mode, ani_mode, summary_
     writer(outdir, genus, value, summary_type) # Write
     return
         
-def make_summary(in_fna, outdir, genus, whole_mode, ani_mode, threads, summary_type, domain):
+def make_summary(in_fna, outdir, genus, whole_mode, ani_mode, threads, summary_type, domain, user):
     
     # Initiate the summary file with headers
     with open(f"{outdir}/{genus}_{summary_type}_summary.tsv", "w") as f_out:
@@ -92,7 +92,12 @@ def make_summary(in_fna, outdir, genus, whole_mode, ani_mode, threads, summary_t
                 else:
                     count = "1"
                     summary_dict[GCF] = [genera, species, count, "-", "-", "-", "-", "-"]
-
+                    
+    # If user defined genomes we need to do some changing to the GCF here so we can point to the correct files later.               
+    if user:
+        new_keys = {k : k.replace("GCF_", "") for k in summary_dict.keys()}
+        new_summary_dict = {new_keys[key] : value for key, value in summary_dict.items()}
+        summary_dict = new_summary_dict
     # Multipocess the writing shannon and ani stuff out (probably dont need to do this)
     with multiprocessing.Pool(threads) as pool:
         pool.starmap(dict_parser, zip(summary_dict, repeat(summary_dict), repeat(outdir), repeat(genus), repeat(whole_mode), repeat(ani_mode), repeat(summary_type), repeat(domain)))
