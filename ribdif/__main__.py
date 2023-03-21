@@ -277,9 +277,12 @@ def main():
         elif args.user:
             logger.info(f"{genome_count} previously user defined genomes were found\n\n")
     
-    # getting unique species for later use in the overlap reports and removing "sp."
-    unique_species = set(all_species)
-    unique_species.discard("sp.")
+    if args.genus:
+        # getting unique species for later use in the overlap reports and removing "sp."
+        unique_species = set(all_species)
+        unique_species.discard("sp.")
+    else:
+        unique_species = set()
 
             
     # If not using whole-genome mode assume the primers being used are 16S (which they are if default)
