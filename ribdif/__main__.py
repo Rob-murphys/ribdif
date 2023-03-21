@@ -115,9 +115,12 @@ def arg_handling(args, workingDir, logger):
             genus = args.genus.replace(" ", "_") # if so replacing it with an '_'
         else:
             genus = args.genus
-    if not args.user.is_dir():
+    
+    # Checking user provided directory exists   
+    if not Path(args.user).is_dir():
         logger.info(f"{args.user} is not a valid directory. Please check the path and try again")
         return 1
+    
     # Checking if user provided own outdir and if not setting to root directory
     if args.outdir == "False":
         outdir = Path(f"{Path.cwd()}/results/{genus}")
