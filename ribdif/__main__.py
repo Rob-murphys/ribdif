@@ -281,7 +281,7 @@ def main():
         # getting unique species for later use in the overlap reports and removing "sp."
         unique_species = set(all_species)
         unique_species.discard("sp.")
-    else:
+    elif args.user:
         unique_species = set()
         all_species = ["sp."] * genome_count
 
