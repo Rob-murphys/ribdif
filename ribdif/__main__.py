@@ -119,7 +119,7 @@ def arg_handling(args, workingDir, logger):
         genus = Path(args.user).name
         
     # Checking user provided directory exists   
-    if not Path(args.user).is_dir():
+    if args.user and not Path(args.user).is_dir():
         logger.info(f"{args.user} is not a valid directory. Please check the path and try again")
         return 1
     
