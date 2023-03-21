@@ -445,7 +445,7 @@ def main():
                 logger.info(f"Skipping graph making for {name} as no edges were found (even within a single species)\n")
         else:
             logger.info(f"Only one genome amplified for this {name} ({list(cluster_dict)[0]} so we will skip making figures as they would be useless\n")
-        overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div, unique_species, all_species, genome_count)
+        overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div, unique_species, all_species, genome_count, args.user)
         
     logger.info(f"You can find a saved version of the above at {outdir}/ribdif_log_file.log:")
     

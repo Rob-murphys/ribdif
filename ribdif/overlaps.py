@@ -92,7 +92,7 @@ def gcf_overlaps(all_gcfs, uc_dict_clean, gcf_species):
     return pairwise_match
 
 
-def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div, unique_species, all_species, genome_count):
+def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div, unique_species, all_species, genome_count, user):
     
     total_named_genomes = len([s for s in all_species if s != "sp."])
     total_unamed_genomes = genome_count - total_named_genomes
@@ -125,7 +125,7 @@ def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, l
                     \tWithout species name: {amplify_unamed_genomes}
                     \tUnique species names: {amplify_unique_species}\n
                     {multi_allele} of {genome_count} ({round(100*multi_allele/genome_count, 2)}%) genomes have multiple alleles.
-                    {count_overlap} of {total_unique_species} ({round(100*count_overlap/total_unique_species, 2)}%) species have at least one overlap.\n
+                    {count_overlap} of {total_unique_species} ({round(100*count_overlap/total_unique_species, 2) if user else 0}%) species have at least one overlap.\n
                     Total shannon diversity for {name} is: {shannon_div}\n\n""")
         if unq_combs:
             for i in range(len(unq_combs)):
