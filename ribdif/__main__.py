@@ -116,7 +116,7 @@ def arg_handling(args, workingDir, logger):
         else:
             genus = args.genus
     else: # If no genus if given (and thus args.user was) set genus to parent directory
-        genus = Path(args.user).parent
+        genus = Path(args.user).name
         
     # Checking user provided directory exists   
     if not Path(args.user).is_dir():
