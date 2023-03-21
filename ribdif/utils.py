@@ -112,4 +112,46 @@ def primer_check(primer_file, logger):
                             Check the default.primers file or the README for more guidance""")
                 return True
     return False
+
+# Copy the user defined genomes to the output directory following ncbi-genome.download structure
+def own_genomes_copy(dir_path, outdir, domain, logger):
+    target_dir = f"{outdir}/refseq/{domain}" # Target directory
+    Path.mkdir(target_dir, exist_ok = True, parents = True) # Creating directory
+    logger.info("Copying your genomes to {target_dir}\n\n")
+    file_count = 0 # Initiate genome count
+    # Looping over whole directory
+    for file in Path(dir_path).iterdir():
+        if file.is_file(): # if item is a file
+            shutil.copy(file, f"{target_dir}/{Path(file.stem)}/{Path(file.stem).with_suffix('.fna')}") # copy it replacing the file extension with '.fna'
+            file_count += 1 # incriment file count
+    return target_dir, file_count
+
+# Decompress user defined files if they need it
+def own_genomes_gzip(new_dir_path):
+    for file in Path(new_dir_path).glob("*/*.fna"):
+        if file.suffix == ".gz":
+            decompress(file)
+    return
+    
+# Rename the fasta headers of the file inplace
+def own_genomes_rename(new_dir_path, logger):
+    GCF_count = 1 # abritrary GCF
+    NZ_count = 1 # abritrary GCF
+    logger.info("Changing the copied genomes headers to conform with NCBI format\n\n")
+    # Loop throuh all user fna files in new directory
+    for file in Path(new_dir_path).glob("*/*.fna"):
+        with fileinput.input(file, inplace = True) as f_in: # open the file for inplace editing
+            for line in f_in: # Loop through lines
+                if line.startswith(">"): # if it is a fasta header
+                    # Generate new fasta header    
+                    genus = file.stem
+                    line = f">GCF_{GCF_count}.1_NZ_CP{NZ_count}.1_{genus}_sp._placeholder" # generate random GCF
+                    print(line, end = '')
+                    GCF_count += 1 # incriment for next file
+                    NZ_count += 1
+                else:
+                    print(line, end = '') # else print the line (which would be actual sequence data)
+    return
+
+
     

@@ -41,15 +41,19 @@ def parse_args():
     
     group1 = parser.add_mutually_exclusive_group()# Mutually exclusive group of rerun and clobber
     group2 = parser.add_mutually_exclusive_group()# Mutually exclusive group of ANI and whole genome mode (for now)
+    group3 = parser.add_mutually_exclusive_group(required = True) # Mutually exclusive group for genus and user
+    
     doms = ["bacteria", "fungi", "viral", "plant", "protozoa", "vertebrate_mammalian", "vertebrate_other", "invertebrate", "vertebrate_other"]
     parser.add_argument("-d", "--domain", dest = "domain",
-                        help = f"What domain of life does the genus belong to? Choices are:{','.join(doms)}",
+                        help = f"What domain of life does the genus belong to (default is bacteria)? Choices are:{', '.join(doms)}",
                         choices = doms,
                         default = "bacteria",
                         metavar = '')
-    parser.add_argument("-g", "--genus", dest = "genus", 
-                        help="The genus you want to search within. E.g. 'Staphylococcus' OR 'Staphylococcus aureas' if wanting to use a species", 
-                        required = True)
+    group3.add_argument("-g", "--genus", dest = "genus", 
+                        help="The genus you want to search within. E.g. 'Staphylococcus' OR 'Staphylococcus aureas' if wanting to use a species. Mutually exclusive with --user")
+    
+    group3.add_argument("-u", "--user", dest="user",
+                        help = "Directory containing user defined set of genomes to run RibDif on. Give full path. Files canbe gzipped. Mutually exclusive with --genus")
     
     parser.add_argument("--ignore-sp", dest = "sp_ignore",
                         help = "Ignore genomes with unspecified species (i.e. their species is 'sp.')",
@@ -60,7 +64,7 @@ def parse_args():
                         default = "False")
     
     group1.add_argument("-r", "--rerun", dest = "rerun",
-                        help = "Re-run on same or different primers. Avoids having to redownload the same genomes. Mutually exclusive with --clobber",
+                        help = "Re-run on same or different primers. Avoids having to redownload the same genomes or recopy to a new direcotry (if using --user). Mutually exclusive with --clobber",
                         action = "store_true") # Action store true will default to false when argument is not present
     
     group1.add_argument("-c", "--clobber", dest = "clobber",
@@ -104,13 +108,16 @@ def arg_handling(args, workingDir, logger):
         logger.error("If searching non bacteria life you must enable --whole-genome (-w) mode")
         return 1
     
-    #Checking if user is running on a species
-    if " " in args.genus: # checking is there is a space in genus/species name
-        logger.info(f"Detected species {args.genus.split(' ')[1]}.\n\n")
-        genus = args.genus.replace(" ", "_") # if so replacing it with an '_'
-    else:
-        genus = args.genus
-
+    if args.genus:
+        # Checking if user is running on a species
+        if " " in args.genus: # checking is there is a space in genus/species name
+            logger.info(f"Detected species {args.genus.split(' ')[1]}.\n\n")
+            genus = args.genus.replace(" ", "_") # if so replacing it with an '_'
+        else:
+            genus = args.genus
+    if not args.user.is_dir():
+        logger.info(f"{args.user} is not a valid directory. Please check the path and try again")
+        return 1
     # Checking if user provided own outdir and if not setting to root directory
     if args.outdir == "False":
         outdir = Path(f"{Path.cwd()}/results/{genus}")
@@ -208,7 +215,10 @@ def main():
     logger = logging_config.cofigure_logging()
     
     logger.info(sys.argv)
-    genus_line = f"#== RibDif2 is running on: {args.genus} in the {args.domain} domain ==#"
+    if args.genus:
+        genus_line = f"#== RibDif2 is running on: {args.genus} in the {args.domain} domain ==#"
+    elif args.user:
+        genus_line = f"#== RibDif2 is running on user defined genomes at: {args.user} ==#"
     block_line = f"#{'=' * (len(genus_line)-2)}#"
     logger.info(f"\n{block_line}\n{genus_line}\n{block_line}\n\n")
     
@@ -221,33 +231,47 @@ def main():
     log_dir = Path(outdir) / "ribdif_logs"
     Path(log_dir).mkdir(exist_ok = True, parents = True)
     
+
     # If rerun is false, download and handle genomes from NCBI
     if rerun == False:
-        # Download genomes from NCBI
-        status = ngd_download.genome_download(genus, outdir, args.threads, args.frag, args.sp_ignore, args.domain, logger)
-        # Catching is any critical errors occured from downloading genomes
-        if status == 1:
-            sys.exit(status)
-    
-        # Un gziping fasta files
-        with multiprocessing.Pool(args.threads) as pool: # Create a multiprocessing pool with #threads workers
-            all_gz = [str(i) for i in list(Path(f"{outdir}/refseq/{args.domain}/").glob('**/*.gz'))]# Recursively search the directory for .gz files and convert path to string sotring in a list
-            pool.map(utils.decompress, all_gz)
         
+        if args.genus:
+            # Download genomes from NCBI
+            status = ngd_download.genome_download(genus, outdir, args.threads, args.frag, args.sp_ignore, args.domain, logger)
+            # Catching is any critical errors occured from downloading genomes
+            if status == 1:
+                sys.exit(status)
+        
+            # Un gziping fasta files
+            with multiprocessing.Pool(args.threads) as pool: # Create a multiprocessing pool with #threads workers
+                all_gz = [str(i) for i in list(Path(f"{outdir}/refseq/{args.domain}/").glob('**/*.gz'))]# Recursively search the directory for .gz files and convert path to string sotring in a list
+                pool.map(utils.decompress, all_gz)
             
-        # Remove unwanted characters from anywhere is file (should only be in fasta headers)
-        logger.info("Modifying fasta headers.\n\n")
-        with multiprocessing.Pool(args.threads) as pool:
-            all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/{args.domain}/").glob('*/*.fna'))]
-            all_species = pool.map(utils.modify2, all_fna)
-            genome_count = len(all_species)
-            
+                
+            # Remove unwanted characters from anywhere is file (should only be in fasta headers)
+            logger.info("Modifying fasta headers.\n\n")
+            with multiprocessing.Pool(args.threads) as pool:
+                all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/{args.domain}/").glob('*/*.fna'))]
+                all_species = pool.map(utils.modify2, all_fna)
+                genome_count = len(all_species)
+                
+        # Else if user defined  are given
+        elif args.user:
+            new_dir_path, genome_count = utils.own_genomes_copy(args.user, outdir, args.domain, logger) # copy to new location
+            utils.own_genomes_gzip(new_dir_path) # decompress if needed
+            utils.own_genomes_rename(new_dir_path, logger) # Rename fasta headers
+            logger.info(f"{genome_count} user defined genomes were found\n\n")
+    
+    # Else get genome count of exising genomes      
     else:
         all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/{args.domain}/").glob('*/*.fna'))]
         with multiprocessing.Pool(args.threads) as pool:
             all_species = pool.map(utils.sp_check, all_fna)
         genome_count = len(all_species)
-        logger.info(f"{genome_count} previously downloaded genomes of {genus} were found\n\n")
+        if args.genus:
+            logger.info(f"{genome_count} previously downloaded genomes of {genus} were found\n\n")
+        elif args.user:
+            logger.info(f"{genome_count} previously user defined genomes were found\n\n")
     
     # getting unique species for later use in the overlap reports and removing "sp."
     unique_species = set(all_species)
