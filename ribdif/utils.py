@@ -122,7 +122,7 @@ def own_genomes_copy(dir_path, outdir, domain, logger):
     # Looping over whole directory
     for file in Path(dir_path).iterdir():
         if file.is_file(): # if item is a file
-            shutil.copy(file, f"{target_dir}/{Path(file.stem)}/{Path(file.stem).with_suffix('.fna')}") # copy it replacing the file extension with '.fna'
+            shutil.copy(file, f"{target_dir}/{file.stem}/{file.stem}.fna") # copy it replacing the file extension with '.fna'
             file_count += 1 # incriment file count
     return target_dir, file_count
 
