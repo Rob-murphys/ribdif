@@ -93,7 +93,8 @@ def parse_args():
     
     parser.add_argument("-t", "--threads", dest = "threads",
                         help = "Number of threads to use. Default is all available",
-                        default = os.cpu_count())
+                        default = os.cpu_count(),
+                        type = int)
     
     group2.add_argument("-w", "--whole-genome", dest = "whole", 
                         help = "Indicate the primers given are to be run on the whole genome so no barrnap or ani (Required if your primers are non 16S). Mutually exclusive with --ani",
