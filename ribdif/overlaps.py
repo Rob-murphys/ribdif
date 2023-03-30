@@ -135,3 +135,7 @@ def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, l
         logger.info(f_out.read())
         
 #[i.replace("sp.", f"sp._{x}") for x, i in enumerate(combinations) if "sp." in i]
+
+# Changing the cluster dictionary into a dataframe for when only a single genome amplified
+def single_amp_df(cluster_dict):
+    return pd.DataFrame.from_dict(cluster_dict).transpose()
