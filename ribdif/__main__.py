@@ -13,10 +13,11 @@ import shutil
 import multiprocessing
 import sys
 import logging
+import importlib.metadata
 
 
 
-
+import ribdif
 from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_files, vsearch_run, overlaps, figures, logging_config
 from ribdif.custom_exceptions import EmptyFileError, IncompatiablityError, ThirdPartyError, StopError, IncorrectFormatError
 
@@ -217,8 +218,8 @@ def main():
     args = parse_args()
     
     # Initialise the logging
-    logger = logging_config.cofigure_logging()
-    
+    logger = logging_config.configure_logging(workingDir)
+    logger.info(f"RibDif {ribdif.__version__}")
     logger.info(sys.argv)
     if args.genus:
         genus_line = f"#== RibDif2 is running on: {args.genus} in the {args.domain} domain ==#"

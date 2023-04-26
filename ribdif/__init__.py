@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
-"""RibDif2 - Ribosomal differentiation
+"""RibDif2 - Ribosomal differentiation v2
 
 Documentation: https://github.com/Rob-murphys/RibDif2
 
-RibDif2 contains the following moduels:
-    
-    Ribdif
 """
 __authors__ = "Robert Murphy"
 __licence__ = "GPL-3.0"
-__version__ = (1, 1, 1)
+__version__ = (2, 0, 0)
 
 
 # Try on python v3.5
