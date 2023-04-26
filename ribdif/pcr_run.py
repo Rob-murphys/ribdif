@@ -7,6 +7,7 @@ import shlex
 import csv
 import fileinput
 import logging
+import shutil
 from ribdif.utils import detect_encode
 """
 Implement a producer and consumer setup for writing the pcr output whe multiprocessing: https://stackoverflow.com/questions/11196367/processing-single-file-from-multiple-processes
@@ -15,20 +16,20 @@ I removed the counter from all functions for labeling output files as it seems t
 """
 
 # Spawning the shell call
-def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, length, workingDir, multi): # removed , counter
+def call_proc_pcr(infile, primer_path, genus, name, fwd, rvs, length, workingDir, multi): # removed , counter
     # Checking if running on multi processing mode
     if not multi:    
         # Building the command
-        command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -l {length} -r -m -i > {outdir}/amplicons/{name}/{genus}-{name}.summary 2> {outdir}/amplicons/{name}/{genus}-{name}.temp.amplicons"
+        command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -l {length} -r -m -i > {primer_path}/{genus}-{name}.summary 2> {primer_path}/{genus}-{name}.temp.amplicons"
         # Passing the command to shell piping the stdout and stderr
-        with open(f"{outdir}/amplicons/{name}/{genus}-{name}.summary", "w") as f_std, open(f"{outdir}/amplicons/{name}/{genus}-{name}.temp.amplicons", "w") as f_err:
+        with open(f"{primer_path}/{genus}-{name}.summary", "w") as f_std, open(f"{primer_path}/{genus}-{name}.temp.amplicons", "w") as f_err:
             subprocess.run(shlex.split(command), stdout = f_std, stderr = f_err)
     # If running with multi then output is directed to seperate files for later processing
     else:
         outfile = Path(infile).stem
-        command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -l {length} -r -m -i > {outdir}/amplicons/{name}/{outfile}.summary 2> {outdir}/amplicons/{name}/{genus}-{name}.temp.amplicons"
+        command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -l {length} -r -m -i > {primer_path}/{outfile}.summary 2> {primer_path}/{outfile}.temp.amplicons"
         
-        with open(f"{outdir}/amplicons/{name}/{outfile}_{name}.summary", "w") as f_std, open(f"{outdir}/amplicons/{name}/{outfile}_{name}.amplicons", "w") as f_err:
+        with open(f"{primer_path}/{outfile}_{name}.summary", "w") as f_std, open(f"{primer_path}/{outfile}_{name}.amplicons", "w") as f_err:
             subprocess.run(shlex.split(command), stdout = f_std, stderr = f_err)
     return 
 
@@ -43,11 +44,15 @@ def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads, logger, d
         names = []
         for primer in f_primer: # looping through the lines (and thus primers)
             name, fwd, rvs, length = primer.strip().split("\t") # getting infor about each primer
+            primer_path = Path(f"{amplicon_dir}/{name}") # directory for each primer output to be in
+            if primer_path.isdir():
+                shutil.rmtree(primer_path, ignore_errors = False)
+            primer_path.mkdir(parents = True, exist_ok = False)
             with multiprocessing.Pool(threads) as pool: # spawn the pool # opening the pool
                 all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/{domain}/").rglob('*.fna'))] # generate list of files ending in .fna
                 #counter = range(len(all_fna))
                 longer_length = int((float(length)+(float(length)*0.5)))
-                pool.starmap(call_proc_pcr, zip(all_fna, repeat(outdir), repeat(genus), repeat(name), repeat(fwd), repeat(rvs), repeat(longer_length), repeat(workingDir), repeat(multi))) # removed counter
+                pool.starmap(call_proc_pcr, zip(all_fna, repeat(primer_path), repeat(genus), repeat(name), repeat(fwd), repeat(rvs), repeat(longer_length), repeat(workingDir), repeat(multi))) # removed counter
             names.append(name)
     return names
 
@@ -61,7 +66,11 @@ def pcr_call(infile, outdir, genus, primer_file, workingDir, logger):
         names = []
         for primer in f_primer:
             name, fwd, rvs, length = primer.strip().split("\t")
-            call_proc_pcr(infile, outdir, genus, name, fwd, rvs, int((float(length)+(float(length)*0.5))), workingDir, multi)
+            primer_path = Path(f"{amplicon_dir}/{name}")
+            if primer_path.isdir():
+                shutil.rmtree(primer_path, ignore_errors = False)
+            primer_path.mkdir(parents = True, exist_ok = False)
+            call_proc_pcr(infile, primer_path, genus, name, fwd, rvs, int((float(length)+(float(length)*0.5))), workingDir, multi)
             names.append(name)
     return names
 
@@ -71,7 +80,7 @@ def multi_cleaner(outdir, name):
     amp_counter = 1
     total_sum_dict = {}
     # Loop through all amplicon files
-    for file in Path(f"{outdir}/amplicons").glob(f"*{name}.amplicons"):
+    for file in Path(f"{outdir}/amplicons/{name}/").glob(f"*{name}.amplicons"):
         # Open the summary file and turn it into a dictionary
         with open(str(file).replace(".amplicons", ".summary")) as f_in:
              rows = ( line.strip().split('\t') for line in f_in )
@@ -91,8 +100,8 @@ def multi_cleaner(outdir, name):
                       
 # Just concatinating all corrected amplicon files  
 def amplicon_cat(outdir, genus, name):
-    with open(f"{outdir}/amplicons/{genus}-{name}.temp.amplicons", "w") as amp_out:
-        for file in Path(f"{outdir}/amplicons").glob(f"*{name}.amplicons"):
+    with open(f"{outdir}/amplicons/{name}/{genus}-{name}.temp.amplicons", "w") as amp_out:
+        for file in Path(f"{outdir}/amplicons/{name}/").glob(f"*{name}.amplicons"):
             with open(file, "r") as f_in:
                 f_read = f_in.read()
                 amp_out.write(f_read)
@@ -100,11 +109,11 @@ def amplicon_cat(outdir, genus, name):
 
 # Writing the total summary dictionary to a tsv
 def sum_dict_write(outdir, genus, name, total_sum_dict):
-    with open(f"{outdir}/amplicons/{genus}-{name}.summary", "w", newline = '') as sum_out:
+    with open(f"{outdir}/amplicons/{name}/{genus}-{name}.summary", "w", newline = '') as sum_out:
         writer = csv.writer(sum_out, delimiter = "\t") # generate a  csv writer
         writer.writerow(["AmpId", "SequenceId", "PositionInSequence", "Length", "Misc"]) # write the headers
         for key in total_sum_dict.keys():
             total_sum_dict[key].insert(0, key) # append the value with the key
             writer.writerow(total_sum_dict[key]) # write each value to file
     return
-            
+                     
