@@ -219,8 +219,11 @@ def main():
     
     # Initialise the logging
     logger = logging_config.configure_logging(workingDir)
-    logger.info(f"RibDif {ribdif.__version__}")
-    logger.info(sys.argv)
+    logger.info(f"RibDif v{ribdif.__version__}")
+    input_arg = sys.argv
+    input_arg[0] = input_arg[0].split("/")[0]
+    logger.info("Input command:")
+    logger.info("".join(input_arg))
     if args.genus:
         genus_line = f"#== RibDif2 is running on: {args.genus} in the {args.domain} domain ==#"
     elif args.user:
