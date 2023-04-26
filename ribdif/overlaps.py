@@ -8,7 +8,7 @@ import numpy as np
 # Import and clean the cluster file
 def uc_cleaner(outdir, genus, name):
     
-    uc_path = f"{outdir}/amplicons/{genus}-{name}.uc"
+    uc_path = f"{outdir}/amplicons/{name}/{genus}-{name}.uc"
     
     # read in cluster file
     uc_df = pd.read_csv(uc_path, sep = "\t", header = None)

@@ -48,9 +48,9 @@ def muscle_call_single(infile, outAln, outTree):
     return
 
 def format_trees(outdir, genus, name):
-    uc_path = f"{outdir}/amplicons/{genus}-{name}.uc"
-    tree_path = f"{outdir}/amplicons/{genus}-{name}.tree"
-    out_path = f"{outdir}/amplicons/{genus}-{name}-meta.tsv"
+    uc_path = f"{outdir}/amplicons/{name}/{genus}-{name}.uc"
+    tree_path = f"{outdir}/amplicons/{name}/{genus}-{name}.tree"
+    out_path = f"{outdir}/amplicons/{name}/{genus}-{name}-meta.tsv"
     
     # read in cluster file
     uc_df = pd.read_csv(uc_path, sep = "\t", header = None)

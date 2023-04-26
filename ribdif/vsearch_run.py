@@ -8,9 +8,9 @@ from ribdif import custom_exceptions
 
 def vsearch_call(outdir, genus, name, ident, log_dir, threads):
     # Defining in and out files/dirs
-    infile = f"{outdir}/amplicons/{genus}-{name}.amplicons"
-    outfile = f"{outdir}/amplicons/{genus}-{name}.uc"
-    clusdir = f"{outdir}/amplicons/{name}-clusters/{genus}-{name}-clus"
+    infile = f"{outdir}/amplicons/{name}/{genus}-{name}.amplicons"
+    outfile = f"{outdir}/amplicons/{name}/{genus}-{name}.uc"
+    clusdir = f"{outdir}/amplicons/{name}/{name}-clusters/{genus}-{name}-clus"
     
     Path.mkdir(Path(clusdir).parent, exist_ok = True, parents = True) # making outdir
     

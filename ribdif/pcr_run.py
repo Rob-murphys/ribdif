@@ -19,16 +19,16 @@ def call_proc_pcr(infile, outdir, genus, name, fwd, rvs, length, workingDir, mul
     # Checking if running on multi processing mode
     if not multi:    
         # Building the command
-        command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -l {length} -r -m -i > {outdir}/amplicons/{genus}-{name}.summary 2> {outdir}/amplicons/{genus}-{name}.temp.amplicons"
+        command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -l {length} -r -m -i > {outdir}/amplicons/{name}/{genus}-{name}.summary 2> {outdir}/amplicons/{name}/{genus}-{name}.temp.amplicons"
         # Passing the command to shell piping the stdout and stderr
-        with open(f"{outdir}/amplicons/{genus}-{name}.summary", "w") as f_std, open(f"{outdir}/amplicons/{genus}-{name}.temp.amplicons", "w") as f_err:
+        with open(f"{outdir}/amplicons/{name}/{genus}-{name}.summary", "w") as f_std, open(f"{outdir}/amplicons/{name}/{genus}-{name}.temp.amplicons", "w") as f_err:
             subprocess.run(shlex.split(command), stdout = f_std, stderr = f_err)
     # If running with multi then output is directed to seperate files for later processing
     else:
         outfile = Path(infile).stem
-        command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -l {length} -r -m -i > {outdir}/amplicons/{outfile}.summary 2> {outdir}/amplicons/{genus}-{name}.temp.amplicons"
+        command = f"perl {workingDir}/in_silico_PCR.pl -s {infile} -a {fwd} -b {rvs} -l {length} -r -m -i > {outdir}/amplicons/{name}/{outfile}.summary 2> {outdir}/amplicons/{name}/{genus}-{name}.temp.amplicons"
         
-        with open(f"{outdir}/amplicons/{outfile}_{name}.summary", "w") as f_std, open(f"{outdir}/amplicons/{outfile}_{name}.amplicons", "w") as f_err:
+        with open(f"{outdir}/amplicons/{name}/{outfile}_{name}.summary", "w") as f_std, open(f"{outdir}/amplicons/{name}/{outfile}_{name}.amplicons", "w") as f_err:
             subprocess.run(shlex.split(command), stdout = f_std, stderr = f_err)
     return 
 

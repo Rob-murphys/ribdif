@@ -369,14 +369,14 @@ def main():
     names = utils.amp_replace(outdir, genus, names, logger)
         
     # Catching if all amplification failed (empty lists evaluate to false)
-    if not list(Path(f"{outdir}/amplicons/").glob(f"{genus}-*.amplicons")):
+    if not list(Path(f"{outdir}/amplicons/{name}/").glob(f"{genus}-*.amplicons")):
         sys.exit("No amplification for any of the given primers was successfull. Try again with different primers")
     
     # Make summary file for whole genome mode (has to be after utils.amp_replace so cant have in main args.whole section)
     #if args.whole:
     for name in names:
         summary_type = f"{name}-amp"
-        in_fna = f"{outdir}/amplicons/{genus}-{name}.amplicons"
+        in_fna = f"{outdir}/amplicons/{name}/{genus}-{name}.amplicons"
         summary_files.make_summary(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type, args.domain, args.user)
 
 
@@ -395,7 +395,7 @@ def main():
         if args.msa:
             # msa on all amplicons
             logger.info("Aligning all amplicons for diversity calculation.\n")
-            infile , outAln, outTree = f"{outdir}/amplicons/{genus}-{name}.amplicons", f"{outdir}/amplicons/{genus}-{name}.aln", f"{outdir}/amplicons/{genus}-{name}.tree" # Asigning in and out files
+            infile , outAln, outTree = f"{outdir}/amplicons/{name}/{genus}-{name}.amplicons", f"{outdir}/amplicons/{name}/{genus}-{name}.aln", f"{outdir}/amplicons/{name}/{genus}-{name}.tree" # Asigning in and out files
             msa_run.muscle_call_single(infile, outAln, outTree)
             logger.info(f"Gather tree tip information see: {outdir}/amplicons/{genus}-{name}-meta.tsv.\n\n")
             msa_run.format_trees(outdir, genus, name)
@@ -415,6 +415,7 @@ def main():
         # Find all species overlap in the cluster_dict
         combinations = overlaps.species_overlap(cluster_dict, cluster_count, gcf_species)
         
+        # If only one cluster is made then skip all the figure making. Could I do this with cluster count instead and avoid the two commands above?
         if len(cluster_dict) != 1:
             # Find all GCF overlaps in the cluster dictionary
             pairwise_match = overlaps.gcf_overlaps(all_gcfs, uc_dict_clean, gcf_species)

@@ -74,27 +74,27 @@ def decompress(file_path):
 def amp_replace(outdir, genus, names, logger):
     for name in names[:]:
         # Read in the summary dataframe
-        df_sum = pd.read_csv(f"{outdir}/amplicons/{genus}-{name}.summary", sep = "\t", header = None, names = ["AmpId", "SequenceId", "PositionInSequence", "Length", "Misc"])
+        df_sum = pd.read_csv(f"{outdir}/amplicons/{name}/{genus}-{name}.summary", sep = "\t", header = None, names = ["AmpId", "SequenceId", "PositionInSequence", "Length", "Misc"])
         dict_sum = dict(zip(df_sum.AmpId, df_sum.SequenceId)) # Make a dictionary of it
         # Open the temp amplicon file and the final amplicon file
-        with open (f"{outdir}/amplicons/{genus}-{name}.temp.amplicons", "r") as f_in, open(f"{outdir}/amplicons/{genus}-{name}.amplicons", "w") as f_out:
+        with open (f"{outdir}/amplicons/{name}/{genus}-{name}.temp.amplicons", "r") as f_in, open(f"{outdir}/amplicons/{name}/{genus}-{name}.amplicons", "w") as f_out:
            for line in f_in: # loop over lines in the file
                if ">amp" in line: # If it is a fasta header
                    # Replace with origin genome fasta header and then the amp count
                    amp = line.strip().strip(">")
                    line = line.replace(amp, dict_sum[amp] + f"_{amp.strip('amp_')}")
                f_out.write(line)
-        Path.unlink(Path(f"{outdir}/amplicons/{genus}-{name}.temp.amplicons")) # remove temp file
+        Path.unlink(Path(f"{outdir}/amplicons/{name}/{genus}-{name}.temp.amplicons")) # remove temp file
         # Check if the primer resulted in any amplification and if not remove the file
-        if os.stat(f"{outdir}/amplicons/{genus}-{name}.amplicons").st_size == 0:
-            Path.unlink(Path(f"{outdir}/amplicons/{genus}-{name}.amplicons"))
+        if os.stat(f"{outdir}/amplicons/{name}/{genus}-{name}.amplicons").st_size == 0:
+            Path.unlink(Path(f"{outdir}/amplicons/{name}/{genus}-{name}.amplicons"))
             logger.info(f"{name} primer resulted in no amplification and will be excluded from further analysis. Are you sure the primer is correct?\n")
             names.remove(name)
     return names
 
 def pairwise_to_csv(pairwise_match, gcf_species, outdir, genus, name):
     pairwise_save_df = pd.DataFrame(pairwise_match, index = gcf_species.values())
-    pairwise_save_df.to_csv(f"{outdir}/amplicons/{genus}-{name}_confusion.csv", sep = ",", index = True)
+    pairwise_save_df.to_csv(f"{outdir}/amplicons/{name}/{genus}-{name}_confusion.csv", sep = ",", index = True)
     return
 
 def detect_encode(file):
