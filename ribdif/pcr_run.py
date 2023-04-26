@@ -45,7 +45,7 @@ def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads, logger, d
         for primer in f_primer: # looping through the lines (and thus primers)
             name, fwd, rvs, length = primer.strip().split("\t") # getting infor about each primer
             primer_path = Path(f"{amplicon_dir}/{name}") # directory for each primer output to be in
-            if primer_path.isdir():
+            if primer_path.is_dir():
                 shutil.rmtree(primer_path, ignore_errors = False)
             primer_path.mkdir(parents = True, exist_ok = False)
             with multiprocessing.Pool(threads) as pool: # spawn the pool # opening the pool
@@ -67,7 +67,7 @@ def pcr_call(infile, outdir, genus, primer_file, workingDir, logger):
         for primer in f_primer:
             name, fwd, rvs, length = primer.strip().split("\t")
             primer_path = Path(f"{amplicon_dir}/{name}")
-            if primer_path.isdir():
+            if primer_path.is_dir():
                 shutil.rmtree(primer_path, ignore_errors = False)
             primer_path.mkdir(parents = True, exist_ok = False)
             call_proc_pcr(infile, primer_path, genus, name, fwd, rvs, int((float(length)+(float(length)*0.5))), workingDir, multi)
