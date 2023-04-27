@@ -19,7 +19,7 @@ import importlib.metadata
 
 import ribdif
 from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_files, vsearch_run, overlaps, figures, logging_config
-from ribdif.custom_exceptions import EmptyFileError, IncompatiablityError, ThirdPartyError, StopError, IncorrectFormatError
+from ribdif.custom_exceptions import EmptyFileError, IncompatiablityError, StopError, IncorrectFormatError
 
 # =============================================================================
 # import barrnap_run
