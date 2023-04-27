@@ -44,9 +44,9 @@ def parse_args():
     group2 = parser.add_mutually_exclusive_group()# Mutually exclusive group of ANI and whole genome mode (for now)
     group3 = parser.add_mutually_exclusive_group(required = True) # Mutually exclusive group for genus and user
     
-    doms = ["bacteria", "fungi", "viral", "plant", "protozoa", "vertebrate_mammalian", "vertebrate_other", "invertebrate", "vertebrate_other"]
+    doms = ["bacteria", "archaea", "fungi", "viral", "plant", "protozoa", "vertebrate_mammalian", "vertebrate_other", "invertebrate", "vertebrate_other"]
     parser.add_argument("-d", "--domain", dest = "domain",
-                        help = f"What domain of life does the genus belong to (default is bacteria)? Choices are:{', '.join(doms)}",
+                        help = f"What domain of life does the genus belong to (default is bacteria)? Choices are: {', '.join(doms)}",
                         choices = doms,
                         default = "bacteria",
                         metavar = '')
