@@ -373,7 +373,7 @@ def main():
     names = utils.amp_replace(outdir, genus, names, logger)
         
     # Catching if all amplification failed (empty lists evaluate to false)
-    if not list(Path(f"{outdir}/amplicons/{name}/").glob(f"{genus}-*.amplicons")):
+    if not list(Path(f"{outdir}/amplicons/").rglob(f"{genus}-*.amplicons")):
         sys.exit("No amplification for any of the given primers was successfull. Try again with different primers")
     
     # Make summary file for whole genome mode (has to be after utils.amp_replace so cant have in main args.whole section)
