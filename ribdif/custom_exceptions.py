@@ -6,9 +6,6 @@ class EmptyFileError(Exception):
 class IncompatiablityError(Exception):
     pass
 
-class ThirdPartyError(Exception):
-    pass
-
 class StopError(Exception):
     pass
 
