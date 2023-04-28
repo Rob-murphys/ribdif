@@ -33,7 +33,7 @@ def modify2(file_path):
     with fileinput.input(file_path, inplace = True) as f_in:
         for line in f_in:
             if line.startswith(">"):
-                line = re.sub(r"[:,/()=#\x27]", "", line)
+                line = re.sub(r"[:,/()\[\]=#\x27]", "", line)
                 line = re.sub(r"[: ]", "_", line)
                 line = f"{line[0]}{GCF}_{line[1:]}" 
                 print(line, end = '')
