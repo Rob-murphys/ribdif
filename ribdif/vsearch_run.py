@@ -4,9 +4,9 @@ import subprocess
 import shlex
 from pathlib import Path
 import os
-import warnings
+import logging
 
-def vsearch_call(outdir, genus, name, ident, log_dir, threads):
+def vsearch_call(outdir, genus, name, ident, log_dir, threads, logger):
     # Defining in and out files/dirs
     infile = f"{outdir}/amplicons/{name}/{genus}-{name}.amplicons"
     outfile = f"{outdir}/amplicons/{name}/{genus}-{name}.uc"
@@ -21,5 +21,5 @@ def vsearch_call(outdir, genus, name, ident, log_dir, threads):
         subprocess.run(shlex.split(command), stdout = out, stderr = err)
     
     if os.stat(f"{log_dir}/vsearch_{name}.err").st_size != 0:
-        warnings.warn(f"Vsearch did something non default. Hopefully this does not ruin down stream analysis but if you get an error check {log_dir}/vsearch_{name}.err")
+        logger.warning(f"Vsearch did something non default. Hopefully this does not ruin down stream analysis but if you get an error check {log_dir}/vsearch_{name}.err")
     return

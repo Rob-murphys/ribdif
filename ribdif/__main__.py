@@ -387,7 +387,7 @@ def main():
     
     logger.info ("Making unique clusters with vsearch.\n\n")
     for name in names:
-        vsearch_run.vsearch_call(outdir, genus, name, args.id, log_dir, args.threads)
+        vsearch_run.vsearch_call(outdir, genus, name, args.id, log_dir, args.threads, logger)
     
     
     
