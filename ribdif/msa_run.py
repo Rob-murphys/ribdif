@@ -71,11 +71,9 @@ def format_trees(outdir, genus, name):
     n_gene = [i.split("_")[-1] for i in tips]
     
     # Getting cluster number for each item of tips in the order of tips # Why not just reorder tips to that of the dataframe?
-    uc_df = uc_df.sort_values(by = 8, axis = 0)
+    uc_df_clean = uc_df_clean.sort_values(by = 8, axis = 0)
     match_index =[uc_df_clean.index[uc_df_clean[8] == i] for i in tips]
-    clusters = [uc_df.loc[m][1].values[0] for m in match_index]
+    clusters = [uc_df_clean.loc[m][1].values[0] for m in match_index]
     
     meta_df = pd.DataFrame({"name": tips, "GCF":GCF, "Genus":genus, "Species":species, "Strain":strain, "nGene":n_gene, "Cluster":clusters})
     meta_df.to_csv(out_path, sep = "\t", index = False)
-    
-  
