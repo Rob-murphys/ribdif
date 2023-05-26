@@ -54,6 +54,7 @@ def pcr_parallel_call(outdir, genus, primer_file, workingDir, threads, logger, d
                 longer_length = int((float(length)+(float(length)*0.5)))
                 pool.starmap(call_proc_pcr, zip(all_fna, repeat(primer_path), repeat(genus), repeat(name), repeat(fwd), repeat(rvs), repeat(longer_length), repeat(workingDir), repeat(multi))) # removed counter
             names.append(name)
+            amplicon_filter(outdir, name, genus, length)
     return names
 
 def pcr_call(infile, outdir, genus, primer_file, workingDir, logger):
@@ -72,6 +73,7 @@ def pcr_call(infile, outdir, genus, primer_file, workingDir, logger):
             primer_path.mkdir(parents = True, exist_ok = False)
             call_proc_pcr(infile, primer_path, genus, name, fwd, rvs, int((float(length)+(float(length)*0.5))), workingDir, multi)
             names.append(name)
+            amplicon_filter(outdir, name, genus, length)
     return names
 
 
@@ -116,4 +118,14 @@ def sum_dict_write(outdir, genus, name, total_sum_dict):
             total_sum_dict[key].insert(0, key) # append the value with the key
             writer.writerow(total_sum_dict[key]) # write each value to file
     return
-                     
+
+# Removes any amplicon that is not at least 90% of the expected length
+def amplicon_filter(outdir, name, genus, length):
+    for file in Path(f"{outdir}/amplicons/{name}/").glob(f"{genus}-{name}.amplicons"):
+        with open(file, "r") as f_in:
+            lines = f_in.readlines()
+        modified_lines = [line for i, line in enumerate(lines) 
+                          if (line.startswith(">") and len(lines[i+1]) >= (length * 0.9)) 
+                          or (len(line) >= (length * 0.9) and lines[i-1].startswith(">"))]
+        with open(file, "w") as f_in:
+            f_in.writelines(modified_lines)
