@@ -382,7 +382,7 @@ def main():
         summary_type = f"{name}-amp"
         in_fna = f"{outdir}/amplicons/{name}/{genus}-{name}.amplicons"
         summary_files.make_summary(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type, args.domain, args.user)
-
+        
 
     
     logger.info ("Making unique clusters with vsearch.\n\n")
@@ -454,7 +454,7 @@ def main():
             cluster_df = overlaps.single_amp_df(cluster_dict)
         overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div, unique_species, all_species, genome_count, args.user)
         
-    logger.info(f"You can find a saved version of the above at {outdir}/ribdif_log_file.log:")
+    logger.info(f"You can find a saved version of the above at {outdir}/ribdif_log_file.log")
     
 if __name__ == '__main__':
     main()
