@@ -69,7 +69,7 @@ def make_summary(in_fna, outdir, genus, whole_mode, ani_mode, threads, summary_t
     
     # Initiate the summary file with headers
     with open(f"{outdir}/{genus}_{summary_type}_summary.tsv", "w") as f_out:
-        f_out.write("GCF\tGenus\tSpecies\t#16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
+        f_out.write("GCF\tGenus\tSpecies\t#amp\tMean\tSD\tMin\tMax\tTotalDiv\n")
     # Paths for all needed files
     #tree_path = in_aln.replace(".16sAln", ".16sTree")
     #pdf_out = in_aln.replace(".16sAln", "_16S_div.pdf")
