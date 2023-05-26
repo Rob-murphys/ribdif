@@ -124,8 +124,8 @@ def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, l
                     \tWith species name: {amplify_named_genomes}
                     \tWithout species name: {amplify_unamed_genomes}
                     \tUnique species names: {amplify_unique_species}\n
-                    {multi_allele} of {genome_count} ({round(100*multi_allele/genome_count, 2)}%) genomes have multiple alleles.
-                    {count_overlap} of {total_unique_species} ({0 if user else round(100*count_overlap/total_unique_species, 2)}%) species have at least one overlap.\n
+                    {multi_allele} of {genome_count} ({round(100*multi_allele/amplify_count, 2)}%) genomes that amplified have multiple alleles.
+                    {count_overlap} of {total_unique_species} ({0 if user else round(100*count_overlap/amplify_unique_species, 2)}%) species that experienced amplification have at least one overlap.\n
                     Total shannon diversity for {name} is: {shannon_div}\n\n""")
         if unq_combs:
             for i in range(len(unq_combs)):
