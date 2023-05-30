@@ -8,6 +8,7 @@ import fileinput
 import os
 import logging
 import chardet
+from ribdif import overlaps, figures, msa_run, summary_files
 
 
 # =============================================================================
@@ -154,4 +155,59 @@ def own_genomes_rename(new_dir_path, logger):
     return
 
 
+def make_reports(name, msa, outdir, genus, logger, user, unique_species, all_species, genome_count):
+
+    if msa:
+        # msa on all amplicons
+        infile , outAln, outTree = f"{outdir}/amplicons/{name}/{genus}-{name}.amplicons", f"{outdir}/amplicons/{name}/{genus}-{name}.aln", f"{outdir}/amplicons/{name}/{genus}-{name}.tree" # Asigning in and out files
+        msa_run.muscle_call_single(infile, outAln, outTree)
+        msa_run.format_trees(outdir, genus, name)
+        # Calculate shannon diversity across the primers
+        shannon_div = summary_files.shannon_calc(outAln)
+    else:
+        shannon_div = "Was skipped"
     
+    
+    # Cleaning vsearch clustering data
+    all_gcfs, uc_dict_clean, gcf_species, cluster_count = overlaps.uc_cleaner(outdir, genus, name)
+    
+    # Generate a dictionary (that will become a matrix) of GCF cluster membership  
+    cluster_dict = overlaps.cluster_matrix(all_gcfs, uc_dict_clean, cluster_count)
+    
+    # Find all species overlap in the cluster_dict
+    combinations = overlaps.species_overlap(cluster_dict, cluster_count, gcf_species)
+    
+    # If only one cluster is made then skip all the figure making. Could I do this with cluster count instead and avoid the two commands above?
+    if len(cluster_dict) != 1:
+        # Find all GCF overlaps in the cluster dictionary
+        pairwise_match = overlaps.gcf_overlaps(all_gcfs, uc_dict_clean, gcf_species)
+        pairwise_to_csv(pairwise_match, gcf_species, outdir, genus, name)
+        
+        # Generate metadata for heatmaps
+        row_palette, species_series, species_palette = figures.heatmap_meta(gcf_species)
+        
+        # Plot the cluster matrix
+        plot_clus, cluster_df = figures.cluster_heatmap(cluster_dict, row_palette, species_series)
+        
+        # Plot the GCF overlap matrix
+        plot_dendo, pairwise_df = figures.pairwise_heatmap(pairwise_match, row_palette, species_series)
+        
+        plot_clus = figures.figure_fix(plot_clus)
+        plot_dendo = figures.figure_fix(plot_dendo)
+        
+        # Save the heatmaps
+        figures.pdf_save(plot_clus, plot_dendo, outdir, genus, name)
+    
+        # Generate graps from the pairwise dataframe
+        adjacency_df = figures.create_adjacency(pairwise_df, cluster_df)
+        graph_subs, n_subplots = figures.create_graph(adjacency_df)
+        
+        if n_subplots != 0:
+            # Draw the generated graps into on plot
+            figures.draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, genus, name)
+        else:
+            logger.info(f"Skipping graph making for {name} as no edges were found (even within a single species)\n")
+    else:
+        logger.info(f"Only one genome amplified for the {name} primer ({list(cluster_dict)[0]}) so we will skip making figures as they would be useless\n")
+        cluster_df = overlaps.single_amp_df(cluster_dict)
+    overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div, unique_species, all_species, genome_count, user)

@@ -14,11 +14,12 @@ import multiprocessing
 import sys
 import logging
 import importlib.metadata
+from itertools import repeat
 
 
 
 import ribdif
-from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_files, vsearch_run, overlaps, figures, logging_config
+from ribdif import ngd_download, barrnap_run, pcr_run, pyani_run, utils, msa_run, summary_files, vsearch_run, logging_config
 from ribdif.custom_exceptions import EmptyFileError, IncompatiablityError, StopError, IncorrectFormatError
 
 # =============================================================================
@@ -393,67 +394,20 @@ def main():
     
     # Generating the figures #
     Path.mkdir(Path(f"{outdir}/figures"), exist_ok = True)
-    for name in names:
-        logger.info(f"Making summaries and figures for {name}\n\n")
-        
-        if args.msa:
-            # msa on all amplicons
-            logger.info("Aligning all amplicons for diversity calculation.\n")
-            infile , outAln, outTree = f"{outdir}/amplicons/{name}/{genus}-{name}.amplicons", f"{outdir}/amplicons/{name}/{genus}-{name}.aln", f"{outdir}/amplicons/{name}/{genus}-{name}.tree" # Asigning in and out files
-            msa_run.muscle_call_single(infile, outAln, outTree)
-            logger.info(f"Gather tree tip information see: {outdir}/amplicons/{genus}-{name}-meta.tsv.\n\n")
-            msa_run.format_trees(outdir, genus, name)
-            # Calculate shannon diversity across the primers
-            shannon_div = summary_files.shannon_calc(outAln)
-        else:
-            logger.info("Skipping total amplicon alignment and diversity calculation\n")
-            shannon_div = "Was skipped"
-        
+    logger.info("Making reports and figures\n\n")
+    if args.msa:
+        logger.info("Aligning all amplicons for diversity calculation.\n")
+        logger.info(f"Tree tip information can be found at: {outdir}/amplicons/{genus}-<name>-meta.tsv.\n\n")
+    else:
+        logger.info("Skipping total amplicon alignment and diversity calculation\n")
+    
+    with multiprocessing.Pool(args.threads) as pool: # Create a multiprocessing pool with #threads workersfor .gz files and convert path to string sotring in a list
+        pool.map(utils.make_reports, names)
+        pool.starmap(utils.make_reports, zip(name, repeat(args.msa), repeat(outdir), 
+                                             repeat(genus), repeat(logger), repeat(args.user), 
+                                             repeat(unique_species), repeat(all_species), 
+                                             repeat(genome_count)))
 
-        # Cleaning vsearch clustering data
-        all_gcfs, uc_dict_clean, gcf_species, cluster_count = overlaps.uc_cleaner(outdir, genus, name)
-        
-        # Generate a dictionary (that will become a matrix) of GCF cluster membership  
-        cluster_dict = overlaps.cluster_matrix(all_gcfs, uc_dict_clean, cluster_count)
-        
-        # Find all species overlap in the cluster_dict
-        combinations = overlaps.species_overlap(cluster_dict, cluster_count, gcf_species)
-        
-        # If only one cluster is made then skip all the figure making. Could I do this with cluster count instead and avoid the two commands above?
-        if len(cluster_dict) != 1:
-            # Find all GCF overlaps in the cluster dictionary
-            pairwise_match = overlaps.gcf_overlaps(all_gcfs, uc_dict_clean, gcf_species)
-            utils.pairwise_to_csv(pairwise_match, gcf_species, outdir, genus, name)
-            
-            # Generate metadata for heatmaps
-            row_palette, species_series, species_palette = figures.heatmap_meta(gcf_species)
-            
-            # Plot the cluster matrix
-            plot_clus, cluster_df = figures.cluster_heatmap(cluster_dict, row_palette, species_series)
-            
-            # Plot the GCF overlap matrix
-            plot_dendo, pairwise_df = figures.pairwise_heatmap(pairwise_match, row_palette, species_series)
-            
-            plot_clus = figures.figure_fix(plot_clus)
-            plot_dendo = figures.figure_fix(plot_dendo)
-            
-            # Save the heatmaps
-            figures.pdf_save(plot_clus, plot_dendo, outdir, genus, name)
-        
-            # Generate graps from the pairwise dataframe
-            adjacency_df = figures.create_adjacency(pairwise_df, cluster_df)
-            graph_subs, n_subplots = figures.create_graph(adjacency_df)
-            
-            if n_subplots != 0:
-                # Draw the generated graps into on plot
-                figures.draw_graphs(graph_subs, n_subplots, species_palette, row_palette, outdir, genus, name)
-            else:
-                logger.info(f"Skipping graph making for {name} as no edges were found (even within a single species)\n")
-        else:
-            logger.info(f"Only one genome amplified for the {name} primer ({list(cluster_dict)[0]}) so we will skip making figures as they would be useless\n")
-            cluster_df = overlaps.single_amp_df(cluster_dict)
-        overlaps.overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div, unique_species, all_species, genome_count, args.user)
-        
     logger.info(f"You can find a saved version of the above at {outdir}/ribdif_log_file.log")
     
 if __name__ == '__main__':
