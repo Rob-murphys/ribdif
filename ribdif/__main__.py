@@ -402,11 +402,7 @@ def main():
         logger.info("Skipping total amplicon alignment and diversity calculation\n")
     
     with multiprocessing.Pool(args.threads) as pool: # Create a multiprocessing pool with #threads workersfor .gz files and convert path to string sotring in a list
-        pool.map(utils.make_reports, names)
-        pool.starmap(utils.make_reports, zip(name, repeat(args.msa), repeat(outdir), 
-                                             repeat(genus), repeat(logger), repeat(args.user), 
-                                             repeat(unique_species), repeat(all_species), 
-                                             repeat(genome_count)))
+        pool.starmap(utils.make_reports, zip(name, repeat(args.msa), repeat(outdir), repeat(genus), repeat(logger), repeat(args.user), repeat(unique_species), repeat(all_species), repeat(genome_count)))
 
     logger.info(f"You can find a saved version of the above at {outdir}/ribdif_log_file.log")
     
