@@ -11,10 +11,23 @@ modules:
         source_files: []
 
 arguments:
+    -   key: --domain
+        description: "What domain of life does the genus belong to (default is bacteria)? Choices are: bacteria, archaea, fungi, viral, plant, protozoa, vertebrate_mammalian, vertebrate_other, invertebrate, vertebrate_other"
+        type: text
+        required: False # optional, default is true
+        default_value: "bacteria"
+        
     -   key: --genus # required
         description: "The genus you want to search within. E.g. 'Staphylococcus' OR 'Staphylococcus aurea' if wanting to use a species" # required
         type: text # required
-        required: true # optional, default is true
+        required: True # optional, default is true
+        
+# =============================================================================
+#     -   key: --user
+#         description: "Directory containing user defined set of genomes to run RibDif on. Give full path. Files canbe gzipped. Mutually exclusive with --genus"
+#         type: file
+#         required: False
+# =============================================================================
         
     -   key: --ignore-sp # required
         description: "Ignore genomes with unspecified species (i.e. their species is 'sp.')"
