@@ -218,12 +218,10 @@ def main():
     workingDir = Path(os.path.realpath(os.path.dirname(__file__))) # getting the path the script is running from
     
     args = parse_args()
-    # Initialise the logging
-    logger = logging_config.cofigure_logging()
     
     # Initialise the logging
     logger = logging_config.configure_logging(workingDir)
-    logger.info(f"RibDif v{ribdif.__version__}\n")
+    logger.info("RibDif v2.0.0\n")
     input_arg = sys.argv
     input_arg[0] = input_arg[0].split("/")[-1]
     logger.info("Input command:")
