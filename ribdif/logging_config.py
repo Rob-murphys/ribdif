@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import logging
 from pathlib import Path
+import uuid
 
-def cofigure_logging():
+def configure_logging(workingDir):
     
     class TracebackFilter(logging.Filter):
         def filter(self, record):
@@ -19,7 +20,7 @@ def cofigure_logging():
     logger.addHandler(console_handler)
     
     # create file handler without filter
-    file_handler = logging.FileHandler("tmpfile.log", "w")
+    file_handler = logging.FileHandler(f"{workingDir}/tmplog_{str(uuid.uuid4())}.log", "w")
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
     logger.addHandler(file_handler)

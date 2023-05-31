@@ -4,14 +4,13 @@ import subprocess
 import shlex
 from pathlib import Path
 import os
-#from ribdif import custom_exceptions
-import custom_exceptions
+import logging
 
-def vsearch_call(outdir, genus, name, ident, log_dir, threads):
+def vsearch_call(outdir, genus, name, ident, log_dir, threads, logger):
     # Defining in and out files/dirs
-    infile = f"{outdir}/amplicons/{genus}-{name}.amplicons"
-    outfile = f"{outdir}/amplicons/{genus}-{name}.uc"
-    clusdir = f"{outdir}/amplicons/{name}-clusters/{genus}-{name}-clus"
+    infile = f"{outdir}/amplicons/{name}/{genus}-{name}.amplicons"
+    outfile = f"{outdir}/amplicons/{name}/{genus}-{name}.uc"
+    clusdir = f"{outdir}/amplicons/{name}/{name}-clusters/{genus}-{name}-clus"
     
     Path.mkdir(Path(clusdir).parent, exist_ok = True, parents = True) # making outdir
     
@@ -22,5 +21,5 @@ def vsearch_call(outdir, genus, name, ident, log_dir, threads):
         subprocess.run(shlex.split(command), stdout = out, stderr = err)
     
     if os.stat(f"{log_dir}/vsearch_{name}.err").st_size != 0:
-        raise custom_exceptions.ThirdPartyError(repr(f"Something went wrong with VSEARCH\nPlease check: {log_dir}/vsearch_{name}.err"))
+        logger.warning(f"Vsearch did something non default. Hopefully this does not ruin down stream analysis but if you get an error check {log_dir}/vsearch_{name}.err")
     return

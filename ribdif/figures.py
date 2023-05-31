@@ -3,12 +3,16 @@
 import pandas as pd
 import numpy as np
 import seaborn as sns
+import matplotlib
+matplotlib.use('pdf')
 import matplotlib.pyplot as plt
 #import scipy
 import fastcluster
 from matplotlib.backends.backend_pdf import PdfPages
 import networkx as nx
 from itertools import combinations
+import sys
+from scipy.sparse import dok_matrix
 
 def heatmap_meta(gcf_species):
     # Turn gcf species cross dictionary into series
@@ -30,76 +34,65 @@ def cluster_heatmap(cluster_dict, row_palette, species_series):
     row_clus = fastcluster.ward(np.where(cluster_df > 0, 1, 0))
     col_clus = fastcluster.ward(np.where(cluster_df.transpose() > 0, 1, 0))
     #plot_size = (16, 16) if row_count < 50 else ((row_count*0.2), (row_count*0.2))
-    # Clustering heatmap
-    plot_clus = sns.clustermap(cluster_df, standard_scale = None, 
-                   row_linkage = row_clus, 
-                   col_linkage = col_clus,
-                   yticklabels = species_series,
-                   xticklabels = 1,
-                   row_colors = row_palette,
-                   linecolor = "#bcc2cc",
-                   linewidths = 0.1,
-                   cmap = sns.cm.rocket_r)
     
-#sns.heatmap(cluster_df)
-# =============================================================================
-#     plot_clus.ax_heatmap.tick_params(axis='x', labelsize=8,)
-#     plot_clus.ax_row_colors.tick_params(bottom = False) # remove tickmark under row colours
-#     # Change plot configeration #
-#     box_heatmap = plot_clus.ax_heatmap.get_position() # Get heatmaps position
-#     # Move row colours to left side
-#     ax_row_colors = plot_clus.ax_row_colors # get the axis
-#     box_cols = ax_row_colors.get_position() # recover its position
-#     ax_row_colors.set_position([box_heatmap.max[0], box_cols.y0, box_cols.width*2, box_cols.height]) # plot new position
-#     
-#     # Move dendogram to the left a bit
-#     ax_row_dendogram = plot_clus.ax_row_dendrogram
-#     box_dendo = ax_row_dendogram.get_position()
-#     ax_row_dendogram.set_position([box_dendo.x0+0.026, box_dendo.y0, box_dendo.width, box_dendo.height])
-# =============================================================================
-    
+    try:
+        # Clustering heatmap
+        plot_clus = sns.clustermap(cluster_df, standard_scale = None, 
+                       row_linkage = row_clus, 
+                       col_linkage = col_clus,
+                       yticklabels = species_series,
+                       xticklabels = 1,
+                       row_colors = row_palette,
+                       linecolor = "#bcc2cc",
+                       linewidths = 0.1,
+                       cmap = sns.cm.rocket_r)
+    except RecursionError: # If we get a recursion limit, up the limit to build the plot then return it back to the previous limit
+        limit = sys.getrecursionlimit()
+        sys.setrecursionlimit(3000)
+        # Clustering heatmap
+        plot_clus = sns.clustermap(cluster_df, standard_scale = None, 
+                       row_linkage = row_clus, 
+                       col_linkage = col_clus,
+                       yticklabels = species_series,
+                       xticklabels = 1,
+                       row_colors = row_palette,
+                       linecolor = "#bcc2cc",
+                       linewidths = 0.1,
+                       cmap = sns.cm.rocket_r)
+        sys.setrecursionlimit(limit)
+
     return plot_clus, cluster_df
 
 def pairwise_heatmap(pairwise_match, row_palette, species_series):
     # Turn pairwise dictionary into dataframe
     pairwise_df = pd.DataFrame(pairwise_match, index = pairwise_match.keys())
     
-    # Clustering heatmap
-    plot_dendo = sns.clustermap(pairwise_df, standard_scale = None,
-                   row_colors = row_palette,
-                   yticklabels = species_series,
-                   xticklabels = 1,
-                   method = "ward",
-                   linecolor = "#bcc2cc",
-                   linewidths = 0.1,
-                   cbar_pos = None,
-                   cmap = sns.cm.rocket_r)
-    
-# =============================================================================
-#     # Change tick params
-#     plot_dendo.ax_heatmap.tick_params(axis='x', labelsize=8)
-#     plot_dendo.ax_row_colors.tick_params(bottom = False) # remove tickmark under row colours
-#     
-#     # Get info to change row_cols width
-#     yticklabels = plot_dendo.ax_heatmap.get_yticklabels() # getting the yticks
-#     max_width = max([label.get_window_extent().width for label in yticklabels]) # getting the max width of them
-#     fig_width = plot_dendo.fig.get_figwidth() * plot_dendo.fig.dpi # Getting figure width
-#     fraction_of_fig_width = (max_width / fig_width) + 0.01 # get fraction of figure of max ytick plus some margin
-#     
-#     # Change plot configeration #
-#     box_heatmap = plot_dendo.ax_heatmap.get_position() # Get heatmaps position
-#     
-#     # Move row colours to left side
-#     ax_row_colors = plot_dendo.ax_row_colors # get the axis
-#     box_cols = ax_row_colors.get_position() # recover its position
-#     ax_row_colors.set_position([box_heatmap.max[0], box_cols.y0, fraction_of_fig_width, box_cols.height]) # plot new position
-#     
-#     # Move dendogram to the left a bit
-#     ax_row_dendogram = plot_dendo.ax_row_dendrogram
-#     box_dendo = ax_row_dendogram.get_position()
-#     ax_row_dendogram.set_position([box_dendo.x0+0.026, box_dendo.y0, box_dendo.width, box_dendo.height])
-# =============================================================================
-    
+    try:
+        # Clustering heatmap
+        plot_dendo = sns.clustermap(pairwise_df, standard_scale = None,
+                       row_colors = row_palette,
+                       yticklabels = species_series,
+                       xticklabels = 1,
+                       method = "ward",
+                       linecolor = "#bcc2cc",
+                       linewidths = 0.1,
+                       cbar_pos = None,
+                       cmap = sns.cm.rocket_r)
+    except RecursionError: # If we get a recursion limit, up the limit to build the plot then return it back to the previous limit
+        limit = sys.getrecursionlimit()
+        sys.setrecursionlimit(3000)
+        # Clustering heatmap
+        plot_dendo = sns.clustermap(pairwise_df, standard_scale = None,
+                       row_colors = row_palette,
+                       yticklabels = species_series,
+                       xticklabels = 1,
+                       method = "ward",
+                       linecolor = "#bcc2cc",
+                       linewidths = 0.1,
+                       cbar_pos = None,
+                       cmap = sns.cm.rocket_r)
+        sys.setrecursionlimit(limit)
+
     return plot_dendo, pairwise_df
 
 def figure_fix(plot):
@@ -135,18 +128,41 @@ def pdf_save(plot_clus, plot_dendo, outdir, genus, name):
             pdf_pages.savefig(plot.fig)
     return
 
+# =============================================================================
+# def create_adjacency(pairwise_df, cluster_df):
+#     # Create new dataframe filled with the zame index and column as pairwise_df but filled with 0s
+#     adjacency_df = pd.DataFrame(np.zeros((len(pairwise_df), len(pairwise_df.columns))), index=pairwise_df.index, columns=pairwise_df.columns)
+#     # Get all possible pairs of indexs
+#     pairs = list(combinations(cluster_df.index,2))
+#     # For each pair mask where they both belong to the same cluster
+#     for i,j in pairs:
+#         mask = (cluster_df.loc[i] > 0) & (cluster_df.loc[j] > 0)
+#         adjacency_df[j][i] = mask.sum()
+#         adjacency_df[i][j] = mask.sum()
+#     return adjacency_df
+# =============================================================================
+
 def create_adjacency(pairwise_df, cluster_df):
-    # Create new dataframe filled with the zame index and column as pairwise_df but filled with 0s
-    adjacency_df = pd.DataFrame(np.zeros((len(pairwise_df), len(pairwise_df.columns))), index=pairwise_df.index, columns=pairwise_df.columns)
-    # Get all possible pairs of indexs
-    pairs = list(combinations(cluster_df.index,2))
-    # For each pair mask where they both belong to the same cluster
-    for i,j in pairs:
-        mask = (cluster_df.loc[i] > 0) & (cluster_df.loc[j] > 0)
-        adjacency_df[j][i] = mask.sum()
-        adjacency_df[i][j] = mask.sum()
+    # Create a dictionary that maps the string index to an integer index
+    index_map = {index: i for i, index in enumerate(pairwise_df.index)}
+    # Convert the cluster dataframe to a numpy array
+    cluster_arr = cluster_df.to_numpy()
+    # Create a sparse matrix with the same shape as the pairwise_df dataframe
+    adjacency_mat = dok_matrix(pairwise_df.shape, dtype=np.int32)
+    # For each pair of indices that belong to the same cluster, set the corresponding entry in the adjacency matrix to the sum of alelles they share
+    pairs = list(combinations(cluster_df.index, 2))
+    for i, j in pairs:
+        # Create a mask of values greater than 0
+        mask = (cluster_arr[index_map[i]] > 0) & (cluster_arr[index_map[j]] > 0)
         
+        adjacency_mat[index_map[i], index_map[j]] = mask.sum()
+    
+    # Copy the values from the upper triangle to the lower triangle
+    adjacency_mat += np.triu(adjacency_mat.toarray(), k=1).T
+    
+    adjacency_df = pd.DataFrame(adjacency_mat, index=pairwise_df.index, columns=pairwise_df.columns)
     return adjacency_df
+
 
 def create_graph(adjacency_df):
     # Create the graph

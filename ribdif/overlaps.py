@@ -8,7 +8,7 @@ import numpy as np
 # Import and clean the cluster file
 def uc_cleaner(outdir, genus, name):
     
-    uc_path = f"{outdir}/amplicons/{genus}-{name}.uc"
+    uc_path = f"{outdir}/amplicons/{name}/{genus}-{name}.uc"
     
     # read in cluster file
     uc_df = pd.read_csv(uc_path, sep = "\t", header = None)
@@ -85,13 +85,14 @@ def gcf_overlaps(all_gcfs, uc_dict_clean, gcf_species):
         # Getting a list of other GCFs that are members of the clusters the current GCF belongs to
         clusMatchGCF = set([v[10] for v in uc_dict_clean.values() if v[1] in clusters])
         
-        for m in clusMatchGCF:
-            gcf_index = np.where(all_gcfs==m)[0][0]
-            pairwise_match[gcf][gcf_index] = 1
+        pairwise_match[gcf] = [1 if m in clusMatchGCF else 0 for m in all_gcfs]
+        #for m in clusMatchGCF:
+        #    gcf_index = np.where(all_gcfs==m)[0][0]
+        #    pairwise_match[gcf][gcf_index] = 1
     return pairwise_match
 
 
-def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div, unique_species, all_species, genome_count):
+def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, logger, shannon_div, unique_species, all_species, genome_count, user):
     
     total_named_genomes = len([s for s in all_species if s != "sp."])
     total_unamed_genomes = genome_count - total_named_genomes
@@ -123,8 +124,8 @@ def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, l
                     \tWith species name: {amplify_named_genomes}
                     \tWithout species name: {amplify_unamed_genomes}
                     \tUnique species names: {amplify_unique_species}\n
-                    {multi_allele} of {genome_count} ({round(100*multi_allele/genome_count, 2)}%) genomes have multiple alleles.
-                    {count_overlap} of {total_unique_species} ({round(100*count_overlap/total_unique_species, 2)}%) species have at least one overlap.\n
+                    {multi_allele} of {genome_count} ({round(100*multi_allele/amplify_count, 2)}%) genomes that amplified have multiple alleles.
+                    {count_overlap} of {total_unique_species} ({0 if user else round(100*count_overlap/amplify_unique_species, 2)}%) species that experienced amplification have at least one overlap.\n
                     Total shannon diversity for {name} is: {shannon_div}\n\n""")
         if unq_combs:
             for i in range(len(unq_combs)):
@@ -134,3 +135,7 @@ def overlap_report(combinations, gcf_species, cluster_df, genus, name, outdir, l
         logger.info(f_out.read())
         
 #[i.replace("sp.", f"sp._{x}") for x, i in enumerate(combinations) if "sp." in i]
+
+# Changing the cluster dictionary into a dataframe for when only a single genome amplified
+def single_amp_df(cluster_dict):
+    return pd.DataFrame.from_dict(cluster_dict).transpose()
