@@ -323,10 +323,6 @@ def main():
         logger.info("Alligning full-length 16S genes within genomes with muscle.\n\n")
         msa_run.muscle_call_multi(outdir, args.threads, args.domain)
         
-        # Genome statistic summary
-        #all_aln = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.16s'))]
-        #with open(f"{outdir}/{genus}_{summary_type}_summary.tsv", "w") as f_out:
-            #f_out.write("GCF\tGenus\tSpecies\t#16S\tMean\tSD\tMin\tMax\tTotalDiv\n")
         summary_type = "16S"
         in_fna = f"{outdir}/full/{genus}.16S"
         summary_files.make_summary(in_fna, outdir, genus, args.whole, args.ANI, args.threads, summary_type, args.domain, args.user)
@@ -348,18 +344,7 @@ def main():
 
     # PCR for custom primers   
     elif args.whole:
-        # Concatinate all downloaded genomes
-# =============================================================================
-#         all_fna = [str(i) for i in list(Path(f"{outdir}/refseq/bacteria/").glob('*/*.fna'))]
-#         with open(f"{outdir}/refseq/bacteria/{genus}_total.fna", "w") as f_out:
-#             for file in all_fna:
-#                 with open(file, "r") as f_in:
-#                     f_out.write(f_in.read())
-# =============================================================================
-                    
-        
-        #infile = f"{outdir}/refseq/bacteria/{genus}_total.fna" # path to cocatinate genus genomes
-        #names = pcr_run.pcr_call(infile, outdir, genus, primer_file, workingDir)
+
         names = pcr_run.pcr_parallel_call(outdir, genus, primer_file, workingDir, args.threads, logger, args.domain)
         
         # book keeping for parallel PCR
