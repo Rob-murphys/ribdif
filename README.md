@@ -1,4 +1,4 @@
-# RibDif
+# RibDif2
 
 RibDif evaluates the usefulness of a given amplicon at differentiating within a genus or species
 
