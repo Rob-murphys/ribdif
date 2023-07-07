@@ -124,7 +124,7 @@ The individually downloaded genomes are found in `refseq/<domain>`
 The provided figures include all those from version one plus the new additional network that illustrates shared alleles. 
 For example a run using Pseudoalteromonas would produce the following (as of 07/07/2023)
 
-![v3-v4 heatmap](docs/Pseudoalteromonas-v3v4_heatmaps_Page_1.png)
+![v3-v4 heatmap](docs/Pseudoalteromonas-v3v4_heatmap.png)
 
 We can see 58 unique alleles have been identified many of which are identicle in multiple genomes such as allele 2 which 
 is shared across genome beloning to issachenkonii / espejiana / tetraodonis / carrageenovora / atlantica / sp. / agarivorans and allele 11 which is shared
