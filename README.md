@@ -20,7 +20,7 @@ Ribdif is most easily installed with pip inside a virtual environment. Make sure
 
 Next we need to install some dependencies:
 
-`conda install -c bioconda vsearch fasttree mafft barrnap pyani -y`
+`conda install -c bioconda vsearch fasttree mafft barrnap pyani ncbi-genome-download -y`
 
 Check your install:
 
@@ -54,12 +54,20 @@ v1v9	AGRGTTYGATYMTGGCTCAG 	RGYTACCTTGTTACGACTT	1800
 ```
 Where the columns are: primer name | forward sequence | reverse sequence | expected amplicon size
 
+## Running on custom genomes
+
+The user may also provide their own database of genomes in fasta format within a single direcotry.
+
+`ribdif -u my/directory/path`
+
+Be warned that this mode of analysis disregards taxanomic inference and the user is repsoinsible for the veracity of the provided database with regards to genome completeness and contamination.
+
 ## Output
 
 RibDif generate a new directory within the specified output directory (<current working directory>/results by default) names after the genus in question.
 
 ```
-Pseudoalteromonas
+<genus>
     ├── amplicons
         ├── <genus>-<primer name>-meta.tsv          # information about each leaf tip in the amplicon tree
         ├── <genus>-<primer name>.aln               # aligned amplicons from a given primer
@@ -94,7 +102,7 @@ Pseudoalteromonas
     │       └── GCF_xxxxxxxxx.x
     └── ribdif_logs
 ```
-The most important files will be within the `Pseudoalteromonas` and then the `figures/` subdirectory.
+The most important files will be within the `<genus>` and then the `figures/` subdirectory.
 
 If running as default on whole 16S genes extracted by barrnap you will see:
 `<genus>_16S_summary.tsv` which contains a summery of each genomes and how many whole 16S genes were present
@@ -111,9 +119,16 @@ Within `figures/` are the heatmaps and network graphs for a more visual represen
 
 The individually downloaded genomes are found in `refseq/<domain>`
 
+### Figures
 
+The provided figures include all those from version one plus the new additional network that illustrates shared alleles. 
+For example a run using Pseudoalteromonas would produce the following (as of 07/07/2023)
+[v3-v4 heatmap](docs/Pseudoalteromonas-v3v4_heatmaps_Page_1.png)
 
+We can see 58 unique alleles have been identified many of which are identicle in multiple genomes such as allele 2 which 
+is shared across genome beloning to issachenkonii / espejiana / tetraodonis / carrageenovora / atlantica / sp. / agarivorans and allele 11 which is shared
+across flavipulchra / sp. / rubra / piscicida / viridis. Hence these species can not be seperates using V3-V4 amplicon sequencing. Below
+we can see these two indistinguishable clusters being represented in networks. Node represent a genome and edges represent shared alleles, 
+with thickness representing the number of shared alleles.
 
-
-
-
+[v3-v4 graph](docs/Pseudoalteromonas-v3v4_graphs.png)
