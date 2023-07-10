@@ -1,4 +1,4 @@
-# RibDif2
+# RibDif2 v2.0
 
 RibDif was initially designed to evaluate the usefulness of a given amplicon at differentiating within a genus or species.
 It can also be used to aid in primer design for any primer set be it aimed at amplifying function genes or used to species differentiation.
