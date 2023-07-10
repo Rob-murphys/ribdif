@@ -8,6 +8,11 @@ You can run RibDif through BioLib or get the tool yourself at our [github](https
 
 Please report any issue [here](https://github.com/Rob-murphys/ribdif/issues) on our github.
 
+Several features are left out of the BioLib version due to limitations with the platform therfore we suggest is possible,
+you use the command line version of the tool. If you are a windows use you can access the command line by running  the 
+[Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install) native to all windows 10 installs and later.
+From there you can follow our GitHub install instructions
+
 ## Primer file format
 ```
 v3v4	CCTACGGGNGGCNGCAG	GACTACNNGGGTATCTAATCC	550
@@ -80,10 +85,13 @@ The individually downloaded genomes are found in `refseq/<domain>`
 
 ### Figures
 
+We suggest visiting [our github](https://github.com/Rob-murphys/ribdif) to get an explination of the output with accompanying figures.
+However below is a only text based description
+
 The provided figures include all those from version one plus the new additional network that illustrates shared alleles. 
 For example a run using Pseudoalteromonas would produce the following (as of 07/07/2023)
 
-![v3-v4 heatmap](docs/Pseudoalteromonas-v3v4_heatmap.png)
+See figure one [here](https://github.com/Rob-murphys/ribdif/blob/main/docs/Pseudoalteromonas-v3v4_heatmap.png))
 
 We can see 58 unique alleles have been identified many of which are identicle in multiple genomes such as allele 2 which 
 is shared across genome beloning to issachenkonii / espejiana / tetraodonis / carrageenovora / atlantica / sp. / agarivorans and allele 11 which is shared
@@ -91,7 +99,7 @@ across flavipulchra / sp. / rubra / piscicida / viridis. Hence these species can
 we can see these two indistinguishable clusters being represented in networks. Node represent a genome and edges represent shared alleles, 
 with thickness representing the number of shared alleles.
 
-![v3-v4 graph](docs/Pseudoalteromonas-v3v4_graphs.png)
+See figure 2 [here](https://github.com/Rob-murphys/ribdif/blob/main/docs/Pseudoalteromonas-v3v4_graphs.png))
 
 The text-based output for the above V3-V4 would be as below. Showing 100% amplification rate of the primers.
 
