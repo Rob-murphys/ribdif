@@ -1,6 +1,8 @@
-# RibDif
+# RibDif2
 
-RibDif evaluates the usefulness of a given amplicon at differentiating within a genus or species
+RibDif was initially designed to evaluate the usefulness of a given amplicon at differentiating within a genus or species.
+It can also be used to aid in primer design for any primer set be it aimed at amplifying function genes or used to species differentiation.
+The tool will give you am amplification rate across the diversity of the selected genus so one can see how successful their primers are.
 
 You can run RibDif through BioLib or get the tool yourself at our [github](https://github.com/Rob-murphys/ribdif)
 
@@ -20,10 +22,10 @@ Before using RibDif you must add `ftp.ncbi.nih.gov` and `ftp.ncbi.nlm.nih.gov` t
 
 ## Output
 
-RibDif generate a new directory within the specified output directory (<current working directory>/results by default) names after the genus in question.
+RibDif2 generates a new directory within the specified output directory ("<current working directory>/results" by default) nameed after the genus in question.
 
 ```
-<genus name>
+<genus>
     ├── amplicons
     │   ├── <genus>-<primer name>-meta.tsv          # information about each leaf tip in the amplicon tree
     │   ├── <genus>-<primer name>.aln               # aligned amplicons from a given primer
@@ -58,19 +60,67 @@ RibDif generate a new directory within the specified output directory (<current 
     │       └── GCF_xxxxxxxxx.x
     └── ribdif_logs
 ```
-The most important files will be within the `<genus name>` and then the `figures/` subdirectory.
+The most important files will be within the `<genus>` and then the `figures/` subdirectory.
 
 If running as default on whole 16S genes extracted by barrnap you will see:
-`<genus>_16S_summary.tsv` which contains a summery of each genomes and how many whole 16S genes were present
+`<genus>_16S_summary.tsv` which contains a summary of all genomes and how many whole 16S genes were present
 `<genus>_<primer name>-amp_summary.tsv` which contains a summery of each genomes and how many amplicons it produced
 
 __OR__ if run with `--whole-genome` mode you will only see:
-`<genus>_<primer name>-amp_summary.tsv` which contains a summery of each genomes and how many amplicons it produced
+`<genus>_<primer name>-amp_summary.tsv` which contains a summary of all genomes and how many amplicons it produced
 
-No matter your settings you will have `<genus>_<primer name>_overlap_report.txt` which show the text based summary of your run that is also printed to console
+No matter your settings you will have `<genus>_<primer name>_overlap_report.txt` which show the text-based 
+summary of your run that is also printed to console
 
 Within `figures/` are the heatmaps and network graphs for a more visual representation of the results.
 
 `full/` contains the concatinated full 16S sequences if not using `--whole-genome`.
 
+The individually downloaded genomes are found in `refseq/<domain>`
 
+### Figures
+
+The provided figures include all those from version one plus the new additional network that illustrates shared alleles. 
+For example a run using Pseudoalteromonas would produce the following (as of 07/07/2023)
+
+![v3-v4 heatmap](docs/Pseudoalteromonas-v3v4_heatmap.png)
+
+We can see 58 unique alleles have been identified many of which are identicle in multiple genomes such as allele 2 which 
+is shared across genome beloning to issachenkonii / espejiana / tetraodonis / carrageenovora / atlantica / sp. / agarivorans and allele 11 which is shared
+across flavipulchra / sp. / rubra / piscicida / viridis. Hence these species cannot be separated using V3-V4 amplicon sequencing. Below
+we can see these two indistinguishable clusters being represented in networks. Node represent a genome and edges represent shared alleles, 
+with thickness representing the number of shared alleles.
+
+![v3-v4 graph](docs/Pseudoalteromonas-v3v4_graphs.png)
+
+The text-based output for the above V3-V4 would be as below. Showing 100% amplification rate of the primers.
+
+```
+Summary of Pseudoalteromonas differentiation by v3v4 amplicons:
+
+                    Genomes downloaded: 71
+                        With species name: 40
+                        Without species name: 31
+                        Unique species names: 27
+
+                    Genomes amplified by v3v4: 71
+                        With species name: 40
+                        Without species name: 31
+                        Unique species names: 27
+
+                    39 of 71 (54.93%) genomes that amplified have multiple alleles.
+                    20 of 27 (74.07%) species that experienced amplification have at least one overlap.
+
+                    Total shannon diversity for v3v4 is: Was skipped
+
+Group 0:        issachenkonii / espejiana / tetraodonis / carrageenovora / atlantica / sp. / agarivorans
+Group 1:        flavipulchra / sp. / rubra / piscicida / viridis
+Group 2:        nigrifaciens / distincta / sp. / translucida
+Group 3:        sp. / arctica / translucida
+Group 4:        arctica / translucida
+Group 5:        sp. / shioyasakiensis
+Group 6:        spongiae / piratica
+Group 7:        sp. / donghaensis
+Group 8:        sp. / ruthenica
+Group 9:        sp. / marina
+```
