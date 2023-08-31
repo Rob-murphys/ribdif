@@ -4,7 +4,12 @@
 [RibDif2](https://github.com/Rob-murphys/ribdif) is designed to evaluate the usefulness of a given amplicon at differentiating within a genus or species.
 It can also be used to aid in primer design for any primer set be it aimed at amplifying functional genes or used for species differentiation.
 The tool will give you am amplification rate across the diversity of the selected genus so one can see how successful their primers are.
-
+Citation can be found (here) [https://doi.org/10.1093/bioadv/vbad111]
+# Contents
+1. Installation
+2. Usage
+3. Example Output
+4. Citation
 # Installation
 
 ## Setup conda
@@ -65,7 +70,7 @@ The user may also provide their own database of genomes in fasta format within a
 
 Be warned that this mode of analysis disregards taxonomic inference and the user is responsible for the veracity of the provided database with regards to genome completeness and contamination.
 
-## Output
+# Example Output
 
 RibDif2 generates a new directory within the specified output directory ("<current working directory>/results" by default) nameed after the genus in question.
 
@@ -169,3 +174,5 @@ Group 7:        sp. / donghaensis
 Group 8:        sp. / ruthenica
 Group 9:        sp. / marina
 ```
+# Citation
+Please cite: Robert Murphy , Mikael Lenz Strube, RibDif2: expanding amplicon analysis to full genomes, Bioinformatics Advances, Volume 3, Issue 1, 2023, vbad111, https://doi.org/10.1093/bioadv/vbad111
