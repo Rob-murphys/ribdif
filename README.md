@@ -1,5 +1,4 @@
 # RibDif2
-**Update:** There is currently an issue with bedtools that is causing barrnap to not correctly extract rRNA sequences. You can just run the tool in `--whole-genome` mode and get the same results. I will look into fixing the default mode ASAP.
 
 [RibDif2](https://github.com/Rob-murphys/ribdif) is designed to evaluate the usefulness of a given amplicon at differentiating within a genus or species.
 It can also be used to aid in primer design for any primer set be it aimed at amplifying functional genes or used for species differentiation.
@@ -28,7 +27,7 @@ Ribdif is most easily installed with pip inside a virtual environment. Make sure
 
 Next we need to install some dependencies:
 
-`conda install -c bioconda vsearch fasttree mafft barrnap pyani ncbi-genome-download -y`
+`conda install -y -c bioconda -c conda-forge vsearch fasttree mafft 'bedtools>=2.27.0' barrnap pyani ncbi-genome-download`
 
 Check your install:
 
